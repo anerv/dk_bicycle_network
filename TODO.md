@@ -1,13 +1,10 @@
 # TODO
 
-
-conda install geopandas psycopg2 sqlalchemy rasterio rioxarra h3-py ipykernel
-
 - [X] script for setting up database with postgis
 - terminal command for loading OSM to database - set up style file!
 - script for cleaning up OSM data!
 - script for loading GeoDK to postgres
-- script for loading admin boundaries (munis)
+- [X] script for loading admin boundaries (munis)
 - script for indexing pop and urban data with H3 + load to postgres
 
 - script for FM

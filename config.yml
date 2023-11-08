@@ -8,16 +8,16 @@ db_port: '5433'
 db_host: 'localhost'
 db_password: 'aneitu'
 
-osm_fp: '../data/raw/osm/denmark-latest.osm.pbf' #'../data/raw/osm/kbhaug22.osm.pbf' # '../data/osm/custom_files/denmark-latest.osm.pbf' 
-geodk_fp: '../data/raw/geodk/VEJMIDTE_BRUDT.shp'
+osm_fp: '../data/raw/road_networks/denmark-latest.osm.pbf'
+geodk_fp: '../data/raw/road_networks/vejmidte.gpkg'
 geodk_id_col: 'fot_id'
 
-muni_fp: '../data/muni_boundary.gpkg'
+muni_fp: '../data/raw/study_area/muni_boundary.gpkg'
 
-pop_fp_1: '../data/raw/pop/GHS_POP_E2020_GLOBE_R2022A_54009_100_V1_0_R3_C19/GHS_POP_E2020_GLOBE_R2022A_54009_100_V1_0_R3_C19.tif'
-pop_fp_2: '../data/raw/pop/GHS_POP_E2020_GLOBE_R2022A_54009_100_V1_0_R3_C20/GHS_POP_E2020_GLOBE_R2022A_54009_100_V1_0_R3_C20.tif'
-urban_fp_1: '../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2022A_54009_1000_V1_0_R3_C19/GHS_SMOD_E2020_GLOBE_R2022A_54009_1000_V1_0_R3_C19.tif'
-urban_fp_2: '../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2022A_54009_1000_V1_0_R3_C20/GHS_SMOD_E2020_GLOBE_R2022A_54009_1000_V1_0_R3_C20.tif'
+pop_fp_1: "../data/raw/pop/GHS_POP_E2020_GLOBE_R2023A_54009_100_V1_0_R3_C19/GHS_POP_E2020_GLOBE_R2023A_54009_100_V1_0_R3_C19.tif"
+pop_fp_2: "../data/raw/pop/GHS_POP_E2020_GLOBE_R2023A_54009_100_V1_0_R3_C20/GHS_POP_E2020_GLOBE_R2023A_54009_100_V1_0_R3_C20.tif"
+urban_fp_1: "../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C19/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C19.tif"
+urban_fp_2: "../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C20/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C20.tif"
 
 study_area: 'DK'
 
