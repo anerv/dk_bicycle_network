@@ -7,6 +7,20 @@
 - [X] script for loading admin boundaries (munis)
 - script for indexing pop and urban data with H3 + load to postgres
 
+
+def import_osm(connection_string: str, path: str, path_style: str, schema: str, prefix: str = None) -> None:
+    """Takes in a path to an osm pbf file and imports it to database tables."""
+    prefix = f"--prefix {prefix}" if prefix else ""
+
+    subprocess.run(f"osm2pgsql --database={connection_string} --middle-schema={schema} --output-pgsql-schema={schema} {prefix} --latlong --slim --hstore --style=\"{path_style}\" \"{path}\"", 
+        shell=True, check=True)
+
+osm2pgsql \
+  --database germany_osm \
+  --output flex \
+  --style main.lua \
+  project-data.osm.pbf
+
 - script for FM
 - script for cleaning up FM
 

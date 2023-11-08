@@ -10,7 +10,7 @@ db_password: 'aneitu'
 
 osm_fp: '../data/raw/road_networks/denmark-latest.osm.pbf'
 geodk_fp: '../data/raw/road_networks/vejmidte.gpkg'
-geodk_id_col: 'fot_id'
+geodk_id_col: "objectid"
 
 muni_fp: '../data/raw/study_area/muni_boundary.gpkg'
 
@@ -21,6 +21,6 @@ urban_fp_2: "../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C2
 
 study_area: 'DK'
 
-h3_urban_level: 7
-h3_pop_level: 8
+h3_urban_level: 7 # We use H3 hexagons level 7 to avoid blank spots in the H3 cover
+h3_pop_level: 7
 h3_network_level: 12
