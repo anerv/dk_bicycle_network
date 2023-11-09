@@ -19,10 +19,10 @@ pop_fp_2: "../data/raw/pop/GHS_POP_E2020_GLOBE_R2023A_54009_100_V1_0_R3_C20/GHS_
 urban_fp_1: "../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C19/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C19.tif"
 urban_fp_2: "../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C20/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C20.tif"
 
-osm_style_file: "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/resources/default.style"
+osm_style_file: "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/resources/modified.style"
 
 study_area: 'DK'
 
-h3_urban_level: 7 # We use H3 hexagons level 7 to avoid blank spots in the H3 cover
-h3_pop_level: 7
+h3_urban_level: 8 #7 # We use H3 hexagons level 7 to avoid blank spots in the H3 cover
+h3_pop_level: 9
 h3_network_level: 12
