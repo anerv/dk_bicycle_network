@@ -33,7 +33,7 @@ muni.columns = muni.columns.str.lower()
 
 useful_cols = [
     "id.lokalid",
-    "dagiid",
+    # "dagiid",
     "navn",
     "kommunekode",
     "udenforkommuneinddeling",
@@ -45,7 +45,6 @@ muni = muni[useful_cols]
 # %%
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
 
-# %%
 engine = dbf.connect_alc(db_name, db_user, db_password, db_port=db_port)
 
 dbf.to_postgis(geodataframe=muni, table_name="muni_boundaries", engine=engine)
@@ -56,5 +55,8 @@ q1 = "SELECT navn, kommunekode FROM muni_boundaries LIMIT 10;"
 test1 = dbf.run_query_pg(q1, connection)
 
 print(test1)
+
+
+connection.close()
 
 # %%
