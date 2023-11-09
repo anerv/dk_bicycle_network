@@ -4,11 +4,11 @@ CRS: 'EPSG:25832'
 
 db_name: 'bike_network'
 db_user: 'postgres'
-db_port: '5433'
+db_port: '5432'
 db_host: 'localhost'
 db_password: 'aneitu'
 
-osm_fp: '../data/raw/road_networks/denmark-latest.osm.pbf'
+osm_fp: "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/data/raw/road_networks/denmark-latest.osm.pbf" #'../data/raw/road_networks/denmark-latest.osm.pbf'
 geodk_fp: '../data/raw/road_networks/vejmidte.gpkg'
 geodk_id_col: "objectid"
 
@@ -18,6 +18,8 @@ pop_fp_1: "../data/raw/pop/GHS_POP_E2020_GLOBE_R2023A_54009_100_V1_0_R3_C19/GHS_
 pop_fp_2: "../data/raw/pop/GHS_POP_E2020_GLOBE_R2023A_54009_100_V1_0_R3_C20/GHS_POP_E2020_GLOBE_R2023A_54009_100_V1_0_R3_C20.tif"
 urban_fp_1: "../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C19/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C19.tif"
 urban_fp_2: "../data/raw/urban/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C20/GHS_SMOD_E2020_GLOBE_R2023A_54009_1000_V1_0_R3_C20.tif"
+
+osm_style_file: "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/resources/default.style"
 
 study_area: 'DK'
 
