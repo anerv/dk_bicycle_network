@@ -3,3 +3,5 @@ data/*
 
 *.DS_Store
 *.pyc
+data_exploration.qgz
+scripts/insp/*
