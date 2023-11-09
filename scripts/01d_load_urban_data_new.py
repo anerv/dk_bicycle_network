@@ -25,9 +25,9 @@ from rasterio.warp import calculate_default_transform, reproject, Resampling
 
 import rioxarray as rxr
 import h3
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, mapping
 
-
+# %%
 with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -80,7 +80,8 @@ get_muni = "SELECT navn, kommunekode, geometry FROM muni_boundaries"
 muni = gpd.GeoDataFrame.from_postgis(get_muni, engine, geom_col="geometry")
 
 dissolved = muni.dissolve()
-dissolved_buffer = dissolved.buffer(500)
+buffer_dist = 500
+dissolved_buffer = dissolved.buffer(buffer_dist)
 
 dissolved_proj = dissolved_buffer.to_crs(merged.crs)
 convex = dissolved_proj.convex_hull
@@ -139,6 +140,90 @@ assert test.crs.to_string() == "EPSG:4326"
 
 print("urban data has been merged, clipped,and reprojected!")
 
+
+# %%
+
+
+def create_h3_grid(polygon_gdf, hex_resolution, crs, buffer_dist):
+    # Inspired by https://stackoverflow.com/questions/51159241/how-to-generate-shapefiles-for-h3-hexagons-in-a-particular-area
+
+    print(f"Creating hexagons at resolution {hex_resolution}...")
+
+    union_poly = (
+        polygon_gdf.buffer(buffer_dist).to_crs("EPSG:4326").geometry.unary_union
+    )
+
+    # Find the hexagons within the shape boundary using PolyFill
+    hex_list = []
+    for n, g in enumerate(union_poly.geoms):
+        temp = mapping(g)
+        temp["coordinates"] = [[[j[1], j[0]] for j in i] for i in temp["coordinates"]]
+        hex_list.extend(h3.polyfill(temp, res=hex_resolution))
+
+    # Create hexagon data frame
+    hex_pd = pd.DataFrame(hex_list, columns=["hex_id"])
+
+    # Create hexagon geometry and GeoDataFrame
+    hex_pd["geometry"] = [
+        Polygon(h3.h3_to_geo_boundary(x, geo_json=True)) for x in hex_pd["hex_id"]
+    ]
+
+    grid = gpd.GeoDataFrame(hex_pd)
+
+    grid.set_crs("4326", inplace=True).to_crs(crs, inplace=True)
+
+    grid["grid_id"] = grid.hex_id
+
+    return grid
+
+
+h3_grid = create_h3_grid(dissolved, h3_urban_level, crs, buffer_dist)
+
+# Get h3 points for all rows in h3 grid
+h3_grid["lat"] = h3_grid["hex_id"].apply(lambda x: h3.h3_to_geo(x)[0])
+h3_grid["lng"] = h3_grid["hex_id"].apply(lambda x: h3.h3_to_geo(x)[1])
+
+h3_points = h3_grid[["hex_id", "lat", "lng"]]
+
+h3_points_gdf = gpd.GeoDataFrame(
+    h3_points, geometry=gpd.points_from_xy(h3_points.lng, h3_points.lat)
+)
+# %%
+# point_coords = [(x, y) for x, y in zip(h3_points_gdf.lng, h3_points_gdf.lat)]
+
+# src = rasterio.open(proj_fp_wgs84)
+
+# h3_points_gdf["urban_code"] = [x[0] for x in src.sample(point_coords)]
+
+# %%
+h3_points_fp = f"../data/processed/h3_points_{h3_urban_level}.gpkg"
+h3_points_gdf.to_file(h3_points_fp)
+
+from qgis import processing
+from qgis.core import QgsVectorLayer, QgsRasterLayer
+
+point_layer = QgsVectorLayer(h3_points_fp, "H3 points", "ogr")
+urban_raster = QgsRasterLayer(proj_fp_wgs84, "urban raster")
+
+urban_sample_values_fp = "../data/processed/h3_points_{h3_urban_level}_urban_codes.gpkg"
+
+elevation_values = processing.run(
+    "native:rastersampling",
+    {
+        "INPUT": point_layer,
+        "RASTERCOPY": urban_raster,
+        "COLUMN_PREFIX": "urban_",
+        "OUTPUT": urban_sample_values_fp,
+    },
+)
+
+urban_samples_gdf = gpd.read_file(urban_sample_values_fp)
+
+# TODO: join with hexagons
+h3_grid.merge(
+    urban_samples_gdf[["hex_id", "urban_code"]], left_on="hex_id", right_on="hex_id"
+)
+# %%
 # *** CONVERT TO H3 HEXAGONS ***
 # CONVERT TO POINT GEOMETRIES
 
@@ -166,6 +251,7 @@ dk_gdf.to_crs("EPSG:4326", inplace=True)
 urban_gdf = gpd.sjoin(urban_gdf, dk_gdf, predicate="within", how="inner")
 urban_gdf.drop("index_right", axis=1, inplace=True)
 
+# %%
 # INDEX URBAN DATA WITH H3
 
 col_hex_id = f"hex_id_{h3_urban_level}"
