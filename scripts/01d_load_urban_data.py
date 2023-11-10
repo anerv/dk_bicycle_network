@@ -1,4 +1,3 @@
-# %%
 # *** URBAN/RURAL DATA ***
 
 ### Codes:
@@ -7,26 +6,21 @@
 # sub_semi_urban = [21,22]
 # urban = [23,30]
 
-### ALTERNATIVE APPROACH
-# Make hex grid covering DK
-# For each grid cell, get centroid
-# Sample raster value of centroid
-
-import rasterio
+# %%
 import geopandas as gpd
 import pandas as pd
 import yaml
 import json
-
-from src import db_functions as dbf
+import rasterio
 from rasterio.merge import merge
 from rasterio.mask import mask
 from rasterio.warp import calculate_default_transform, reproject, Resampling
-
 import rioxarray as rxr
 import h3
 from shapely.geometry import Polygon
 
+from src import db_functions as dbf
+from src import preprocess_functions as prep
 
 with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
@@ -44,8 +38,10 @@ with open(r"../config.yml") as file:
 
     h3_urban_level = parsed_yaml_file["h3_urban_level"]
 
+
 print("Settings loaded!")
 
+# %%
 # *** PROCESS INPUT RASTERS ***
 
 # LOAD DATA
@@ -80,7 +76,8 @@ get_muni = "SELECT navn, kommunekode, geometry FROM muni_boundaries"
 muni = gpd.GeoDataFrame.from_postgis(get_muni, engine, geom_col="geometry")
 
 dissolved = muni.dissolve()
-dissolved_buffer = dissolved.buffer(500)
+buffer_dist = 500
+dissolved_buffer = dissolved.buffer(buffer_dist)
 
 dissolved_proj = dissolved_buffer.to_crs(merged.crs)
 convex = dissolved_proj.convex_hull
@@ -139,74 +136,40 @@ assert test.crs.to_string() == "EPSG:4326"
 
 print("urban data has been merged, clipped,and reprojected!")
 
+# %%
 # *** CONVERT TO H3 HEXAGONS ***
-# CONVERT TO POINT GEOMETRIES
 
-urban_df = (
-    rxr.open_rasterio(proj_fp_wgs84)
-    .sel(band=1)
-    .to_pandas()
-    .stack()
-    .reset_index()
-    .rename(columns={"x": "lng", "y": "lat", 0: "urban_code"})
+# Create h3 grid for entire study area
+h3_grid = prep.create_h3_grid(dissolved, h3_urban_level, crs, buffer_dist)
+
+hex_id_col = f"hex_id_{h3_urban_level}"
+# Get h3 points for all rows in h3 grid
+h3_grid["lat"] = h3_grid[hex_id_col].apply(lambda x: h3.h3_to_geo(x)[0])
+h3_grid["lng"] = h3_grid[hex_id_col].apply(lambda x: h3.h3_to_geo(x)[1])
+
+# create point gdf
+h3_points = h3_grid[[f"hex_id_{h3_urban_level}", "lat", "lng"]]
+
+h3_points_gdf = gpd.GeoDataFrame(
+    h3_points, geometry=gpd.points_from_xy(h3_points.lng, h3_points.lat)
 )
 
-urban_df = urban_df[urban_df.urban_code > -200]
-urban_df = urban_df[urban_df.urban_code != 10]
+# sample raster
+point_coords = [(x, y) for x, y in zip(h3_points_gdf.lng, h3_points_gdf.lat)]
 
-urban_gdf = gpd.GeoDataFrame(
-    urban_df, geometry=gpd.points_from_xy(urban_df.lng, urban_df.lat)
+src = rasterio.open(proj_fp_wgs84)
+
+h3_points_gdf["urban_code"] = [x[0] for x in src.sample(point_coords)]
+
+h3_grid = h3_grid.merge(
+    h3_points_gdf[[hex_id_col, "urban_code"]], left_on=hex_id_col, right_on=hex_id_col
 )
 
-urban_gdf.set_crs("EPSG:4326", inplace=True)
-
-dk_gdf = gpd.GeoDataFrame({"geometry": dissolved_proj}, crs=dissolved_proj.crs)
-dk_gdf.to_crs("EPSG:4326", inplace=True)
-
-urban_gdf = gpd.sjoin(urban_gdf, dk_gdf, predicate="within", how="inner")
-urban_gdf.drop("index_right", axis=1, inplace=True)
-
-# INDEX URBAN DATA WITH H3
-
-col_hex_id = f"hex_id_{h3_urban_level}"
-col_geom = f"hex_geometry_{h3_urban_level}"
-
-urban_gdf[col_hex_id] = urban_gdf.apply(
-    lambda row: h3.geo_to_h3(lat=row["lat"], lng=row["lng"], resolution=h3_urban_level),
-    axis=1,
-)
-
-# Method for choosing the most occuring value in hex grid cell
-grouped = urban_gdf.groupby(col_hex_id)
-
-hex_urban_code = {}
-
-for name, g in grouped:
-    hex_urban_code[name] = g.urban_code.value_counts().idxmax()
-
-h3_groups = pd.DataFrame.from_dict(
-    hex_urban_code, orient="index", columns=["urban_code"]
-).reset_index()
-
-h3_groups.rename({"index": col_hex_id}, axis=1, inplace=True)
-
-h3_groups["hex_geometry"] = h3_groups[col_hex_id].apply(
-    lambda x: {
-        "type": "Polygon",
-        "coordinates": [h3.h3_to_geo_boundary(h=x, geo_json=True)],
-    }
-)
-
-# Create polygon geometries
-h3_groups["geometry"] = h3_groups["hex_geometry"].apply(
-    lambda x: Polygon(list(x["coordinates"][0]))
-)
-
-h3_gdf = gpd.GeoDataFrame(h3_groups, geometry="geometry", crs="EPSG:4326")
-
-h3_gdf.to_crs(crs, inplace=True)
+h3_grid.to_crs(crs, inplace=True)
+assert h3_grid.crs == crs
 
 
+# %%
 # Export data
 print("Saving data to Postgres!")
 
@@ -215,9 +178,9 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port)
 engine = dbf.connect_alc(db_name, db_user, db_password, db_port=db_port)
 
 table_name = f"urban_polygons_{h3_urban_level}"
-dbf.to_postgis(geodataframe=h3_gdf, table_name=table_name, engine=engine)
+dbf.to_postgis(geodataframe=h3_grid, table_name=table_name, engine=engine)
 
-q = f"SELECT hex_id_{h3_urban_level}, urban_code FROM urban_polygons_{h3_urban_level} LIMIT 10;"
+q = f"SELECT {hex_id_col}, urban_code FROM urban_polygons_{h3_urban_level} LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
@@ -225,7 +188,7 @@ print(test)
 
 connection.close()
 
-
+# %%
 print("Classifying urban polygons!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port)
