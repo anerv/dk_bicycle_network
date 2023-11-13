@@ -6,3 +6,4 @@ data/*
 data_exploration.qgz
 scripts/insp/*
 qgis.md
+random.sql
