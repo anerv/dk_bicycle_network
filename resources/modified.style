@@ -101,6 +101,8 @@ way        cycleway:left:width text  linear
 way        cycleway:right:width text linear
 way        cycleway:both:width text  linear
 way        cycleway:surface  text    linear
+way        cyclestreet  text         linear
+way        bicycle_road  text        linear
 node,way   disused      text         linear
 node       ele          text         linear
 node,way   flashing_lights    text   linear
