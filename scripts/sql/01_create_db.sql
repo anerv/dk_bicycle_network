@@ -1,6 +1,6 @@
 CREATE DATABASE bike_network ENCODING = 'UTF8';
 
-\c bike_network;
+\ c bike_network;
 
 CREATE EXTENSION postgis;
 
