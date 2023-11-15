@@ -4,23 +4,6 @@ DROP SCHEMA IF EXISTS matching_geodk_osm CASCADE;
 
 CREATE SCHEMA matching_geodk_osm;
 
--- DROP TABLE IF EXISTS geodk_osm_networksuggestion CASCADE;
--- DROP TABLE IF EXISTS geodk_osm_networksuggestion_inverse CASCADE;
--- DROP TABLE IF EXISTS osm_matches CASCADE;
--- DROP TABLE IF EXISTS geodk_matches CASCADE;
--- CREATE TABLE geodk_osm_networksuggestion (id bigint, id_osm decimal, geom geometry);
--- CREATE TABLE geodk_osm_networksuggestion_inverse (id bigint, id_geodk decimal, geom geometry);
--- -- TABLES FOR FINAL MATCHES
--- CREATE TABLE osm_matches(
---     id bigint,
---     id_osm decimal,
---     geom geometry
--- );
--- CREATE TABLE geodk_matches (
---     id bigint,
---     id_geodk decimal,
---     geom geometry
--- );
 --- ##### STEP 2 ######## ----
 -- ###### PREPARE GEOMETRIES ###########
 --

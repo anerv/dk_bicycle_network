@@ -95,14 +95,14 @@ DROP TABLE IF EXISTS matching_geodk_osm.merged_osm_segments_no_bike CASCADE;
 
 DROP TABLE IF EXISTS matching_geodk_osm.too_short_osm_segs_no_bike CASCADE;
 
-CREATE TABLE matching_geodk_osm.merged_osm_segments (
+CREATE TABLE matching_geodk_osm.merged_osm_segments_no_bike (
     id_osm decimal,
     long_seg_id integer,
     short_seg_id integer,
     geom geometry
 );
 
-CREATE TABLE matching_geodk_osm.too_short_osm_segs AS
+CREATE TABLE matching_geodk_osm.too_short_osm_segs_no_bike AS
 SELECT
     *,
     ROW_NUMBER () OVER ()
@@ -214,38 +214,41 @@ SELECT
 FROM
     (
         SELECT
-            segments_geodk.id_geodk AS id_geodk,
+            unmatched_geodk_segments.id_geodk AS id_geodk,
             -- UPDATE HERE - unmachted geodk segments and osm no bike segments
-            segments_osm.id_osm AS id_osm,
-            segments_geodk.id AS geodk_seg_id,
-            segments_osm.id AS osm_seg_id,
+            segments_osm_no_bike.id_osm AS id_osm,
+            unmatched_geodk_segments.id AS geodk_seg_id,
+            segments_osm_no_bike.id AS osm_seg_id,
             degrees(
                 ST_Angle(
-                    st_asText(segments_geodk.geom),
-                    st_asText(segments_osm.geom)
+                    st_asText(unmatched_geodk_segments.geom),
+                    st_asText(segments_osm_no_bike.geom)
                 )
             ) AS angle,
-            ST_HausdorffDistance(segments_geodk.geom, segments_osm.geom) AS hausdorffdist,
-            segments_geodk.geom AS geodk_seg_geom,
-            segments_osm.geom AS osm_seg_geom
+            ST_HausdorffDistance(
+                unmatched_geodk_segments.geom,
+                segments_osm_no_bike.geom
+            ) AS hausdorffdist,
+            unmatched_geodk_segments.geom AS geodk_seg_geom,
+            segments_osm_no_bike.geom AS osm_seg_geom
         FROM
-            matching_geodk_osm._segments_geodk AS segments_geodk
-            JOIN matching_geodk_osm.segments_osm_no_bike AS segments_osm ON ST_Intersects(
+            matching_geodk_osm.unmatched_geodk_segments AS segments_geodk
+            JOIN matching_geodk_osm.segments_osm_no_bike AS segments_osm_no_bike ON ST_Intersects(
                 segments_geodk.geom,
-                ST_Buffer(segments_osm.geom, 15)
+                ST_Buffer(segments_osm_no_bike.geom, 15)
             )
     ) AS a;
 
 -- Find potential matches - i.e. within thresholds - Using OSM gemetries
 SELECT
-    _candidates.id_geodk,
-    _candidates.id_osm,
-    _candidates.geodk_seg_id,
-    _candidates.osm_seg_id,
-    _candidates.angle,
-    _candidates.angle_red,
-    _candidates.hausdorffdist,
-    _candidates.osm_seg_geom AS geom INTO matching_geodk_osm._matches_osm --UPDATE HERE - new table with new matches
+    _candidates_no_bike.id_geodk,
+    _candidates_no_bike.id_osm,
+    _candidates_no_bike.geodk_seg_id,
+    _candidates_no_bike.osm_seg_id,
+    _candidates_no_bike.angle,
+    _candidates_no_bike.angle_red,
+    _candidates_no_bike.hausdorffdist,
+    _candidates_no_bike.osm_seg_geom AS geom INTO matching_geodk_osm._matches_osm_no_bike
 FROM
     matching_geodk_osm._candidates AS _candidates
     JOIN (
@@ -259,22 +262,21 @@ FROM
             AND hausdorffdist < 17
         GROUP BY
             osm_seg_id
-    ) AS a ON a.osm_seg_id = _candidates.osm_seg_id
-    AND mindist = _candidates.hausdorffdist;
+    ) AS a ON a.osm_seg_id = _candidates_no_bike.osm_seg_id
+    AND mindist = _candidates_no_bike.hausdorffdist;
 
-CREATE INDEX idx_matches_osm_geometry ON matching_geodk_osm._matches_osm USING gist(geom);
+CREATE INDEX idx_matches_osm_no_bike_geometry ON matching_geodk_osm._matches_osm_no_bike USING gist(geom);
 
---UPDATE HERE - new table with new matches
 -- Find potential matches - i.e. within thresholds - Using GeoDK gemetries
 SELECT
-    _candidates.id_geodk,
-    _candidates.id_osm,
-    _candidates.geodk_seg_id,
-    _candidates.osm_seg_id,
-    _candidates.angle,
-    _candidates.angle_red,
-    _candidates.hausdorffdist,
-    _candidates.geodk_seg_geom AS geom INTO matching_geodk_osm._matches_geodk --UPDATE HERE - new table with new matches
+    _candidates_no_bike.id_geodk,
+    _candidates_no_bike.id_osm,
+    _candidates_no_bike.geodk_seg_id,
+    _candidates_no_bike.osm_seg_id,
+    _candidates_no_bike.angle,
+    _candidates_no_bike.angle_red,
+    _candidates_no_bike.hausdorffdist,
+    _candidates_no_bike.geodk_seg_geom AS geom INTO matching_geodk_osm._matches_geodk_v2
 FROM
     matching_geodk_osm._candidates AS _candidates
     JOIN (
@@ -288,9 +290,7 @@ FROM
             AND hausdorffdist < 17
         GROUP BY
             geodk_seg_id
-    ) AS a ON a.geodk_seg_id = _candidates.geodk_seg_id
-    AND mindist = _candidates.hausdorffdist;
+    ) AS a ON a.geodk_seg_id = _candidates_no_bike.geodk_seg_id
+    AND mindist = _candidates_no_bike.hausdorffdist;
 
-CREATE INDEX idx_matches_geodk_geometry ON matching_geodk_osm._matches_geodk USING gist(geom);
-
---UPDATE HERE - new table with new matches
+CREATE INDEX idx_matches_geodk_v2_geometry ON matching_geodk_osm._matches_geodk_v2 USING gist(geom);
