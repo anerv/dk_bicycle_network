@@ -1,7 +1,7 @@
 CREATE TABLE osm_roads AS (
     SELECT
         *
-    from
+    FROM
         planet_osm_line
     WHERE
         highway IN (
@@ -29,28 +29,33 @@ CREATE TABLE osm_roads AS (
         )
 );
 
+
 -- Drop irrelevant rows
 DELETE FROM
     osm_roads
 WHERE
-    access in ('no');
+    access IN ('no');
+
 
 -- private, private;custorms??
 DELETE FROM
     osm_roads
 WHERE
     access = 'private'
-    and boundary = 'security';
+    AND boundary = 'security';
+
 
 DELETE FROM
     osm_roads
 WHERE
     construction IS NOT NULL;
 
+
 DELETE FROM
     osm_roads
 WHERE
     disused = 'yes';
+
 
 -- Drop unneccesary columns
 ALTER TABLE
@@ -73,34 +78,15 @@ ALTER TABLE
     DROP COLUMN IF EXISTS "wetland",
     DROP COLUMN IF EXISTS "wood";
 
--- Assign municipality to network
+
+ALTER TABLE
+    osm_roads RENAME COLUMN way TO geometry;
+
+
 ALTER TABLE
     osm_roads
-ADD
-    COLUMN municipality VARCHAR DEFAULT NULL,
-;
+ALTER COLUMN
+    geometry TYPE Geometry(LineString, 25832) USING ST_Transform(geometry, 25832);
 
-UPDATE
-    osm_road o
-SET
-    municipality = m.navn
-FROM
-    muni_boundaries m
-WHERE
-    ST_Intersects(o.geometry, m.geometry);
 
--- Assign urban type to network
-ALTER TABLE
-    osm_roads
-ADD
-    COLUMN urban VARCHAR DEFAULT NULL,
-;
-
-UPDATE
-    osm_road o
-SET
-    urban = u.navn
-FROM
-    urban_polygons_8 u
-WHERE
-    ST_Intersects(o.geometry, u.geometry);
+CREATE INDEX roads_geom_idx ON osm_roads USING GIST (geometry);

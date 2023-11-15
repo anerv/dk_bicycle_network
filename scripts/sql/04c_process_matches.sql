@@ -1,0 +1,10 @@
+-- TODO
+-- combine matches of segments - both geodk and osm
+-- visual check!!!
+-- group geodk matches by org geodk id (want to transfer vejkategori and surface to osm)
+-- group osm_segs by org_id
+-- if more than XXX segs are matched -- mark as matched?
+-- find org geodk if of majority of segment matches or just find their values for type and surface
+-- store in new column for osm roads
+-- close gaps
+-- make new bicycle infra column
