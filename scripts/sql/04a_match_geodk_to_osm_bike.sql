@@ -333,6 +333,8 @@ SELECT
     id_osm,
     geodk_seg_id,
     osm_seg_id,
+    geodk_unique_seg_id,
+    osm_unique_seg_id,
     angle,
     CASE
         WHEN angle > 270 THEN 360 - angle
@@ -350,6 +352,8 @@ FROM
             segments_osm.id_osm AS id_osm,
             segments_geodk.id AS geodk_seg_id,
             segments_osm.id AS osm_seg_id,
+            segments_geodk.unique_seg_id AS geodk_unique_seg_id,
+            segments_osm.unique_seg_id AS osm_unique_seg_id,
             degrees(
                 ST_Angle(
                     st_asText(segments_geodk.geom),
@@ -373,6 +377,8 @@ SELECT
     _candidates.id_osm,
     _candidates.geodk_seg_id,
     _candidates.osm_seg_id,
+    _candidates.geodk_unique_seg_id,
+    _candidates.osm_uniquw_seg_id,
     _candidates.angle,
     _candidates.angle_red,
     _candidates.hausdorffdist,
