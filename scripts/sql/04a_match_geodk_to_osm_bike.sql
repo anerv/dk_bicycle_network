@@ -104,6 +104,85 @@ FROM
             (sublen * i) / len <> 1.0
     ) AS d2;
 
+-- CREATE UNIQUE SEGMENT ID OSM
+ALTER TABLE
+    matching_geodk_osm._segments_osm
+ADD
+    COLUMN unique_seg_id VARCHAR;
+
+ALTER TABLE
+    matching_geodk_osm._segments_osm
+ADD
+    COLUMN neighbor_seg_id VARCHAR;
+
+UPDATE
+    matching_geodk_osm._segments_osm
+SET
+    unique_seg_id = CAST (id AS text) || '_' || CAST (i AS text);
+
+UPDATE
+    matching_geodk_osm._segments_osm
+SET
+    neighbor_seg_id = CAST ((id -1) AS text) || '_' || CAST ((i -1) AS text);
+
+DO $ $ DECLARE count_unique_seg_id INT;
+
+BEGIN
+SELECT
+    COUNT(DISTINCT unique_seg_id) INTO count_unique_seg_id
+FROM
+    matching_geodk_osm._segments_osm;
+
+ASSERT count_unique_seg_id = (
+    SELECT
+        COUNT(*)
+    FROM
+        matching_geodk_osm._segments_osm
+),
+'OSM seg IDS not unique';
+
+END $ $;
+
+-- CREATE UNIQUE SEGMENT ID GEODK
+ALTER TABLE
+    matching_geodk_osm._segments_geodk
+ADD
+    COLUMN unique_seg_id VARCHAR;
+
+ALTER TABLE
+    matching_geodk_osm._segments_geodk
+ADD
+    COLUMN neighbor_seg_id VARCHAR;
+
+UPDATE
+    matching_geodk_osm._segments_geodk
+SET
+    unique_seg_id = CAST (id AS text) || '_' || CAST (i AS text);
+
+UPDATE
+    matching_geodk_osm._segments_geodk
+SET
+    neighbor_seg_id = CAST (id -1 AS text) || '_' || CAST ((i -1) AS text);
+
+DO $ $ DECLARE count_unique_seg_id INT;
+
+BEGIN
+SELECT
+    COUNT(DISTINCT unique_seg_id) INTO count_unique_seg_id
+FROM
+    matching_geodk_osm._segments_geodk;
+
+ASSERT count_unique_seg_id = (
+    SELECT
+        COUNT(*)
+    FROM
+        matching_geodk_osm._segments_geodk
+),
+'GeoDK seg IDS not unique';
+
+END $ $;
+
+-------
 -- MAKE SURE THAT OSM SEGMENTS ARE NOT TOO SHORT
 DROP TABLE IF EXISTS matching_geodk_osm.merged_osm_segments CASCADE;
 
@@ -111,15 +190,16 @@ DROP TABLE IF EXISTS matching_geodk_osm.too_short_osm_segs CASCADE;
 
 CREATE TABLE matching_geodk_osm.merged_osm_segments (
     id_osm decimal,
-    long_seg_id integer,
-    short_seg_id integer,
+    long_seg_id VARCHAR,
+    short_seg_id VARCHAR,
+    long_i VARCHAR,
+    short_i VARCHAR,
     geom geometry
 );
 
 CREATE TABLE matching_geodk_osm.too_short_osm_segs AS
 SELECT
-    *,
-    ROW_NUMBER () OVER ()
+    *
 FROM
     matching_geodk_osm._segments_osm
 WHERE
@@ -127,99 +207,66 @@ WHERE
 
 CREATE INDEX idx_osm_short_segs_geometry ON matching_geodk_osm.too_short_osm_segs USING gist(geom);
 
-DO $ $ declare counter integer := 0;
-
-BEGIN while counter < (
+WITH joined_data AS (
     SELECT
-        COUNT(*)
+        short_segs.id_osm AS id_osm,
+        neighbor_segs.unique_seg_id AS long_seg_id,
+        short_segs.unique_seg_id AS short_seg_id,
+        neighbor_segs.i AS long_i,
+        short_segs.i AS short_i,
+        ST_Collect(short_segs.geom, neighbor_segs.geom) AS geom
     FROM
-        matching_geodk_osm.too_short_osm_segs
-) loop WITH this_seg AS (
-    SELECT
-        *
-    FROM
-        matching_geodk_osm.too_short_osm_segs
-    WHERE
-        row_number = (counter + 1)
-),
-neighbor_seg AS (
-    SELECT
-        *
-    FROM
-        matching_geodk_osm._segments_osm
-    WHERE
-        id_osm = (
-            SELECT
-                id_osm
-            FROM
-                matching_geodk_osm.too_short_osm_segs
-            WHERE
-                row_number = (counter + 1)
-        )
-        AND i = (
-            (
-                SELECT
-                    i
-                FROM
-                    matching_geodk_osm.too_short_osm_segs
-                WHERE
-                    row_number = (counter + 1)
-            ) - 1
-        )
+        matching_geodk_osm.too_short_osm_segs short_segs
+        JOIN matching_geodk_osm._segments_osm neighbor_segs ON short_segs.neighbor_seg_id = neighbor_segs.unique_seg_id
 )
 INSERT INTO
     matching_geodk_osm.merged_osm_segments
 SELECT
-    this_seg.id_osm,
-    neighbor_seg.i long_seg_id,
-    this_seg.i short_seg_id,
-    ST_Collect(this_seg.geom, neighbor_seg.geom)
+    *
 FROM
-    this_seg
-    JOIN neighbor_seg ON this_seg.id_osm = neighbor_seg.id_osm;
-
-raise notice 'Counter %',
-counter;
-
-counter := counter + 1;
-
-END loop;
-
-END $ $;
+    joined_data;
 
 -- UPDATE GEOMETRIES IN OSM SEGMENTS
+WITH joined_data AS (
+    SELECT
+        merged.geom AS new_geom,
+        osm_segs.unique_seg_id AS seg_id
+    FROM
+        matching_geodk_osm._segments_osm osm_segs
+        JOIN matching_geodk_osm.merged_osm_segments merged ON osm_segs.unique_seg_id = merged.long_seg_id
+)
 UPDATE
-    osm_segs
+    matching_geodk_osm._segments_osm
 SET
-    geom = merged.geom,
+    geom = new_geom
 FROM
-    matching_geodk_osm._segments_osm osm_segs
-    JOIN matching_geodk_osm.merged_osm_segments merged ON osm_segs.id_osm = merged.id_osm
-    AND osm_segs.i = merged.i;
+    joined_data
+WHERE
+    unique_seg_id = joined_data.seg_id;
 
 -- DELETE TOO SHORT OSM SEGMENTS
 DELETE FROM
     matching_geodk_osm._segments_osm osm_segs USING matching_geodk_osm.too_short_osm_segs too_short
 WHERE
-    osm_segs.id_osm = too_short.id_osm
-    AND osm_segs.i = too_short.i;
+    osm_segs.unique_seg_id = too_short.unique_seg_id;
 
--- MAKE SURE THAT GEODK SEGMENTS ARE NOT TOO SHORT
+-- MAKE SURE GEODK SEGMENTS ARE NOT TOO SHORT
 DROP TABLE IF EXISTS matching_geodk_osm.merged_geodk_segments CASCADE;
 
 DROP TABLE IF EXISTS matching_geodk_osm.too_short_geodk_segs CASCADE;
 
 CREATE TABLE matching_geodk_osm.merged_geodk_segments (
     id_geodk decimal,
-    long_seg_id integer,
-    short_seg_id integer,
+    long_seg_id VARCHAR,
+    short_seg_id VARCHAR,
+    long_i VARCHAR,
+    short_i VARCHAR,
     geom geometry
 );
 
 CREATE TABLE matching_geodk_osm.too_short_geodk_segs AS
 SELECT
-    *,
-    ROW_NUMBER () OVER ()
+    *
 FROM
     matching_geodk_osm._segments_geodk
 WHERE
@@ -227,82 +274,48 @@ WHERE
 
 CREATE INDEX idx_geodk_short_segs_geometry ON matching_geodk_osm.too_short_geodk_segs USING gist(geom);
 
-DO $ $ declare counter integer := 0;
-
-BEGIN while counter < (
+WITH joined_data AS (
     SELECT
-        COUNT(*)
+        short_segs.id_geodk :: DECIMAL AS id_geodk,
+        neighbor_segs.unique_seg_id AS long_seg_id,
+        short_segs.unique_seg_id AS short_seg_id,
+        neighbor_segs.i AS long_i,
+        short_segs.i AS short_i,
+        ST_Collect(short_segs.geom, neighbor_segs.geom) AS geom
     FROM
-        matching_geodk_osm.too_short_geodk_segs
-) loop WITH this_seg AS (
-    SELECT
-        *
-    FROM
-        matching_geodk_osm.too_short_geodk_segs
-    WHERE
-        row_number = (counter + 1)
-),
-neighbor_seg AS (
-    SELECT
-        *
-    FROM
-        matching_geodk_osm._segments_geodk
-    WHERE
-        id_geodk = (
-            SELECT
-                id_geodk
-            FROM
-                matching_geodk_osm.too_short_geodk_segs
-            WHERE
-                row_number = (counter + 1)
-        )
-        AND i = (
-            (
-                SELECT
-                    i
-                FROM
-                    matching_geodk_osm.too_short_geodk_segs
-                WHERE
-                    row_number = (counter + 1)
-            ) - 1
-        )
+        matching_geodk_osm.too_short_geodk_segs short_segs
+        JOIN matching_geodk_osm._segments_geodk neighbor_segs ON short_segs.neighbor_seg_id = neighbor_segs.unique_seg_id
 )
 INSERT INTO
     matching_geodk_osm.merged_geodk_segments
 SELECT
-    this_seg.id_geodk,
-    neighbor_seg.i long_seg_id,
-    this_seg.i short_seg_id,
-    ST_Collect(this_seg.geom, neighbor_seg.geom)
+    *
 FROM
-    this_seg
-    JOIN neighbor_seg ON this_seg.id_geodk = neighbor_seg.id_geodk;
+    joined_data;
 
-raise notice 'Counter %',
-counter;
-
-counter := counter + 1;
-
-END loop;
-
-END $ $;
-
--- UPDATE GEOMETRIES IN GEODK SEGMENTS
+-- UPDATE GEOMETRIES IN geodk SEGMENTS
+WITH joined_data AS (
+    SELECT
+        merged.geom AS new_geom,
+        geodk_segs.unique_seg_id AS seg_id
+    FROM
+        matching_geodk_osm._segments_geodk geodk_segs
+        JOIN matching_geodk_osm.merged_geodk_segments merged ON geodk_segs.unique_seg_id = merged.long_seg_id
+)
 UPDATE
-    geodk_segs
+    matching_geodk_osm._segments_geodk
 SET
-    geom = merged.geom,
+    geom = new_geom
 FROM
-    matching_geodk_osm._segments_geodk geodk_segs
-    JOIN matching_geodk_osm.merged_geodk_segments merged ON geodk_segs.id_geodk = merged.id_geodk
-    AND geodk_segs.i = merged.i;
+    joined_data
+WHERE
+    unique_seg_id = joined_data.seg_id;
 
--- DELETE TOO SHORT GEODK SEGMENTS
+-- DELETE TOO SHORT geodk SEGMENTS
 DELETE FROM
     matching_geodk_osm._segments_geodk geodk_segs USING matching_geodk_osm.too_short_geodk_segs too_short
 WHERE
-    geodk_segs.id_geodk = too_short.id_geodk
-    AND geodk_segs.i = too_short.i;
+    geodk_segs.unique_seg_id = too_short.unique_seg_id;
 
 -- SPATIAL INDEX ON GEODK SEGMENTS
 CREATE INDEX idx_segments_geodk_seg_geometry ON matching_geodk_osm._segments_geodk USING gist(geom);
