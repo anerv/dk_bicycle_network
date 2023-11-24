@@ -7,3 +7,8 @@
 5. Vejmidte downloaded from datafordeler
 6. pop urban fra ghsl
 7. osm fra geofabrik
+
+
+
+brew install postgis
+brew install pqrouting
