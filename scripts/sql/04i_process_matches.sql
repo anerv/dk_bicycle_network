@@ -27,10 +27,10 @@ CREATE TABLE matching_geodk_osm._segments_osm_all AS (
 
 -- CHECK THAT OSM SEG ID IS STILL UNIQUE
 BEGIN
-SELECT
-    COUNT(DISTINCT geodk_seg_id) INTO count_unique_id
-FROM
-    matching_geodk_osm._matches_geodk_all;
+    SELECT
+        COUNT(DISTINCT geodk_seg_id) INTO count_unique_id
+    FROM
+        matching_geodk_osm._matches_geodk_all;
 
 ASSERT count_unique_id = (
     SELECT
@@ -43,10 +43,10 @@ ASSERT count_unique_id = (
 END $ $;
 
 BEGIN
-SELECT
-    COUNT(DISTINCT id) INTO count_unique_id
-FROM
-    matching_geodk_osm._segments_osm_all;
+    SELECT
+        COUNT(DISTINCT id) INTO count_unique_id
+    FROM
+        matching_geodk_osm._segments_osm_all;
 
 ASSERT count_unique_id = (
     SELECT
