@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] turn 01_create_db.sql into script/make sure in can be run from python
+- [X] turn 01_create_db.sql into script/make sure in can be run from python
 - [ ] rename files names so it is clear what is being used by what
 
 - [X] script for setting up database with postgis
