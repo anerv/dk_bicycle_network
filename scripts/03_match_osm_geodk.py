@@ -28,15 +28,15 @@ starttime = time.ctime()
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 queries = [
-    "sql/04a_prepare_data.sql",
-    "sql/04b_create_segments.sql",
-    "sql/04c_find_candidates_bike.sql",
-    "sql/04d_find_best_match_bike.sql",
-    "sql/04e_find_unmatched_geodk_segments.sql",
-    # "04f_create_segments_no_bike.sql",
-    "sql/04g_find_candidates_no_bike.sql",
-    "sql/04h_find_best_matches_no_bike.sql",
+    # "sql/03a_prepare_data.sql",
+    # "sql/03b_create_segments.sql",
+    "sql/03c_find_candidates_bike.sql",
+    "sql/03d_find_best_match_bike.sql",
+    "sql/03e_find_unmatched_geodk_segments.sql",
+    "sql/03g_find_candidates_no_bike.sql",
+    "sql/03h_find_best_matches_no_bike.sql",
 ]
+
 
 for i, q in enumerate(queries):
     print(f"Running step {i+1}...")
@@ -65,8 +65,6 @@ print("Endtime", time.ctime())
 # transfer surface and kategori to geodk matches
 # find matched osm segments!
 
-
-# -- TODO: FIRST GET VEJKATEGORI AND SURFACE TO OSM MATCHES
 # -- THEN TRANSFER TO SEGMENTS
 # -- group osm_segs by org_id
 # -- if more than XXX segs are matched -- mark as matched?

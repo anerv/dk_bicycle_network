@@ -47,3 +47,16 @@ Requires some kind of isochrones/routing - e.g. using Observable example.
 ### Components
 
 Can be based on a graph object OR whether an edge can be found?
+
+
+
+*****
+
+https://mapscaping.com/getting-started-with-pgrouting/
+
+java -jar osm2po-5.5.5/osm2po-core-5.5.5-signed.jar cmd=c prefix=route /Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/data/raw/road_networks/denmark-latest.osm.pbf
+
+<!-- java -Xmx512m -jar osm2po-core-5.5.5-signed.jar cmd=c prefix=lisbon /mnt/c/osm2pgsql_guide/Lisbon.pbf -->
+
+
+psql -h localhost -p 5432 -U postgres -d postgres -q -f /Users/anev/Desktop/route/route_2po_4pgr.sql

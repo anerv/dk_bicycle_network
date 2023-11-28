@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS osm_roads CASCADE;
+
 CREATE TABLE osm_roads AS (
     SELECT
         *
@@ -19,6 +21,7 @@ CREATE TABLE osm_roads AS (
             'track',
             'service',
             'path',
+            'trunk',
             'trunk_link',
             'living_street',
             'busway',

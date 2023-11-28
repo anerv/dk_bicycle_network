@@ -12,6 +12,10 @@ CREATE TABLE matching_geodk_osm._matches_geodk_all AS (
         matching_geodk_osm_no_bike._matches_geodk
 );
 
+CREATE INDEX idx_matched_id ON matching_geodk_osm._matches_geodk_all(id_geodk);
+
+CREATE INDEX idx_extract_id ON matching_geodk_osm._extract_geodk(id);
+
 -- GET INFO ON ROAD SURFACE AND CATEGORY
 ALTER TABLE
     matching_geodk_osm._matches_geodk_all
@@ -27,7 +31,16 @@ SET
 FROM
     matching_geodk_osm._extract_geodk g
 WHERE
-    m.geodk_id = g.id;
+    m.id_geodk = g.id;
+
+UPDATE
+    matching_geodk_osm._matches_geodk_all m
+SET
+    road_category = vejkategori
+FROM
+    matching_geodk_osm._extract_geodk g
+WHERE
+    m.id_geodk = g.id;
 
 -- TRANSFER INFO TO OSM SEGMENTS
 ALTER TABLE
@@ -67,3 +80,4 @@ WHERE
     o.id_osm = g.osm_seg_id;
 
 -- TODO: CHECK THAT MATCHED OSM SEGS ARE CORRECT!!
+-- TODO: GROUP OSM EDGES AS MATCHED

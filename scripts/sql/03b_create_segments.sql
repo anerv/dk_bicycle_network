@@ -304,7 +304,7 @@ CREATE INDEX idx_segments_osm_geometry ON matching_geodk_osm._segments_osm_all U
 ALTER TABLE
     matching_geodk_osm._segments_osm_all
 ADD
-    COLUMN bicycle_infrastructure VARCHAR DEFAULT FALSE;
+    COLUMN bicycle_infrastructure BOOLEAN DEFAULT FALSE;
 
 WITH bicycle_infra AS (
     SELECT
@@ -321,7 +321,7 @@ SET
 FROM
     bicycle_infra b
 WHERE
-    o.id = b.id;
+    o.id_osm = b.id;
 
 -- CREATE OSM SEGMENTS WITH AND WITHOUT BIKE
 CREATE TABLE matching_geodk_osm._segments_osm AS (
@@ -343,6 +343,6 @@ CREATE TABLE matching_geodk_osm_no_bike._segments_osm AS (
 );
 
 -- SPATIAL INDEX ON OSM SEGMENTS
-CREATE INDEX idx_segments_osm_geometry ON matching_geodk_osm._segments_osm USING gist(geom);
+CREATE INDEX idx_segments_osm_no_bike_geometry ON matching_geodk_osm._segments_osm USING gist(geom);
 
-CREATE INDEX idx_segments_osm_geometry ON matching_geodk_osm_no_bike._segments_osm USING gist(geom);
+CREATE INDEX idx_segments_osm_bike_geometry ON matching_geodk_osm_no_bike._segments_osm USING gist(geom);

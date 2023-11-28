@@ -15,7 +15,7 @@ SELECT
     overflade,
     (
         st_dump(ST_LineMerge(st_union(ST_Force2D(geometry))))
-    ).geom AS geom INTO matching_geodk_osm._extract_geodk
+    ) .geom AS geom INTO matching_geodk_osm._extract_geodk
 FROM
     geodk_bike
 GROUP BY
@@ -29,7 +29,7 @@ SELECT
     bicycle_infrastructure,
     (
         st_dump(ST_LineMerge(st_union(ST_Force2D(geometry))))
-    ).geom AS geom INTO matching_geodk_osm._extract_osm
+    ) .geom AS geom INTO matching_geodk_osm._extract_osm
 FROM
     osm_roads
 GROUP BY

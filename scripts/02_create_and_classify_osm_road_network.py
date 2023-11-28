@@ -17,7 +17,6 @@ with open(r"../config.yml") as file:
 print("Settings loaded!")
 
 # %%
-
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 queries = [

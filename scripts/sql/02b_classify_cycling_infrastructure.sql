@@ -4,7 +4,6 @@ ALTER TABLE
 ADD
     COLUMN bicycle_infrastructure BOOLEAN NOT NULL DEFAULT FALSE;
 
-
 UPDATE
     osm_roads
 SET
@@ -59,7 +58,6 @@ WHERE
         'lane'
     );
 
-
 UPDATE
     osm_roads
 SET
@@ -67,13 +65,11 @@ SET
 WHERE
     bicycle IN ('no', 'dismount');
 
-
 -- Classify bicycle infra as either protected or unprotected
 ALTER TABLE
     osm_roads
 ADD
     COLUMN bicycle_protected BOOLEAN;
-
 
 UPDATE
     osm_roads
@@ -93,7 +89,6 @@ WHERE
     OR "cycleway:left" IN ('track', 'opposite_track', 'share_sidewalk')
     OR "cycleway:right" IN ('track', 'opposite_track', 'share_sidewalk')
     OR "cycleway:both" IN ('track', 'opposite_track', 'share_sidewalk');
-
 
 UPDATE
     osm_roads
@@ -128,23 +123,21 @@ WHERE
         'lane'
     );
 
-
 -- Check that all bicycle infra is either protected true or false
-DO $ $ DECLARE non_classified_bicycle_infra INT;
-
+DO $$
+DECLARE
+    non_classified_bicycle_infra INT;
 
 BEGIN
-SELECT
-    count(*) INTO non_classified_bicycle_infra
-FROM
-    osm_roads
-WHERE
-    bicycle_infrastructure IS TRUE
-    AND bicycle_protected IS NULL;
-
+    SELECT
+        count(*) INTO non_classified_bicycle_infra
+    FROM
+        osm_roads
+    WHERE
+        bicycle_infrastructure IS TRUE
+        AND bicycle_protected IS NULL;
 
 ASSERT non_classified_bicycle_infra = 0,
 'Found bicycle infra with no protection level';
 
-
-END $ $;
+END $$;
