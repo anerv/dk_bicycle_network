@@ -1,7 +1,10 @@
 # TODO
 
+- [ ] New script for loading OSM to DB with osm2po
+- [ ] Transfer tags to edges
+- [ ] Adapt matching to use network edges
 - [X] turn 01_create_db.sql into script/make sure in can be run from python
-- [ ] rename files names so it is clear what is being used by what
+- [X] rename files names so it is clear what is being used by what
 
 - [X] script for setting up database with postgis
 - [X] terminal command for loading OSM to database - set up style file!
