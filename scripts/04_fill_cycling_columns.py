@@ -1,6 +1,3 @@
-# GET OSM ROADS + IDENTIFY OSM BICYCLE INFRASTRUCTURE
-# %%
-
 import yaml
 from src import db_functions as dbf
 
@@ -21,8 +18,8 @@ print("Settings loaded!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 queries = [
-    "sql/02a_create_osm_road_table.sql",
-    "sql/02b_classify_cycling_infrastructure.sql",
+    "sql/04a_add_additional_cycling_info.sql",
+    "sql/04b_interpolate_missing_tags.sql",
 ]
 
 for i, q in enumerate(queries):
@@ -36,4 +33,3 @@ for i, q in enumerate(queries):
         close=False,
     )
     print(f"Step {i+1} done!")
-# %%
