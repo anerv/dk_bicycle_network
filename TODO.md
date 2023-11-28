@@ -1,5 +1,8 @@
 # TODO
 
+- [ ] turn 01_create_db.sql into script/make sure in can be run from python
+- [ ] rename files names so it is clear what is being used by what
+
 - [X] script for setting up database with postgis
 - [X] terminal command for loading OSM to database - set up style file!
 - script for cleaning up OSM data!
@@ -8,7 +11,7 @@
 - [X] script for indexing pop and urban data with H3 + load to postgres
 
 - [X] update style file to include cycle-columns
-- [ ] script for getting road network from OSM (correct highway values, only existing network)
+- [X] script for getting road network from OSM (correct highway values, only existing network)
 
 - script for FM
 - script for cleaning up FM

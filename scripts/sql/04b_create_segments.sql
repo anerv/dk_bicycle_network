@@ -45,7 +45,7 @@ SELECT
     ROW_NUMBER () OVER () AS id,
     id AS id_osm,
     i,
-    ST_LineSubstring(geom, startfrac, LEAST(endfrac, 1)) AS geom INTO matching_geodk_osm._segments_osm
+    ST_LineSubstring(geom, startfrac, LEAST(endfrac, 1)) AS geom INTO matching_geodk_osm._segments_osm_all
 FROM
     (
         SELECT
@@ -69,22 +69,22 @@ FROM
 
 -- CREATE UNIQUE SEGMENT ID OSM
 ALTER TABLE
-    matching_geodk_osm._segments_osm
+    matching_geodk_osm._segments_osm_all
 ADD
     COLUMN unique_seg_id VARCHAR;
 
 ALTER TABLE
-    matching_geodk_osm._segments_osm
+    matching_geodk_osm._segments_osm_all
 ADD
     COLUMN neighbor_seg_id VARCHAR;
 
 UPDATE
-    matching_geodk_osm._segments_osm
+    matching_geodk_osm._segments_osm_all
 SET
     unique_seg_id = CAST (id AS text) || '_' || CAST (i AS text);
 
 UPDATE
-    matching_geodk_osm._segments_osm
+    matching_geodk_osm._segments_osm_all
 SET
     neighbor_seg_id = CAST ((id -1) AS text) || '_' || CAST ((i -1) AS text);
 
@@ -96,13 +96,13 @@ BEGIN
     SELECT
         COUNT(DISTINCT unique_seg_id) INTO count_unique_seg_id
     FROM
-        matching_geodk_osm._segments_osm;
+        matching_geodk_osm._segments_osm_all;
 
 ASSERT count_unique_seg_id = (
     SELECT
         COUNT(*)
     FROM
-        matching_geodk_osm._segments_osm
+        matching_geodk_osm._segments_osm_all
 ),
 'OSM seg IDS not unique';
 
@@ -167,7 +167,7 @@ CREATE TABLE matching_geodk_osm.too_short_osm_segs AS
 SELECT
     *
 FROM
-    matching_geodk_osm._segments_osm
+    matching_geodk_osm._segments_osm_all
 WHERE
     ST_Length(geom) < 3;
 
@@ -183,7 +183,7 @@ WITH joined_data AS (
         ST_Collect(short_segs.geom, neighbor_segs.geom) AS geom
     FROM
         matching_geodk_osm.too_short_osm_segs short_segs
-        JOIN matching_geodk_osm._segments_osm neighbor_segs ON short_segs.neighbor_seg_id = neighbor_segs.unique_seg_id
+        JOIN matching_geodk_osm._segments_osm_all neighbor_segs ON short_segs.neighbor_seg_id = neighbor_segs.unique_seg_id
 )
 INSERT INTO
     matching_geodk_osm.merged_osm_segments
@@ -204,11 +204,11 @@ WITH joined_data AS (
         merged.geom AS new_geom,
         osm_segs.unique_seg_id AS seg_id
     FROM
-        matching_geodk_osm._segments_osm osm_segs
+        matching_geodk_osm._segments_osm_all osm_segs
         JOIN matching_geodk_osm.merged_osm_segments merged ON osm_segs.unique_seg_id = merged.long_seg_id
 )
 UPDATE
-    matching_geodk_osm._segments_osm
+    matching_geodk_osm._segments_osm_all
 SET
     geom = new_geom
 FROM
@@ -218,7 +218,7 @@ WHERE
 
 -- DELETE TOO SHORT OSM SEGMENTS
 DELETE FROM
-    matching_geodk_osm._segments_osm osm_segs USING matching_geodk_osm.too_short_osm_segs too_short
+    matching_geodk_osm._segments_osm_all osm_segs USING matching_geodk_osm.too_short_osm_segs too_short
 WHERE
     osm_segs.unique_seg_id = too_short.unique_seg_id;
 
@@ -299,4 +299,50 @@ WHERE
 CREATE INDEX idx_segments_geodk_seg_geometry ON matching_geodk_osm._segments_geodk USING gist(geom);
 
 -- SPATIAL INDEX ON OSM SEGMENTS
+CREATE INDEX idx_segments_osm_geometry ON matching_geodk_osm._segments_osm_all USING gist(geom);
+
+ALTER TABLE
+    matching_geodk_osm._segments_osm_all
+ADD
+    COLUMN bicycle_infrastructure VARCHAR DEFAULT FALSE;
+
+WITH bicycle_infra AS (
+    SELECT
+        *
+    FROM
+        matching_geodk_osm._extract_osm
+    WHERE
+        bicycle_infrastructure IS TRUE
+)
+UPDATE
+    matching_geodk_osm._segments_osm_all o
+SET
+    bicycle_infrastructure = TRUE
+FROM
+    bicycle_infra b
+WHERE
+    o.id = b.id;
+
+-- CREATE OSM SEGMENTS WITH AND WITHOUT BIKE
+CREATE TABLE matching_geodk_osm._segments_osm AS (
+    SELECT
+        *
+    FROM
+        matching_geodk_osm._segments_osm_all
+    WHERE
+        bicycle_infrastructure IS TRUE
+);
+
+CREATE TABLE matching_geodk_osm_no_bike._segments_osm AS (
+    SELECT
+        *
+    FROM
+        matching_geodk_osm._segments_osm_all
+    WHERE
+        bicycle_infrastructure IS FALSE
+);
+
+-- SPATIAL INDEX ON OSM SEGMENTS
 CREATE INDEX idx_segments_osm_geometry ON matching_geodk_osm._segments_osm USING gist(geom);
+
+CREATE INDEX idx_segments_osm_geometry ON matching_geodk_osm_no_bike._segments_osm USING gist(geom);

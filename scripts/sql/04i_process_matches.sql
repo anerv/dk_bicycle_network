@@ -12,48 +12,58 @@ CREATE TABLE matching_geodk_osm._matches_geodk_all AS (
         matching_geodk_osm_no_bike._matches_geodk
 );
 
---- COMBINE OSM SEGMENTS FROM BIKE AND NO BIKE
-CREATE TABLE matching_geodk_osm._segments_osm_all AS (
-    SELECT
-        *
-    FROM
-        matching_geodk_osm._segments_osm
-    UNION
-    SELECT
-        *
-    FROM
-        matching_geodk_osm_no_bike._segments_osm
-);
+-- GET INFO ON ROAD SURFACE AND CATEGORY
+ALTER TABLE
+    matching_geodk_osm._matches_geodk_all
+ADD
+    COLUMN surface VARCHAR DEFAULT NULL,
+ADD
+    COLUMN road_category VARCHAR DEFAULT NULL;
 
--- CHECK THAT OSM SEG ID IS STILL UNIQUE
-BEGIN
-    SELECT
-        COUNT(DISTINCT geodk_seg_id) INTO count_unique_id
-    FROM
-        matching_geodk_osm._matches_geodk_all;
+UPDATE
+    matching_geodk_osm._matches_geodk_all m
+SET
+    surface = overflade
+FROM
+    matching_geodk_osm._extract_geodk g
+WHERE
+    m.geodk_id = g.id;
 
-ASSERT count_unique_id = (
-    SELECT
-        COUNT(*)
-    FROM
-        matching_geodk_osm._matches_geodk_all
-),
-'GeoDK matches segment IDS not unique';
+-- TRANSFER INFO TO OSM SEGMENTS
+ALTER TABLE
+    matching_geodk_osm._segments_osm_all
+ADD
+    COLUMN matched BOOL DEFAULT FALSE,
+ADD
+    COLUMN surface VARCHAR DEFAULT NULL,
+ADD
+    COLUMN road_category VARCHAR DEFAULT NULL;
 
-END $ $;
+UPDATE
+    matching_geodk_osm._segments_osm_all o
+SET
+    matched = TRUE
+FROM
+    matching_geodk_osm._matches_geodk_all g
+WHERE
+    o.id_osm = g.osm_seg_id;
 
-BEGIN
-    SELECT
-        COUNT(DISTINCT id) INTO count_unique_id
-    FROM
-        matching_geodk_osm._segments_osm_all;
+UPDATE
+    matching_geodk_osm._segments_osm_all o
+SET
+    o.surface = g.surface
+FROM
+    matching_geodk_osm._matches_geodk_all g
+WHERE
+    o.id_osm = g.osm_seg_id;
 
-ASSERT count_unique_id = (
-    SELECT
-        COUNT(*)
-    FROM
-        matching_geodk_osm._segments_osm_all
-),
-'OSM IDS not unique';
+UPDATE
+    matching_geodk_osm._segments_osm_all o
+SET
+    o.surface = g.surface
+FROM
+    matching_geodk_osm._matches_geodk_all g
+WHERE
+    o.id_osm = g.osm_seg_id;
 
-END $ $;
+-- TODO: CHECK THAT MATCHED OSM SEGS ARE CORRECT!!
