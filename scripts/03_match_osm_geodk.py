@@ -28,8 +28,8 @@ starttime = time.ctime()
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 queries = [
-    # "sql/03a_prepare_data.sql",
-    # "sql/03b_create_segments.sql",
+    "sql/03a_prepare_data.sql",
+    "sql/03b_create_segments.sql",
     "sql/03c_find_candidates_bike.sql",
     "sql/03d_find_best_match_bike.sql",
     "sql/03e_find_unmatched_geodk_segments.sql",
@@ -58,7 +58,6 @@ print("Endtime", time.ctime())
 
 
 # %%
-# TODO: rename create segments, delete unnecesseary file
 #
 # -- TODO: TRANSFER vejkategori and surface TO OSM SEGMENTS
 

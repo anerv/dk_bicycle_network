@@ -2,7 +2,7 @@
 
 - [X] New script for loading OSM to DB with osm2po
 - [ ] Transfer tags to edges
-- [ ] Adapt matching to use network edges
+- [X] Adapt matching to use network edges
 
 - no need to do merge/extract?
 - include necessary info in geodk segments!

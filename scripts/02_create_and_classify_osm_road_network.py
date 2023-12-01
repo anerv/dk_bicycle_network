@@ -36,3 +36,15 @@ for i, q in enumerate(queries):
     )
     print(f"Step {i+1} done!")
 # %%
+
+connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
+
+q = "SELECT osm_id, highway FROM osm_road_edges WHERE bicycle_infrastructure IS TRUE LIMIT 10;"
+
+test = dbf.run_query_pg(q, connection)
+
+print(test)
+
+connection.close()
+
+# %%
