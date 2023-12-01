@@ -31,7 +31,7 @@ SELECT
         st_dump(ST_LineMerge(st_union(ST_Force2D(geometry))))
     ) .geom AS geom INTO matching_geodk_osm._extract_osm
 FROM
-    osm_roads
+    osm_road_edges
 GROUP BY
     osm_id,
     bicycle_infrastructure;

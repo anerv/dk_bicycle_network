@@ -7,3 +7,5 @@ data_exploration.qgz
 scripts/insp/*
 qgis.md
 random.sql
+osm2po/*
+scripts/dk_osm2po/*

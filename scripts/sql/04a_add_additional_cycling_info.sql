@@ -1,6 +1,6 @@
 -- Add additional info for LTS classification
 ALTER TABLE
-    osm_roads
+    osm_road_edges
 ADD
     COLUMN cycling_allowed BOOLEAN DEFAULT NULL,
 ADD
@@ -11,7 +11,7 @@ ADD
 
 -- *** Fill column car_traffic ***
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     car_traffic = TRUE
 WHERE
@@ -57,7 +57,7 @@ WHERE
 
 -- *** Fill column cycling allowed ***
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     cycling_allowed = TRUE
 WHERE
@@ -99,7 +99,7 @@ WHERE
     );
 
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     cycling_allowed = FALSE
 WHERE
@@ -112,21 +112,21 @@ WHERE
 -- *** FILL COLUMN ALONG STREET ***
 --Determining whether the segment of cycling infrastructure runs along a street or not
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     along_street = TRUE
 WHERE
     car_traffic = TRUE;
 
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     along_street = TRUE
 WHERE
     geodk_bike IS NOT NULL;
 
 -- UPDATE
---     osm_roads
+--     osm_road_edges
 -- SET
 --     along_street = FALSE
 -- WHERE
@@ -140,7 +140,7 @@ CREATE VIEW cycleways AS (
         cycling_infrastructure,
         along_street
     FROM
-        osm_roads
+        osm_road_edges
     WHERE
         highway = 'cycleway'
 );
@@ -151,7 +151,7 @@ CREATE VIEW car_roads AS (
         highway,
         geometry
     FROM
-        osm_roads
+        osm_road_edges
     WHERE
         car_traffic IS TRUE
 );
@@ -161,7 +161,7 @@ CREATE VIEW car_roads AS (
 -- ;
 CREATE TABLE buffered_car_roads AS (
     SELECT
-        (ST_Dump(geom)).geom
+        (ST_Dump(geom)) .geom
     FROM
         (
             SELECT
@@ -173,14 +173,14 @@ CREATE TABLE buffered_car_roads AS (
 
 CREATE INDEX buffer_geom_idx ON buffered_car_roads USING GIST (geom);
 
-CREATE INDEX osm_edges_geom_idx ON osm_roads USING GIST (geometry);
+CREATE INDEX osm_edges_geom_idx ON osm_road_edges USING GIST (geometry);
 
 CREATE TABLE intersecting_cycle_roads AS (
     SELECT
         o.osm_id,
         o.geometry
     FROM
-        osm_roads o,
+        osm_road_edges o,
         buffered_car_roads br
     WHERE
         o.cycling_infra_new = 'yes'
@@ -191,7 +191,9 @@ CREATE TABLE cycle_infra_points AS (
     SELECT
         osm_id,
         ST_Collect(
-            ARRAY [ST_StartPoint(geometry), ST_Centroid(geometry), ST_EndPoint(geometry)]
+            ARRAY [ ST_StartPoint(geometry),
+            ST_Centroid(geometry),
+            ST_EndPoint(geometry) ]
         ) AS geometry
     FROM
         intersecting_cycle_roads
@@ -201,20 +203,20 @@ CREATE INDEX cycle_points_geom_idx ON cycle_infra_points USING GIST (geometry);
 
 CREATE TABLE cycling_cars AS (
     SELECT
-        c.osm_id,
-        c.geometry
+        c .osm_id,
+        c .geometry
     FROM
         cycle_infra_points c,
         buffered_car_roads br
     WHERE
-        ST_CoveredBy(c.geometry, br.geom)
+        ST_CoveredBy(c .geometry, br.geom)
 );
 
 UPDATE
-    osm_roads o
+    osm_road_edges o
 SET
     along_street = TRUE
 FROM
     cycling_cars c
 WHERE
-    o.osm_id = c.osm_id;
+    o.osm_id = c .osm_id;

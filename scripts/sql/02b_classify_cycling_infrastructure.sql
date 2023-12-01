@@ -1,11 +1,11 @@
 -- Identify bicycle infrastructure
 ALTER TABLE
-    osm_roads
+    osm_road_edges
 ADD
     COLUMN bicycle_infrastructure BOOLEAN NOT NULL DEFAULT FALSE;
 
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     bicycle_infrastructure = TRUE
 WHERE
@@ -59,7 +59,7 @@ WHERE
     );
 
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     bicycle_infrastructure = FALSE
 WHERE
@@ -67,12 +67,12 @@ WHERE
 
 -- Classify bicycle infra as either protected or unprotected
 ALTER TABLE
-    osm_roads
+    osm_road_edges
 ADD
     COLUMN bicycle_protected BOOLEAN;
 
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     bicycle_protected = TRUE
 WHERE
@@ -91,7 +91,7 @@ WHERE
     OR "cycleway:both" IN ('track', 'opposite_track', 'share_sidewalk');
 
 UPDATE
-    osm_roads
+    osm_road_edges
 SET
     bicycle_protected = FALSE
 WHERE
@@ -132,7 +132,7 @@ BEGIN
     SELECT
         count(*) INTO non_classified_bicycle_infra
     FROM
-        osm_roads
+        osm_road_edges
     WHERE
         bicycle_infrastructure IS TRUE
         AND bicycle_protected IS NULL;

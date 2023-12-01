@@ -1,8 +1,13 @@
 # TODO
 
-- [ ] New script for loading OSM to DB with osm2po
+- [X] New script for loading OSM to DB with osm2po
 - [ ] Transfer tags to edges
 - [ ] Adapt matching to use network edges
+
+- no need to do merge/extract?
+- include necessary info in geodk segments!
+- Adapt update to reference segments
+
 - [X] turn 01_create_db.sql into script/make sure in can be run from python
 - [X] rename files names so it is clear what is being used by what
 
