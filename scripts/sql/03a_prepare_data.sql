@@ -25,7 +25,7 @@ GROUP BY
 
 -- MERGE LINESTRINGS OSM
 SELECT
-    min(osm_id) AS id,
+    min(id) AS id,
     bicycle_infrastructure,
     (
         st_dump(ST_LineMerge(st_union(ST_Force2D(geometry))))
@@ -33,7 +33,7 @@ SELECT
 FROM
     osm_road_edges
 GROUP BY
-    osm_id,
+    id,
     bicycle_infrastructure;
 
 -- -- MERGE LINESTRINGS OSM NO BIKE

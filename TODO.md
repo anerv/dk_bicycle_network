@@ -1,12 +1,19 @@
 # TODO
 
 - [X] New script for loading OSM to DB with osm2po
-- [ ] Transfer tags to edges
+- [X] Transfer tags to edges
 - [X] Adapt matching to use network edges
 
-- no need to do merge/extract?
-- include necessary info in geodk segments!
-- Adapt update to reference segments
+- [ ] Mark all edges as matched/unmatched
+- [ ] Add additional cycling info
+- [ ] interpolate missing tags
+- [ ] script for identifying intersections in OSM
+- [ ] script for classifying intersections
+- [ ] script for indexing infra and intersections with muni
+- [ ] script for indexing infra with H3
+
+- [ ] LTS CLASSIFICATION
+- [ ] Close cycling gaps
 
 - [X] turn 01_create_db.sql into script/make sure in can be run from python
 - [X] rename files names so it is clear what is being used by what
@@ -21,16 +28,6 @@
 - [X] update style file to include cycle-columns
 - [X] script for getting road network from OSM (correct highway values, only existing network)
 
-- script for FM
-- script for cleaning up FM
-
-- script for identifying intersections in OSM
-
-- script for classifying intersections
-- script for classifying cycling infrastructure
-- script for indexing infra and intersections with muni
-
-- script for indexing infra with H3
 
 ## Questions
 
