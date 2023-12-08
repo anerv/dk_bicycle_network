@@ -4,7 +4,6 @@ SELECT
 ALTER TABLE
     osm_road_edges_vertices_pgr RENAME TO intersections;
 
--- TODO: CREATE SPATIAL INDEX
 -- TRANSFER OSM ID TO VERTICES
 ALTER TABLE
     intersections
@@ -30,7 +29,24 @@ WHERE
     i.id = r.source
     AND i.osm_id IS NULL;
 
--- CLASSIFY OSM POINTS
+CREATE TABLE intersection_tags AS
+SELECT
+    *
+FROM
+    planet_osm_points
+WHERE
+    highway = 'traffic_signals'
+    OR crossing IN (
+        'uncontrolled',
+        'unmarked',
+        'zebra',
+        'marked',
+        'controlled',
+        'traffic_signals',
+        'island'
+    )
+    OR "crossing:island" = 'yes';
+
 ALTER TABLE
     intersection_tags
 ADD
@@ -92,18 +108,4 @@ SET
 FROM
     intersection_tags it
 WHERE
-    i.osmid = it.id;
-
-CREATE MATERIALIZED VIEW unmatched_inter_tags AS
-SELECT
-    *
-FROM
-    intersection_tags it
-WHERE
-    NOT EXISTS (
-        SELECT
-        FROM
-            intersections i
-        WHERE
-            i.osmid = it.id
-    );
+    i.osmid = it.osm_id;
