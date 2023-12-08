@@ -32,6 +32,8 @@ SELECT
     ) .geom AS geom INTO matching_geodk_osm._extract_osm
 FROM
     osm_road_edges
+WHERE
+    highway NOT IN ('footway', 'bridleway')
 GROUP BY
     id,
     bicycle_infrastructure;
