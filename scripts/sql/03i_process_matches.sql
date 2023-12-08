@@ -12,9 +12,9 @@ CREATE TABLE matching_geodk_osm._matches_geodk_all AS (
         matching_geodk_osm_no_bike._matches_geodk
 );
 
-CREATE INDEX idx_matched_id ON matching_geodk_osm._matches_geodk_all(id_geodk, DESC);
+CREATE INDEX idx_matched_id ON matching_geodk_osm._matches_geodk_all(id_geodk DESC);
 
-CREATE INDEX idx_extract_id ON matching_geodk_osm._extract_geodk(id, DESC);
+CREATE INDEX idx_extract_id ON matching_geodk_osm._extract_geodk(id DESC);
 
 -- GET INFO ON ROAD SURFACE AND CATEGORY
 ALTER TABLE
@@ -154,14 +154,23 @@ FROM
 WHERE
     o.id = g.osm_seg_id;
 
--- MARK EDGES AS MATCHED OR UNMATCHED
+-- GROUP SEGMENTS BY ORG EDGE ID
 CREATE TABLE matching_geodk_osm._grouped_osm AS
 SELECT
     DISTINCT id_osm,
+    ARRAY_AGG(
+        id
+        ORDER BY
+            ID
+    ) AS ids,
     ARRAY_AGG(DISTINCT matched) AS matched,
     ARRAY_AGG(DISTINCT road_category) AS road,
     ARRAY_AGG(DISTINCT surface) AS surface,
-    ARRAY_AGG(matched) AS matched_count
+    ARRAY_AGG(
+        matched
+        ORDER BY
+            ID
+    ) AS matched_count
 FROM
     matching_geodk_osm._segments_osm_all
 GROUP BY
@@ -174,8 +183,11 @@ ADD
 ADD
     COLUMN count_unmatched INT DEFAULT 0,
 ADD
-    COLUMN matched_pct DECIMAL DEFAULT 0;
+    COLUMN matched_pct DECIMAL DEFAULT 0,
+ADD
+    COLUMN matched_final BOOLEAN DEFAULT NULL;
 
+-- COUNT MATCHED
 WITH count AS (
     SELECT
         COUNT(*) c,
@@ -196,6 +208,7 @@ FROM
 WHERE
     o.id_osm = count .id_osm;
 
+-- COUNT UNMATCHED
 WITH count AS (
     SELECT
         COUNT(*) c,
@@ -216,6 +229,7 @@ FROM
 WHERE
     o.id_osm = count .id_osm;
 
+-- DELETE ALL THAT ARE COMPLETELY UNMATCHED
 DELETE FROM
     matching_geodk_osm._grouped_osm
 WHERE
@@ -225,15 +239,48 @@ UPDATE
     matching_geodk_osm._grouped_osm
 SET
     matched_pct = count_matched :: DECIMAL / (
-        count_unmatched :: DECIMAL + count_matched :: DECIMALd
+        count_unmatched :: DECIMAL + count_matched :: DECIMAL
     ) * 100;
 
--- MORE THAN 75: matched
--- LESS THAN 26: unmatched
--- IF count is 3 and more than 66 matched:
---  if count is 2 and 50 pct matched: matched
--- for edge cases; SPLIT GEOMS
-CREATE TABLE matching_geodk_osm._undecided AS
+UPDATE
+    matching_geodk_osm._grouped_osm
+SET
+    matched_final = CASE
+        WHEN matched_pct < 30 THEN FALSE
+        WHEN matched_pct > 70 THEN TRUE -- WHEN matched_pct > 49.9
+        -- AND count_matched + count_unmatched < 3 THEN TRUE
+        -- WHEN matched_pct > 66
+        -- AND count_matched + count_unmatched < 4 THEN TRUE
+        WHEN matched_pct > 49.9
+        AND count_matched + count_unmatched < 7 THEN TRUE
+    END;
+
+-- SET AS MATCHED FALSE FOR REMAINING WITH ONLY ONE MATCHED SEGMENT
+UPDATE
+    matching_geodk_osm._grouped_osm
+SET
+    matched_final = FALSE
+WHERE
+    count_matched = 1;
+
+CREATE TABLE matching_geodk_osm._undecided_groups AS (
+    SELECT
+        *
+    FROM
+        matching_geodk_osm._grouped_osm
+    WHERE
+        matched_final IS NULL
+        AND id_osm IN (
+            SELECT
+                id_osm
+            FROM
+                matching_geodk_osm._segments_osm_all
+            WHERE
+                bicycle_infrastructure IS FALSE
+        )
+);
+
+CREATE TABLE matching_geodk_osm._undecided_segments AS
 SELECT
     *
 FROM
@@ -245,13 +292,18 @@ WHERE
         FROM
             matching_geodk_osm._grouped_osm
         WHERE
-            matched_pct < 66
+            matched_final IS NULL
     )
     AND bicycle_infrastructure IS FALSE;
 
--- TODO: DEAL WITH MATCHED WITH DIFFERENT CATEGORY - ONLY THOSE THAT DO NOT ALREADY HAVE BIKE INFRA
--- TODO: close small gaps
---******
+--
+--- NOW, FOR ALL THAT REMAINS - I.e. with matched_final being null - split
+---
+-- -- TODO: DEAL WITH MATCHED WITH DIFFERENT CATEGORY - ONLY THOSE THAT DO NOT ALREADY HAVE BIKE INFRA
+-- -- TODO: close small gaps - reuse method from above
+-- TopoGeo_AddPoint,
+-- ST_NewEdgesSplit
+-- and ST_ModEdgeSplit pgr_createTopology pgr_analyzeGraph --******
 -- COMPUTE RATIO BETWEEN MATCHED AND UNMATCHED
 -- CREATE TABLE matching_geodk_osm._undecided AS
 -- SELECT
@@ -353,4 +405,68 @@ WHERE
 --             osm_road_edges
 --         WHERE
 --             bicycle_infrastructure = TRUE
+--     );
+-- -- MARK SEGMENTS AS MATCHED IF THEY ARE BETWEEN MATCHED SEGMENTS
+-- ALTER TABLE
+--     matching_geodk_osm._segments_osm_all
+-- ADD
+--     COLUMN new_id SERIAL PRIMARY KEY,
+-- ADD
+--     COLUMN source INT,
+-- ADD
+--     COLUMN target INT,
+-- ADD
+--     COLUMN the_geom TEXT;
+-- ALTER TABLE
+--     matching_geodk_osm._segments_osm_all
+-- ALTER COLUMN
+--     geom TYPE geometry(LineString, 25832) USING ST_Force2D(geom);
+-- UPDATE
+--     matching_geodk_osm._segments_osm_all
+-- SET
+--     the_geom = ST_AsText(geom);
+-- -- POSSIBLY SPEED UP BY ONLY INCLUDING MATCHED OR THOSE CLOSE TO A MATCHED SEGMENTS
+-- SELECT
+--     pgr_createTopology(
+--         'matching_geodk_osm._segments_osm_all',
+--         0.001,
+--         'the_geom',
+--         'new_id',
+--         'source',
+--         'target'
+--     );
+-- WITH matched_nodes AS (
+--     SELECT
+--         source
+--     FROM
+--         matching_geodk_osm._segments_osm_all
+--     WHERE
+--         matched = TRUE
+--     UNION
+--     SELECT
+--         target
+--     FROM
+--         matching_geodk_osm._segments_osm_all
+-- ) CREATE VIEW unmatched_gaps AS
+-- SELECT
+--     *
+-- FROM
+--     matching_geodk_osm._segments_osm_all
+-- WHERE
+--     matched = FALSE
+--     AND source IN matched_nodes
+--     AND target IN matched_nodes;
+-- ---
+-- --- CHECK IF CORRECT HERE!!
+-- ---
+-- UPDATE
+--     matching_geodk_osm._segments_osm_all
+-- SET
+--     matched = TRUE
+-- WHERE
+--     id IN (
+--         SELECT
+--             id
+--         FROM
+--             unmatched_gaps
 --     );
