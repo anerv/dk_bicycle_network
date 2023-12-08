@@ -1,4 +1,4 @@
--- *** STEP 3: FIND CANDIDATES (NO BIKE) ***
+-- *** STEP 3: FIND CANDIDATES***
 SELECT
     id_geodk,
     id_osm,
@@ -38,6 +38,6 @@ FROM
             matching_geodk_osm._segments_geodk AS segments_geodk
             JOIN matching_geodk_osm._segments_osm AS segments_osm ON ST_Intersects(
                 segments_geodk.geom,
-                ST_Buffer(segments_osm.geom, 15)
+                ST_Buffer(segments_osm.geom, 18)
             )
     ) AS a;
