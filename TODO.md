@@ -65,3 +65,27 @@ java -jar osm2po-5.5.5/osm2po-core-5.5.5-signed.jar cmd=c prefix=route /Users/an
 
 
 psql -h localhost -p 5432 -U postgres -d postgres -q -f /Users/anev/Desktop/route/route_2po_4pgr.sql
+
+
+
+
+********
+
+SPLIT
+58, 66%
+8, 50%
+9, 55%
+10, 40%
+16, 37%
+5, 60%
+12, 66%
+
+TRUE
+5, 60% TRUE
+4, 50% TRUE
+4, 50% TRUE?
+5, 60% TRUE
+
+FALSE
+21, 42% FALSE
+7, 29% FALSE
