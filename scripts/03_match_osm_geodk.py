@@ -141,21 +141,90 @@ undecided_groups["group_matching"] = undecided_groups.group_matching.apply(
 undecided_groups["len"] = undecided_groups.group_matching.apply(lambda x: len(x))
 
 # %%
-# If it can be divided into two groups, it needs to be split
-undecided_groups["split"] = None
-undecided_groups.loc[undecided_groups.len == 2, "split"] = True
+
+edges_to_split = undecided_groups.loc[undecided_groups.len == 2]
+
+from shapely.geometry import MultiLineString
+from shapely.ops import linemerge
+
+
+def split_edges(edges_to_split, segment_gdf):
+    segment_ids = []
+    id_osm = []
+    geometries = []
+    matched = []
+
+    for _, data in edges_to_split.iterrows():
+        matched_list = data["group_matching"]
+        segment_id_list = data["ids"]
+
+        matched_list_new = matched_list[0]
+
+        matched_list_new.extend(matched_list[1])
+        matched_segment_ids = [
+            x for x, y in zip(segment_id_list, matched_list_new) if y == True
+        ]
+        unmatched_segment_ids = [
+            x for x, y in zip(segment_id_list, matched_list_new) if y == False
+        ]
+
+        matched_segments = segment_gdf.loc[segment_gdf.id.isin(matched_segment_ids)]
+
+        unmatched_segments = segment_gdf.loc[segment_gdf.id.isin(unmatched_segment_ids)]
+
+        matched_geom = linemerge(MultiLineString(matched_segments.geometry.to_list()))
+
+        unmatched_geom = linemerge(
+            MultiLineString(unmatched_segments.geometry.to_list())
+        )
+
+        segment_ids.append(matched_segment_ids)
+        segment_ids.append(unmatched_segment_ids)
+        id_osm.extend([data["id_osm"], data["id_osm"]])
+        geometries.append(matched_geom)
+        geometries.append(unmatched_geom)
+        matched.extend([True, False])
+
+    dict = {
+        "segment_ids": segment_ids,
+        "id_osm": id_osm,
+        "matched": matched,
+        "geometry": geometries,
+    }
+
+    edges = gpd.GeoDataFrame(dict, crs="EPSG:25832")
+
+    assert len(new_edges) == 2 * len(edges_to_split)
+
+    assert new_edges.geometry.length.sum() <= segment_gdf.geometry.length.sum()
+
+    assert new_edges.loc[0, "id_osm"] == new_edges.loc[1, "id_osm"]
+
+    assert new_edges.loc[0, "matched"] == True
+    assert new_edges.loc[1, "matched"] == False
+
+    return edges
+
+
+new_edges = split_edges(edges_to_split, undecided_segments)
+
 
 # %%
-# TODO: Mark edges as matched (update matched final) based on grouped edges
-# Including surface info etc
 
-# TODO: split
-# for group in now-decided groups:
-# get indexes for True and False:
-# Get ids for corresponding segments
+# TODO: check that new edges are correct
+# UPDATE OSM with matches
+# TODO: load to postgres
+
+# Get info on surface and category - based on matches - those where matching is True, get category and surface from grouped OSM
+# insert into OSM edges - HOW - need to maintain OSM tags
+# Duplicate edge
+# Change geometry and mark correct one as matched + transfer tags?
+# Or, delete org but keep in another temp table
+# Insert two new ones
+# Update based on temp table and osm id
+
 # Get segment geometries
-# Merge them into one line (both true and false)
-# get info on surfac etc.
+# get info on surfac etc. - maybe in postgres?
 # store to a new gdf with segment id(?) and org id_osm and info on matched and not matched and surface/category info
 
 # ADD new geometries to osm_road_edges tables while marking them as matched or unmatched
@@ -165,6 +234,8 @@ undecided_groups.loc[undecided_groups.len == 2, "split"] = True
 #
 # %%
 
+
+# %%
 
 print("Start", starttime)
 print("Endtime", time.ctime())
