@@ -150,11 +150,11 @@ ASSERT count_unique_seg_id = (
 END $$;
 
 -- MAKE SURE THAT OSM SEGMENTS ARE NOT TOO SHORT
-DROP TABLE IF EXISTS matching_geodk_osm.merged_osm_segments CASCADE;
+DROP TABLE IF EXISTS matching_geodk_osm._merged_osm_segments CASCADE;
 
-DROP TABLE IF EXISTS matching_geodk_osm.too_short_osm_segs CASCADE;
+DROP TABLE IF EXISTS matching_geodk_osm._too_short_osm_segs CASCADE;
 
-CREATE TABLE matching_geodk_osm.merged_osm_segments (
+CREATE TABLE matching_geodk_osm._merged_osm_segments (
     id_osm decimal,
     long_seg_id VARCHAR,
     short_seg_id VARCHAR,
@@ -163,7 +163,7 @@ CREATE TABLE matching_geodk_osm.merged_osm_segments (
     geom geometry
 );
 
-CREATE TABLE matching_geodk_osm.too_short_osm_segs AS
+CREATE TABLE matching_geodk_osm._too_short_osm_segs AS
 SELECT
     *
 FROM
@@ -171,7 +171,7 @@ FROM
 WHERE
     ST_Length(geom) < 3;
 
-CREATE INDEX idx_osm_short_segs_geometry ON matching_geodk_osm.too_short_osm_segs USING gist(geom);
+CREATE INDEX idx_osm_short_segs_geometry ON matching_geodk_osm._too_short_osm_segs USING gist(geom);
 
 WITH joined_data AS (
     SELECT
@@ -182,11 +182,11 @@ WITH joined_data AS (
         short_segs.i AS short_i,
         ST_Collect(short_segs.geom, neighbor_segs.geom) AS geom
     FROM
-        matching_geodk_osm.too_short_osm_segs short_segs
+        matching_geodk_osm._too_short_osm_segs short_segs
         JOIN matching_geodk_osm._segments_osm_all neighbor_segs ON short_segs.neighbor_seg_id = neighbor_segs.unique_seg_id
 )
 INSERT INTO
-    matching_geodk_osm.merged_osm_segments
+    matching_geodk_osm._merged_osm_segments
 SELECT
     *
 FROM
@@ -194,7 +194,7 @@ FROM
 
 -- MERGE MULTILINESTRINGS
 UPDATE
-    matching_geodk_osm.merged_osm_segments
+    matching_geodk_osm._merged_osm_segments
 SET
     geom = ST_LineMerge(geom);
 
@@ -205,7 +205,7 @@ WITH joined_data AS (
         osm_segs.unique_seg_id AS seg_id
     FROM
         matching_geodk_osm._segments_osm_all osm_segs
-        JOIN matching_geodk_osm.merged_osm_segments merged ON osm_segs.unique_seg_id = merged.long_seg_id
+        JOIN matching_geodk_osm._merged_osm_segments merged ON osm_segs.unique_seg_id = merged.long_seg_id
 )
 UPDATE
     matching_geodk_osm._segments_osm_all
@@ -218,16 +218,16 @@ WHERE
 
 -- DELETE TOO SHORT OSM SEGMENTS
 DELETE FROM
-    matching_geodk_osm._segments_osm_all osm_segs USING matching_geodk_osm.too_short_osm_segs too_short
+    matching_geodk_osm._segments_osm_all osm_segs USING matching_geodk_osm._too_short_osm_segs too_short
 WHERE
     osm_segs.unique_seg_id = too_short.unique_seg_id;
 
 -- MAKE SURE GEODK SEGMENTS ARE NOT TOO SHORT
-DROP TABLE IF EXISTS matching_geodk_osm.merged_geodk_segments CASCADE;
+DROP TABLE IF EXISTS matching_geodk_osm._merged_geodk_segments CASCADE;
 
-DROP TABLE IF EXISTS matching_geodk_osm.too_short_geodk_segs CASCADE;
+DROP TABLE IF EXISTS matching_geodk_osm._too_short_geodk_segs CASCADE;
 
-CREATE TABLE matching_geodk_osm.merged_geodk_segments (
+CREATE TABLE matching_geodk_osm._merged_geodk_segments (
     id_geodk decimal,
     long_seg_id VARCHAR,
     short_seg_id VARCHAR,
@@ -236,7 +236,7 @@ CREATE TABLE matching_geodk_osm.merged_geodk_segments (
     geom geometry
 );
 
-CREATE TABLE matching_geodk_osm.too_short_geodk_segs AS
+CREATE TABLE matching_geodk_osm._too_short_geodk_segs AS
 SELECT
     *
 FROM
@@ -244,7 +244,7 @@ FROM
 WHERE
     ST_Length(geom) < 3;
 
-CREATE INDEX idx_geodk_short_segs_geometry ON matching_geodk_osm.too_short_geodk_segs USING gist(geom);
+CREATE INDEX idx_geodk_short_segs_geometry ON matching_geodk_osm._too_short_geodk_segs USING gist(geom);
 
 WITH joined_data AS (
     SELECT
@@ -255,11 +255,11 @@ WITH joined_data AS (
         short_segs.i AS short_i,
         ST_Collect(short_segs.geom, neighbor_segs.geom) AS geom
     FROM
-        matching_geodk_osm.too_short_geodk_segs short_segs
+        matching_geodk_osm._too_short_geodk_segs short_segs
         JOIN matching_geodk_osm._segments_geodk neighbor_segs ON short_segs.neighbor_seg_id = neighbor_segs.unique_seg_id
 )
 INSERT INTO
-    matching_geodk_osm.merged_geodk_segments
+    matching_geodk_osm._merged_geodk_segments
 SELECT
     *
 FROM
@@ -267,7 +267,7 @@ FROM
 
 -- MERGE MULTILINESTRINGS
 UPDATE
-    matching_geodk_osm.merged_geodk_segments
+    matching_geodk_osm._merged_geodk_segments
 SET
     geom = ST_LineMerge(geom);
 
@@ -278,7 +278,7 @@ WITH joined_data AS (
         geodk_segs.unique_seg_id AS seg_id
     FROM
         matching_geodk_osm._segments_geodk geodk_segs
-        JOIN matching_geodk_osm.merged_geodk_segments merged ON geodk_segs.unique_seg_id = merged.long_seg_id
+        JOIN matching_geodk_osm._merged_geodk_segments merged ON geodk_segs.unique_seg_id = merged.long_seg_id
 )
 UPDATE
     matching_geodk_osm._segments_geodk
@@ -291,7 +291,7 @@ WHERE
 
 -- DELETE TOO SHORT geodk SEGMENTS
 DELETE FROM
-    matching_geodk_osm._segments_geodk geodk_segs USING matching_geodk_osm.too_short_geodk_segs too_short
+    matching_geodk_osm._segments_geodk geodk_segs USING matching_geodk_osm._too_short_geodk_segs too_short
 WHERE
     geodk_segs.unique_seg_id = too_short.unique_seg_id;
 

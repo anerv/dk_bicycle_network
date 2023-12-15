@@ -9,3 +9,6 @@ qgis.md
 random.sql
 osm2po/*
 scripts/dk_osm2po/*
+scripts/new_edges.gpkg
+scripts/new_edges.gpkg-shm
+scripts/new_edges.gpkg-wal

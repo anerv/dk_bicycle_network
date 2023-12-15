@@ -135,7 +135,7 @@ def connect_alc(db_name, db_user, db_password, db_port, db_host="localhost"):
 
 
 # Function for loading data to database using sqlalchemy
-def to_postgis(geodataframe, table_name, engine, if_exists="replace"):
+def to_postgis(geodataframe, table_name, engine, if_exists="replace", schema=None):
     """
     Function for loading a geodataframe to a postgres database using sqlalchemy
     Required input are geodataframe, desired name of table and sqlalchemy engine
@@ -143,7 +143,12 @@ def to_postgis(geodataframe, table_name, engine, if_exists="replace"):
     """
 
     try:
-        geodataframe.to_postgis(table_name, engine, if_exists=if_exists)
+        geodataframe.to_postgis(
+            name=table_name,
+            con=engine,
+            schema=schema,
+            if_exists=if_exists,
+        )
         print(table_name, "successfully loaded to database!")
     except Exception as error:
         print("Error while uploading data to database:", error)

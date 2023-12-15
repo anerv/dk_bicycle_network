@@ -6,6 +6,7 @@ os.environ["USE_PYGEOS"] = "0"
 import time
 import yaml
 from src import db_functions as dbf
+from src import preprocess_functions as prep_func
 import geopandas as gpd
 import pandas as pd
 from itertools import groupby
@@ -28,7 +29,7 @@ print("Start", time.ctime())
 starttime = time.ctime()
 
 # %%
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 # queries = [
 #     "sql/03a_prepare_data.sql",
@@ -53,25 +54,23 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_h
 #     )
 #     print(f"Step {i+1} done!")
 
-
-# %%
-print("Matching done!")
-print("Process matching starting...")
+# print("Matching done!")
+# print("Process matching starting...")
 
 # %%
 # Process matches
 
-dbf.run_query_pg(
-    "sql/03i_process_matches.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+# dbf.run_query_pg(
+#     "sql/03i_process_matches.sql",
+#     connection,
+#     success="Query successful!",
+#     fail="Query failed!",
+#     commit=True,
+#     close=False,
+# )
 
-print("First preprocessing complete!")
-print("Continuing with matching of edges....")
+# print("First preprocessing complete!")
+# print("Continuing with matching of edges....")
 
 # %%
 # Process undecided segments
@@ -84,153 +83,50 @@ undecided_segments = gpd.GeoDataFrame.from_postgis(q, connection, crs="EPSG:2583
 q = "SELECT * FROM matching_geodk_osm._undecided_groups"
 undecided_groups = pd.read_sql(q, connection)
 
-# %%
 # Group adjacent identical matching vales
 undecided_groups["group_matching"] = undecided_groups["matched_count"].apply(
     lambda x: [list(t) for z, t in groupby(x)]
 )
 
-
-# %%
-def standardize_matched_segments(nested_list):
-    for i, l in enumerate(nested_list):
-        if len(l) == 1:
-            # find opposite value:
-            if l[0] == False:
-                new_val = True
-            else:
-                new_val = False
-            # Add to list before or after
-            # If at the enf of nested list, add to group before
-            if i == len(nested_list) - 1:
-                nested_list[i - 1].append(new_val)
-            else:
-                nested_list[i + 1].append(new_val)
-
-            # Remove L from list
-            nested_list.pop(i)
-
-    return nested_list
-
-
-def merge_similar_lists(nested_list):
-    # Assumes nested lists with identical values
-    i = 0
-    while i < len(nested_list) - 1:
-        # for i in range(len(nested_list) - 1):
-        if nested_list[i][0] == nested_list[i + 1][0]:
-            nested_list[i + 1] = nested_list[i] + nested_list[i + 1]
-            nested_list.pop(i)
-
-        i += 1
-
-    return nested_list
-
-
-# %%
-
 undecided_groups["group_matching"] = undecided_groups.group_matching.apply(
-    lambda x: standardize_matched_segments(x)
+    lambda x: prep_func.standardize_matched_segments(x)
 )
 
 undecided_groups["group_matching"] = undecided_groups.group_matching.apply(
-    lambda x: merge_similar_lists(x)
+    lambda x: prep_func.merge_similar_lists(x)
 )
 
-# %%
 undecided_groups["len"] = undecided_groups.group_matching.apply(lambda x: len(x))
-
-# %%
 
 edges_to_split = undecided_groups.loc[undecided_groups.len == 2]
 
-from shapely.geometry import MultiLineString
-from shapely.ops import linemerge
+new_edges = prep_func.split_edges(edges_to_split, undecided_segments)
 
+# Export data
+print("Saving data to Postgres!")
 
-def split_edges(edges_to_split, segment_gdf):
-    segment_ids = []
-    id_osm = []
-    geometries = []
-    matched = []
+engine = dbf.connect_alc(db_name, db_user, db_password, db_port=db_port)
 
-    for _, data in edges_to_split.iterrows():
-        matched_list = data["group_matching"]
-        segment_id_list = data["ids"]
+table_name = "_decided_segments"
+dbf.to_postgis(
+    geodataframe=new_edges,
+    table_name=table_name,
+    engine=engine,
+    schema="matching_geodk_osm",
+)
 
-        matched_list_new = matched_list[0]
+connection = dbf.connect_pg(db_name, db_user, db_password, db_port)
 
-        matched_list_new.extend(matched_list[1])
-        matched_segment_ids = [
-            x for x, y in zip(segment_id_list, matched_list_new) if y == True
-        ]
-        unmatched_segment_ids = [
-            x for x, y in zip(segment_id_list, matched_list_new) if y == False
-        ]
+q = f"SELECT segment_ids, id_osm, matched FROM matching_geodk_osm._decided_segments LIMIT 10;"
 
-        matched_segments = segment_gdf.loc[segment_gdf.id.isin(matched_segment_ids)]
+test = dbf.run_query_pg(q, connection)
 
-        unmatched_segments = segment_gdf.loc[segment_gdf.id.isin(unmatched_segment_ids)]
+print(test)
 
-        matched_geom = linemerge(MultiLineString(matched_segments.geometry.to_list()))
-
-        unmatched_geom = linemerge(
-            MultiLineString(unmatched_segments.geometry.to_list())
-        )
-
-        segment_ids.append(matched_segment_ids)
-        segment_ids.append(unmatched_segment_ids)
-        id_osm.extend([data["id_osm"], data["id_osm"]])
-        geometries.append(matched_geom)
-        geometries.append(unmatched_geom)
-        matched.extend([True, False])
-
-    dict = {
-        "segment_ids": segment_ids,
-        "id_osm": id_osm,
-        "matched": matched,
-        "geometry": geometries,
-    }
-
-    edges = gpd.GeoDataFrame(dict, crs="EPSG:25832")
-
-    assert len(new_edges) == 2 * len(edges_to_split)
-
-    assert new_edges.geometry.length.sum() <= segment_gdf.geometry.length.sum()
-
-    assert new_edges.loc[0, "id_osm"] == new_edges.loc[1, "id_osm"]
-
-    assert new_edges.loc[0, "matched"] == True
-    assert new_edges.loc[1, "matched"] == False
-
-    return edges
-
-
-new_edges = split_edges(edges_to_split, undecided_segments)
-
-
+connection.close()
 # %%
 
-# TODO: check that new edges are correct
-# UPDATE OSM with matches
-# TODO: load to postgres
-
-# Get info on surface and category - based on matches - those where matching is True, get category and surface from grouped OSM
-# insert into OSM edges - HOW - need to maintain OSM tags
-# Duplicate edge
-# Change geometry and mark correct one as matched + transfer tags?
-# Or, delete org but keep in another temp table
-# Insert two new ones
-# Update based on temp table and osm id
-
-# Get segment geometries
-# get info on surfac etc. - maybe in postgres?
-# store to a new gdf with segment id(?) and org id_osm and info on matched and not matched and surface/category info
-
-# ADD new geometries to osm_road_edges tables while marking them as matched or unmatched
-# QUESTION: TODO: what to do with ids? Create two new UNIQUE IDS - how?
-# Del org non-split geometries
-# Rebuild topology
+# TODO: run o3j
 #
 # %%
 
@@ -251,3 +147,11 @@ print("Endtime", time.ctime())
 # -- make new bicycle infra column
 # --
 # -- TODO: CLOSE GAPS
+
+# %%
+
+connection = dbf.connect_pg(db_name, db_user, db_password, db_port)
+sql = "SELECT * FROM osm_road_edges LIMIT 1;"
+test = gpd.GeoDataFrame.from_postgis(sql, connection, geom_col="geometry")
+
+# %%
