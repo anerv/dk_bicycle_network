@@ -29,48 +29,49 @@ print("Start", time.ctime())
 starttime = time.ctime()
 
 # %%
-# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+# Perform initial matching
+connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-# queries = [
-#     "sql/03a_prepare_data.sql",
-#     "sql/03b_create_segments.sql",
-#     "sql/03c_find_candidates_bike.sql",
-#     "sql/03d_find_best_match_bike.sql",
-#     "sql/03e_find_unmatched_geodk_segments.sql",
-#     "sql/03g_find_candidates_no_bike.sql",
-#     "sql/03h_find_best_matches_no_bike.sql",
-# ]
+queries = [
+    "sql/03a_prepare_data.sql",
+    "sql/03b_create_segments.sql",
+    "sql/03c_find_candidates_bike.sql",
+    "sql/03d_find_best_match_bike.sql",
+    "sql/03e_find_unmatched_geodk_segments.sql",
+    "sql/03g_find_candidates_no_bike.sql",
+    "sql/03h_find_best_matches_no_bike.sql",
+]
 
 
-# for i, q in enumerate(queries):
-#     print(f"Running step {i+1}...")
-#     dbf.run_query_pg(
-#         q,
-#         connection,
-#         success="Query successful!",
-#         fail="Query failed!",
-#         commit=True,
-#         close=False,
-#     )
-#     print(f"Step {i+1} done!")
+for i, q in enumerate(queries):
+    print(f"Running step {i+1}...")
+    dbf.run_query_pg(
+        q,
+        connection,
+        success="Query successful!",
+        fail="Query failed!",
+        commit=True,
+        close=False,
+    )
+    print(f"Step {i+1} done!")
 
-# print("Matching done!")
-# print("Process matching starting...")
+print("Matching done!")
+print("Process matching starting...")
 
 # %%
 # Process matches
 
-# dbf.run_query_pg(
-#     "sql/03i_process_matches.sql",
-#     connection,
-#     success="Query successful!",
-#     fail="Query failed!",
-#     commit=True,
-#     close=False,
-# )
+dbf.run_query_pg(
+    "sql/03i_process_matches.sql",
+    connection,
+    success="Query successful!",
+    fail="Query failed!",
+    commit=True,
+    close=False,
+)
 
-# print("First preprocessing complete!")
-# print("Continuing with matching of edges....")
+print("First preprocessing complete!")
+print("Continuing with processing of incomplete matches....")
 
 # %%
 # Process undecided segments
@@ -123,35 +124,17 @@ test = dbf.run_query_pg(q, connection)
 
 print(test)
 
-connection.close()
 # %%
+# Add undecided/split edges
+connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-# TODO: run o3j
-#
-# %%
-
-
-# %%
-
-print("Start", starttime)
-print("Endtime", time.ctime())
-
-
-# %%
-
-
-# -- THEN TRANSFER TO SEGMENTS
-# -- group osm_segs by org_id
-# -- if more than XXX segs are matched -- mark as matched?
-# -- store in new column for osm roads
-# -- make new bicycle infra column
-# --
-# -- TODO: CLOSE GAPS
-
-# %%
-
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port)
-sql = "SELECT * FROM osm_road_edges LIMIT 1;"
-test = gpd.GeoDataFrame.from_postgis(sql, connection, geom_col="geometry")
+dbf.run_query_pg(
+    "sql/03j_identify_matched_edges.sql",
+    connection,
+    success="Query successful!",
+    fail="Query failed!",
+    commit=True,
+    close=False,
+)
 
 # %%

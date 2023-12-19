@@ -80,7 +80,7 @@ ADD
 ADD
     COLUMN geodk_category VARCHAR;
 
--- INSERT
+-- INSERT NEW SPLIT EDGES
 INSERT INTO
     osm_road_edges
 SELECT
@@ -155,6 +155,7 @@ SELECT
 FROM
     matching_geodk_osm._joined_decided_segments;
 
+-- MARK EDGES AS MATCHED BASED ON GROUPED OSM SEGMENTS
 UPDATE
     osm_road_edges
 SET
@@ -164,37 +165,44 @@ SET
 FROM
     matching_geodk_osm._grouped_osm g
 WHERE
-    matched_final = TRUE
+    g.matched_final = TRUE
     AND id = g.id_osm;
 
--- Clear topology for updated and adjacent edges
-WITH updated_nodes AS (
-    SELECT
-        source
-    FROM
-        matching_geodk_osm._joined_decided_segments
-    UNION
-    SELECT
-        target
-    FROM
-        matching_geodk_osm._joined_decided_segments
-)
+-- -- Clear topology for updated and adjacent edges
+-- WITH updated_nodes AS (
+--     SELECT
+--         source s
+--     FROM
+--         matching_geodk_osm._joined_decided_segments
+--     UNION
+--     SELECT
+--         target s
+--     FROM
+--         matching_geodk_osm._joined_decided_segments
+-- )
+-- UPDATE
+--     osm_road_edges
+-- SET
+--     source = NULL,
+--     target = NULL
+-- WHERE
+--     source IN (
+--         SELECT
+--             s
+--         FROM
+--             updated_nodes
+--     )
+--     OR target IN (
+--         SELECT
+--             s
+--         FROM
+--             updated_nodes
+--     );
 UPDATE
     osm_road_edges
 SET
-    source = NULL,
-    target = NULL,
-WHERE
-    (
-        source IN updated_nodes
-        OR target IN updated_nodes
-    );
-
-UPDATE
-    osm_road_edges
-SET
-    source = NULL,
-    target = NULL,
+    -- source = NULL,
+    -- target = NULL,
     x1 = NULL,
     x2 = NULL,
     y1 = NULL,
@@ -202,28 +210,10 @@ SET
 WHERE
     id IN (
         SELECT
-            id_osm
+            id
         FROM
             matching_geodk_osm._joined_decided_segments
     );
-
--- create new unique id
-ALTER osm_road_edges
-ADD
-    COLUMN old_id BIGINT;
-
-UPDATE
-    osm_road_edges
-SET
-    old_id = id;
-
-UPDATE
-    osm_road_edges DROP COLUMN id;
-
-ALTER TABLE
-    osm_road_edges
-ADD
-    COLUMN id BIGSERIAL;
 
 -- fill out x1 etc
 UPDATE
@@ -236,6 +226,25 @@ SET
 WHERE
     x1 IS NULL;
 
+-- create new unique id
+ALTER TABLE
+    osm_road_edges
+ADD
+    COLUMN old_id BIGINT;
+
+UPDATE
+    osm_road_edges
+SET
+    old_id = id;
+
+ALTER TABLE
+    osm_road_edges DROP COLUMN id;
+
+ALTER TABLE
+    osm_road_edges
+ADD
+    COLUMN id BIGSERIAL;
+
 -- rebuild topology
 SELECT
     pgr_createTopology(
@@ -245,11 +254,358 @@ SELECT
         'id',
         'source',
         'target',
-        --clean := true
+        clean := true
     );
 
--- OR: clean id source target etc cols for all from joined segments AND FOR all connecting to those
--- TODO: close gaps
--- get rid of null values in arrays
--- update costs?
-VACUUM ANALYZE VERBOSE osm_road_edges;
+-- NODES OF MATCHED EDGES
+CREATE VIEW matching_geodk_osm._matched_nodes AS (
+    SELECT
+        source AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched = TRUE
+    UNION
+    SELECT
+        target AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched = TRUE
+);
+
+CREATE TABLE matching_geodk_osm._potential_gaps AS (
+    SELECT
+        *
+    FROM
+        osm_road_edges
+    WHERE
+        source IN (
+            SELECT
+                node
+            FROM
+                matching_geodk_osm._matched_nodes
+        )
+        AND target IN (
+            SELECT
+                node
+            FROM
+                matching_geodk_osm._matched_nodes
+        )
+        AND (
+            bicycle <> 'no'
+            OR bicycle IS NULL
+        )
+        AND (
+            matched IS NULL
+            OR matched IS FALSE
+        )
+        AND ST_length(geometry) <= 20
+        AND highway NOT in ('footway', 'bridleway', 'unclassified')
+);
+
+UPDATE
+    osm_road_edges
+SET
+    matched = TRUE
+WHERE
+    id IN (
+        SELECT
+            id
+        FROM
+            matching_geodk_osm._potential_gaps
+    );
+
+ALTER TABLE
+    osm_road_edges
+ADD
+    COLUMN category_temp VARCHAR,
+ADD
+    COLUMN surface_temp VARCHAR;
+
+UPDATE
+    osm_road_edges
+SET
+    surface_temp =(
+        SELECT
+            array(
+                SELECT
+                    unnest(geodk_surface :: text [ ])
+                EXCEPT
+                SELECT
+                    NULL
+            )
+    )
+WHERE
+    matched IS TRUE;
+
+UPDATE
+    osm_road_edges
+SET
+    category_temp =(
+        SELECT
+            array(
+                SELECT
+                    unnest(geodk_category :: text [ ])
+                EXCEPT
+                SELECT
+                    NULL
+            )
+    )
+WHERE
+    matched IS TRUE;
+
+UPDATE
+    osm_road_edges
+SET
+    category_temp = CASE
+        WHEN category_temp = '{"Cykelsti langs vej"}' THEN 'Cykelsti langs vej'
+        WHEN category_temp = '{"Cykelbane langs vej"}' THEN 'Cykelbane langs vej'
+        WHEN category_temp = '{"Cykelbane langs vej","Cykelsti langs vej"}' THEN 'Cykelsti langs vej'
+        WHEN category_temp = '{"Cykelsti langs vej","Cykelbane langs vej"}' THEN 'Cykelsti langs vej'
+    END
+WHERE
+    matched = TRUE;
+
+UPDATE
+    osm_road_edges
+SET
+    surface_temp = CASE
+        WHEN surface_temp = '{Befæstet}' THEN 'Befæstet'
+        WHEN surface_temp = '{Ubefæstet}' THEN 'Ubefæstet'
+        WHEN surface_temp = '{Ukendt}' THEN 'Ukendt'
+        WHEN surface_temp = '{Befæstet,Ubefæstet}' THEN 'Befæstet'
+        WHEN surface_temp = '{Ubefæstet,Befæstet}' THEN 'Befæstet'
+    END
+WHERE
+    matched = TRUE;
+
+-- TODO: write func to make sure no null values have been introduced
+DO $$
+DECLARE
+    category_temp_null INT;
+
+BEGIN
+    SELECT
+        count(*) INTO category_temp_null
+    FROM
+        osm_road_edges
+    WHERE
+        geodk_category IS NOT NULL
+        AND category_temp IS NULL;
+
+ASSERT category_temp_null = 0,
+'Issue with classification';
+
+END $$;
+
+DO $$
+DECLARE
+    surface_temp_null INT;
+
+BEGIN
+    SELECT
+        count(*) INTO surface_temp_null
+    FROM
+        osm_road_edges
+    WHERE
+        geodk_surface IS NOT NULL
+        AND surface_temp IS NULL;
+
+ASSERT surface_temp_null = 0,
+'Issue with classification';
+
+END $$;
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_category = category_temp
+WHERE
+    matched = TRUE;
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_surface = surface_temp
+WHERE
+    matched = TRUE;
+
+ALTER TABLE
+    osm_road_edges DROP COLUMN category_temp,
+    DROP COLUMN surface_temp;
+
+CREATE VIEW matching_geodk_osm._cykelsti_nodes AS (
+    SELECT
+        source AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND geodk_category = 'Cykelsti langs vej'
+    UNION
+    SELECT
+        target AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND geodk_category = 'Cykelsti langs vej'
+);
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_category = 'Cykelsti langs vej'
+WHERE
+    source IN (
+        SELECT
+            node
+        FROM
+            matching_geodk_osm._cykelsti_nodes
+    )
+    AND target IN (
+        SELECT
+            node
+        FROM
+            matching_geodk_osm._cykelsti_nodes
+    )
+    AND matched IS TRUE
+    AND geodk_category IS NULL;
+
+CREATE VIEW matching_geodk_osm._cykelbane_nodes AS (
+    SELECT
+        source AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND geodk_category = 'Cykelbane langs vej'
+    UNION
+    SELECT
+        target AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND geodk_category = 'Cykelbane langs vej'
+);
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_category = 'Cykelbane langs vej'
+WHERE
+    source IN (
+        SELECT
+            node
+        FROM
+            matching_geodk_osm._cykelbane_nodes
+    )
+    AND target IN (
+        SELECT
+            node
+        FROM
+            matching_geodk_osm._cykelbane_nodes
+    )
+    AND matched IS TRUE
+    AND geodk_category IS NULL;
+
+CREATE VIEW matching_geodk_osm._befaestet_nodes AS (
+    SELECT
+        source AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND geodk_surface = 'Befæstet'
+    UNION
+    SELECT
+        target AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND geodk_surface = 'Befæstet'
+);
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_surface = 'Befæstet'
+WHERE
+    source IN (
+        SELECT
+            node
+        FROM
+            matching_geodk_osm._befaestet_nodes
+    )
+    AND target IN (
+        SELECT
+            node
+        FROM
+            matching_geodk_osm._befaestet_nodes
+    )
+    AND matched IS TRUE
+    AND geodk_surface IS NULL;
+
+CREATE VIEW matching_geodk_osm._ubefaestet_nodes AS (
+    SELECT
+        source AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND geodk_surface = 'Ubefæstet'
+    UNION
+    SELECT
+        target AS node
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND geodk_surface = 'Ubefæstet'
+);
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_surface = 'Ubefæstet'
+WHERE
+    source IN (
+        SELECT
+            node
+        FROM
+            matching_geodk_osm._ubefaestet_nodes
+    )
+    AND target IN (
+        SELECT
+            node
+        FROM
+            matching_geodk_osm._ubefaestet_nodes
+    )
+    AND matched IS TRUE
+    AND geodk_surface IS NULL;
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_category = 'Cykelbane langs vej'
+WHERE
+    (
+        source IN (
+            SELECT
+                node
+            FROM
+                matching_geodk_osm._cykelbane_nodes
+        )
+        OR target IN (
+            SELECT
+                node
+            FROM
+                matching_geodk_osm._cykelbane_nodes
+        )
+    )
+    AND matched IS TRUE
+    AND geodk_category IS NULL
+    AND bicycle_infrastructure IS FALSE;
