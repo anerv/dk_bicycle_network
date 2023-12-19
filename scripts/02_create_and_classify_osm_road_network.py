@@ -17,6 +17,8 @@ with open(r"../config.yml") as file:
 print("Settings loaded!")
 
 # %%
+print("Creating OSM road table...")
+
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 queries = [
@@ -35,6 +37,7 @@ for i, q in enumerate(queries):
         close=False,
     )
     print(f"Step {i+1} done!")
+
 # %%
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
@@ -46,5 +49,8 @@ test = dbf.run_query_pg(q, connection)
 print(test)
 
 connection.close()
+
+print("Road table created successfully!")
+print("Bicycle infrastructure classified!")
 
 # %%
