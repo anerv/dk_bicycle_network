@@ -10,6 +10,7 @@ ALTER TABLE
 ADD
     COLUMN osm_id BIGINT DEFAULT NULL;
 
+-- might not work after rebuilding topo?
 UPDATE
     intersections
 SET
@@ -109,3 +110,6 @@ FROM
     intersection_tags it
 WHERE
     i.osmid = it.osm_id;
+
+-- TODO: Check how many are regulated etc and how many are null
+-- only count those with a node-degree larger than two?

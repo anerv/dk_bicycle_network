@@ -5,9 +5,27 @@ ADD
     COLUMN cycling_allowed BOOLEAN DEFAULT NULL,
 ADD
     COLUMN car_traffic BOOLEAN DEFAULT NULL,
-    --ADD COLUMN bike_separated VARCHAR DEFAULT NULL,
 ADD
-    COLUMN along_street BOOLEAN DEFAULT NULL;
+    COLUMN along_street BOOLEAN DEFAULT NULL,
+ADD
+    COLUMN bicycle_infrastructure_final BOOLEAN DEFAULT NULL;
+
+-- *** Fill bicycle_infra_final based on matching ***
+UPDATE
+    osm_road_edges
+SET
+    bicycle_infra_final = TRUE
+WHERE
+    bicycle_infrastructure IS TRUE
+    OR matched IS TRUE;
+
+UPDATE
+    osm_road_edges
+SET
+    protected = TRUE
+WHERE
+    protected IS NULL
+    AND geodk_category = 'Cykelsti langs vej';
 
 -- *** Fill column car_traffic ***
 UPDATE
@@ -68,7 +86,7 @@ WHERE
         'allowed',
         'designated'
     )
-    OR bicycle_infrastructure_all = TRUE
+    OR bicycle_infrastructure_final = TRUE
     OR (
         highway IN (
             'trunk',
@@ -106,7 +124,7 @@ WHERE
     bicycle IN ('no', 'dismount', 'use_sidepath')
     OR (
         highway IN ('motorway', 'motorway_link')
-        AND cycling_infra_new = 'no'
+        AND bicycle_infra_final = FALSE
     );
 
 -- *** FILL COLUMN ALONG STREET ***
@@ -123,42 +141,24 @@ UPDATE
 SET
     along_street = TRUE
 WHERE
-    geodk_bike IS NOT NULL;
+    matched IS TRUE;
 
--- UPDATE
---     osm_road_edges
--- SET
---     along_street = FALSE
--- WHERE
---     cycling_infra_new = 'yes'
---     AND along_street IS NULL;
 -- Capturing cycleways digitized as individual ways but still running parallel to a street
-CREATE VIEW cycleways AS (
+-- Get all bicycle infrastructure mapped with own geometries
+-- TODO: confirm that it only is this subsection that has not been classified as along street yet
+CREATE TABLE cycleways AS (
     SELECT
         name,
         highway,
-        cycling_infrastructure,
+        bicycle_infrastructure_final,
         along_street
     FROM
         osm_road_edges
     WHERE
-        highway = 'cycleway'
+        highway IN ('cycleway', 'path', 'track')
+        AND bicycle_infrastructure_final IS TRUE
 );
 
-CREATE VIEW car_roads AS (
-    SELECT
-        name,
-        highway,
-        geometry
-    FROM
-        osm_road_edges
-    WHERE
-        car_traffic IS TRUE
-);
-
--- UPDATE cycleways c SET along_street = 'true'
---     FROM car_roads cr WHERE c.name = cr.name
--- ;
 CREATE TABLE buffered_car_roads AS (
     SELECT
         (ST_Dump(geom)) .geom
@@ -167,43 +167,44 @@ CREATE TABLE buffered_car_roads AS (
             SELECT
                 ST_Union(ST_Buffer(geometry, 20)) AS geom
             FROM
-                car_roads
+                osm_road_edges
+            WHERE
+                car_traffic IS TRUE
         ) cr
 );
 
 CREATE INDEX buffer_geom_idx ON buffered_car_roads USING GIST (geom);
 
-CREATE INDEX osm_edges_geom_idx ON osm_road_edges USING GIST (geometry);
+CREATE INDEX cycleways_geom_idx ON cycleways USING GIST (geometry);
 
-CREATE TABLE intersecting_cycle_roads AS (
+-- First find cycleways that intersects a car buffer
+WITH intersecting_cycleways AS (
     SELECT
-        o.osm_id,
-        o.geometry
+        c .id,
+        c .geometry
     FROM
-        osm_road_edges o,
+        cycleways c,
         buffered_car_roads br
     WHERE
-        o.cycling_infra_new = 'yes'
-        AND ST_Intersects(o.geometry, br.geom)
-);
-
-CREATE TABLE cycle_infra_points AS (
+        ST_Intersects(o.geometry, br.geom)
+) CREATE TABLE cycleways_points AS (
     SELECT
-        osm_id,
+        id,
         ST_Collect(
             ARRAY [ ST_StartPoint(geometry),
             ST_Centroid(geometry),
             ST_EndPoint(geometry) ]
         ) AS geometry
     FROM
-        intersecting_cycle_roads
+        intersecting_cycleways
 );
 
-CREATE INDEX cycle_points_geom_idx ON cycle_infra_points USING GIST (geometry);
+CREATE INDEX cycle_points_geom_idx ON cycleways_points USING GIST (geometry);
 
-CREATE TABLE cycling_cars AS (
+-- Then find cycleways where both start, end and mid-point are within a car buffer
+CREATE VIEW cycling_cars AS (
     SELECT
-        c .osm_id,
+        c .id,
         c .geometry
     FROM
         cycle_infra_points c,
@@ -219,4 +220,14 @@ SET
 FROM
     cycling_cars c
 WHERE
-    o.osm_id = c .osm_id;
+    o.id = c .id;
+
+-- TODO: set along street = false if not in cycling_cars?
+--
+-- TODO: confirm that cycling_allowed, car_traffic and along_street are all filled out
+-- find a way to fill out null values
+DROP VIEW cycling_cars;
+
+DROP TABLE buffered_car_roads;
+
+DROP TABLE cycleways;
