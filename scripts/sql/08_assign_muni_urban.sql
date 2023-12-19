@@ -2,12 +2,14 @@ CREATE INDEX muni_geom_idx ON muni_boundaries USING GIST (geometry);
 
 CREATE INDEX urban_geom_idx ON urban_polygons_8 USING GIST (geometry);
 
--- Assign municipality to network
 ALTER TABLE
     osm_road_edges
 ADD
-    COLUMN municipality VARCHAR DEFAULT NULL;
+    COLUMN municipality VARCHAR DEFAULT NULL,
+ADD
+    COLUMN urban VARCHAR DEFAULT NULL;
 
+-- Assign municipality to network
 UPDATE
     osm_road_edges o
 SET
@@ -17,12 +19,17 @@ FROM
 WHERE
     ST_Intersects(o.geometry, m.geometry);
 
--- Assign urban type to network
-ALTER TABLE
-    osm_road_edges
-ADD
-    COLUMN urban VARCHAR DEFAULT NULL;
+UPDATE
+    osm_road_edges o
+SET
+    municipality = m.navn
+FROM
+    muni_boundaries m
+WHERE
+    o.municipality IS NULL
+    AND ST_Intersects(o.geometry, ST_Buffer(m.geometry, 100));
 
+-- Assign urban
 WITH urban_selection AS (
     SELECT
         *
@@ -40,71 +47,44 @@ FROM
 WHERE
     ST_Within(o.geometry, u.geometry);
 
-WITH urban_polys AS (
-    SELECT
-        *
-    FROM
-        urban_polygons_8
-)
-SELECT
-    u.urban,
-    ST_Distance(o.geometry, u.geometry) AS dist_m
-FROM
-    osm_road_edges o
-    CROSS JOIN LATERAL (
-        SELECT
-            u.geometry,
-            u.hex_id_8,
-            u.urban
-        FROM
-            urban_polys u
-        ORDER BY
-            o.geometry < -> u.geometry
-        LIMIT
-            1
-    ) z;
-
-CREATE TABLE unmatched_osm_road AS WITH urban_polys AS (
+WITH urban_selection AS (
     SELECT
         *
     FROM
         urban_polygons_8
     WHERE
         urban_code > 10
-),
-osm_unmatched AS (
-    SELECT
-        *
-    FROM
-        osm_road_edges
-    WHERE
-        urban IS NULL
 )
-SELECT
-    b.osm_id AS osm_id,
-    ST_Distance(a .geometry, ST_Centroid(b.geometry)) AS dist_m,
-    a .hex_id_8,
-    a .urban
-FROM
-    osm_road_edges b
-    CROSS JOIN LATERAL (
-        SELECT
-            a .geometry,
-            a .hex_id_8,
-            a .urban
-        FROM
-            urban_polys a
-        ORDER BY
-            ST_Centroid(b.geometry) < -> a .geometry
-        LIMIT
-            1
-    ) a;
-
 UPDATE
-    osm_road_edges
+    osm_road_edges o
 SET
     urban = u.urban
 FROM
-    unmatched_osm_road_edges u
+    urban_selection u
 WHERE
-    osm_road_edges.osm_id = u.osm_id;
+    o.urban IS NULL
+    AND ST_Within(ST_Centroid(o.geometry), u.geometry);
+
+WITH urban_selection AS (
+    SELECT
+        *
+    FROM
+        urban_polygons_8
+    WHERE
+        urban_code > 10
+)
+UPDATE
+    osm_road_edges o
+SET
+    urban = (
+        SELECT
+            urban
+        FROM
+            urban_selection u
+        ORDER BY
+            u.geometry < -> o.geometry
+        LIMIT
+            1
+    )
+WHERE
+    o.urban IS NULL;
