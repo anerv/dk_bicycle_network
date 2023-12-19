@@ -1,13 +1,10 @@
+# %%
 import os
 
 os.environ["USE_PYGEOS"] = "0"
-import time
+
 import yaml
 from src import db_functions as dbf
-from src import preprocess_functions as prep_func
-import geopandas as gpd
-import pandas as pd
-from itertools import groupby
 
 with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
@@ -21,10 +18,14 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
+# %%
+
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
+sql = "SELECT pgr_createverticestable('osm_road_edges', 'geometry', 'source', 'target')"
+
 dbf.run_query_pg(
-    "sql/05a_create_graph.sql",
+    sql,
     connection,
     success="Query successful!",
     fail="Query failed!",
@@ -32,10 +33,12 @@ dbf.run_query_pg(
     close=False,
 )
 
-q = f"SELECT * FROM osm_road_edges_vertices_pgr LIMIT 10;"
+q = f"SELECT id, the_geom FROM osm_road_edges_vertices_pgr LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
 print(test)
 
 print("Network vertices created successfully!")
+
+# %%
