@@ -38,6 +38,11 @@ def create_h3_grid(polygon_gdf, hex_resolution, crs, buffer_dist):
 
 
 def standardize_matched_segments(nested_list):
+    """
+    Function for processing a list of list with identical values of either True and False (e.g. [[F],[T,T,T,T,T],[F,F]).
+    Assumes that adjacent lists with identical values have been merged.
+    Removes nested lists of length 1 by converting to the opposite value and merging with adjacent list.
+    """
     for i, l in enumerate(nested_list):
         if len(l) == 1:
             # find opposite value:
@@ -59,6 +64,10 @@ def standardize_matched_segments(nested_list):
 
 
 def merge_similar_lists(nested_list):
+    """
+    Function for processing a list of list with identical values (e.g. [[T,T],[T,T,T],[F,F]).
+    Adjacent lists with identical values are merged.
+    """
     # Assumes nested lists with identical values
     i = 0
     while i < len(nested_list) - 1:
@@ -73,6 +82,12 @@ def merge_similar_lists(nested_list):
 
 
 def split_edges(edges_to_split, segment_gdf):
+    """
+    Takes a geodataframe (edges_to_split) with partially matched edges,
+    based on their matched and unmatched segments (segments_gdf),
+    and converts each edge into a matched and unmatched geometry.
+    Returns a new geodataframe with split edges and associated edge ids.
+    """
     segment_ids = []
     id_osm = []
     geometries = []
