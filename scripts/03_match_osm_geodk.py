@@ -137,4 +137,5 @@ dbf.run_query_pg(
     close=False,
 )
 
+connection.close()
 # %%
