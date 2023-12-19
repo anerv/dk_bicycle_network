@@ -7,13 +7,15 @@
 - [ ] Mark all edges as matched/unmatched
 - [ ] Add additional cycling info
 - [ ] interpolate missing tags
-- [ ] script for identifying intersections in OSM
+- [X] script for identifying intersections in OSM
 - [ ] script for classifying intersections
 - [ ] script for indexing infra and intersections with muni
-- [ ] script for indexing infra with H3
+- [ ] script for indexing infra with H3??
 
 - [ ] LTS CLASSIFICATION
 - [ ] Close cycling gaps
+
+- [ ] documentation
 
 - [X] turn 01_create_db.sql into script/make sure in can be run from python
 - [X] rename files names so it is clear what is being used by what
