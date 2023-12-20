@@ -1,27 +1,26 @@
-SELECT
-    pgr_createverticestable('osm_road_edges', 'geometry', 'source', 'target');
+ALTER TABLE
+    osm_road_edges_vertices_pgr RENAME TO nodes;
 
 ALTER TABLE
-    osm_road_edges_vertices_pgr RENAME TO intersections;
+    nodes RENAME COLUMN the_geom TO geometry;
 
 -- TRANSFER OSM ID TO VERTICES
 ALTER TABLE
-    intersections
+    nodes
 ADD
     COLUMN osm_id BIGINT DEFAULT NULL;
 
--- might not work after rebuilding topo?
 UPDATE
-    intersections
+    nodes
 SET
     osm_id = r.osm_target_id
 FROM
     osm_road_edges r
 WHERE
-    intersections.id = r.target;
+    nodes.id = r.target;
 
 UPDATE
-    intersections i
+    nodes i
 SET
     osm_id = r.osm_source_id
 FROM
@@ -30,11 +29,12 @@ WHERE
     i.id = r.source
     AND i.osm_id IS NULL;
 
+-- Classify nodes
 CREATE TABLE intersection_tags AS
 SELECT
     *
 FROM
-    planet_osm_points
+    planet_osm_point
 WHERE
     highway = 'traffic_signals'
     OR crossing IN (
@@ -97,19 +97,25 @@ WHERE
     crossing = 'traffic_signals'
     OR highway = 'traffic_signals';
 
+-- Transfer to nodes
 ALTER TABLE
-    intersections
+    nodes
 ADD
-    COLUMN inter_type VARCHAR DEFAULT NULL;
+    COLUMN intersection_type VARCHAR DEFAULT NULL,
+ADD
+    COLUMN highway VARCHAR DEFAULT NULL,
+ADD
+    COLUMN crossing VARCHAR DEFAULT NULL;
 
 UPDATE
-    intersections i
+    nodes n
 SET
-    inter_type = it.inter_type
+    intersection_type = it.inter_type,
+    highway = it.highway,
+    crossing = it.crossing
 FROM
     intersection_tags it
 WHERE
-    i.osmid = it.osm_id;
+    n.osm_id = it.osm_id;
 
--- TODO: Check how many are regulated etc and how many are null
--- only count those with a node-degree larger than two?
+-- what to do with marked crossings that do not fall on nodes?
