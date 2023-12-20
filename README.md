@@ -1,4 +1,4 @@
-# Data Processing a Network Analysis of the Danish Bicycle Networks
+# Data Processing for 'A Network Analysis of the Danish Bicycle Infrastructure'
 
 This repository contains the code for creating a routable road network for all of Denmark divided into XX categorizations of Low Traffic Stress for cycling ([see Mekuria et al 2021](https://transweb.sjsu.edu/research/Low-Stress-Bicycling-and-Network-Connectivity)).
 
@@ -17,19 +17,18 @@ The repository includes data from the following sources:
 © OpenStreetMap contributors  
 License: [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/)
 
-Downloaded fall 2023.
+Downloaded fall 2023 from GeoFabrik.
 
 ### GeoDanmark
 
-Contains data from GeoDanmark (retrieved spring 2022)
-© SDFE (Styrelsen for Dataforsyning og Effektivisering og Danske kommuner)  
+Data from GeoDanmark © SDFE (Styrelsen for Dataforsyning og Effektivisering og Danske kommuner)  
 License: [GeoDanmark](https://www.geodanmark.dk/wp-content/uploads/2022/08/Vilkaar-for-brug-af-frie-geografiske-data_GeoDanmark-grunddata-august-2022.pdf)
 
 Downloaded fall 2023.
 
 ### GHSL
 
-Contains data from the European Commission's GHSL (Global Human Settlement Layer) on [population](https://ghsl.jrc.ec.europa.eu/download.php?ds=pop) and [degree of urbanization](https://ghsl.jrc.ec.europa.eu/ghs_smod2023.php)
+Contains data from the European Commission's GHSL (Global Human Settlement Layer) on [population](https://ghsl.jrc.ec.europa.eu/download.php?ds=pop) and [degree of urbanization](https://ghsl.jrc.ec.europa.eu/ghs_smod2023.php).
 
 Schiavina M., Freire S., Carioli A., MacManus K. (2023):
 GHS-POP R2023A - GHS population grid multitemporal (1975-2030). European Commission, Joint Research Centre (JRC).
