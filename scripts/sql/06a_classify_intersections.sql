@@ -118,4 +118,42 @@ FROM
 WHERE
     n.osm_id = it.osm_id;
 
--- what to do with marked crossings that do not fall on nodes?
+-- TO what to do with marked crossings that do not fall on nodes?
+CREATE TABLE node_degrees AS WITH all_node_occurences AS (
+    SELECT
+        source AS node,
+        id
+    FROM
+        osm_road_edges
+    UNION
+    SELECT
+        target AS node,
+        id
+    FROM
+        osm_road_edges
+)
+SELECT
+    node,
+    COUNT(*) AS c
+FROM
+    all_node_occurences
+GROUP BY
+    node
+ORDER BY
+    c DESC;
+
+ALTER TABLE
+    nodes
+ADD
+    COLUMN node_degree INT DEFAULT NULL;
+
+UPDATE
+    nodes n
+SET
+    node_degree = d.c
+FROM
+    node_degrees d
+WHERE
+    n.id = d.node;
+
+DROP TABLE IF EXISTS node_degrees;
