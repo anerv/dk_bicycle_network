@@ -301,7 +301,14 @@ CREATE TABLE matching_geodk_osm._potential_gaps AS (
             OR matched IS FALSE
         )
         AND ST_length(geometry) <= 20
-        AND highway NOT in ('footway', 'bridleway', 'unclassified')
+        AND highway NOT IN (
+            'footway',
+            'bridleway',
+            'unclassified',
+            'pedestrian',
+            'motorway',
+            'motorway_link'
+        )
 );
 
 UPDATE
