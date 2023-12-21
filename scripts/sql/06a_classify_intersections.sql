@@ -157,3 +157,5 @@ WHERE
     n.id = d.node;
 
 DROP TABLE IF EXISTS node_degrees;
+
+DROP TABLE IF EXISTS all_node_occurences;
