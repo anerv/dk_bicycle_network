@@ -2,19 +2,19 @@
 ALTER TABLE
     osm_road_edges
 ADD
-    COLUMN cycling_allowed BOOLEAN DEFAULT NULL,
+    COLUMN cycling_allowed BOOLEAN DEFAULT FALSE,
 ADD
-    COLUMN car_traffic BOOLEAN DEFAULT NULL,
+    COLUMN car_traffic BOOLEAN DEFAULT FALSE,
 ADD
-    COLUMN along_street BOOLEAN DEFAULT NULL,
+    COLUMN along_street BOOLEAN DEFAULT FALSE,
 ADD
-    COLUMN bicycle_infrastructure_final BOOLEAN DEFAULT NULL;
+    COLUMN bicycle_infrastructure_final BOOLEAN DEFAULT FALSE;
 
 -- *** Fill bicycle_infra_final based on matching ***
 UPDATE
     osm_road_edges
 SET
-    bicycle_infra_final = TRUE
+    bicycle_infrastructure_final = TRUE
 WHERE
     bicycle_infrastructure IS TRUE
     OR matched IS TRUE;
@@ -22,9 +22,9 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    protected = TRUE
+    bicycle_protected = TRUE
 WHERE
-    protected IS NULL
+    bicycle_protected IS NULL
     AND geodk_category = 'Cykelsti langs vej';
 
 -- *** Fill column car_traffic ***
@@ -50,26 +50,23 @@ WHERE
         'service',
         'services'
     )
-    OR highway = 'unclassified'
     AND (
-        'name' IS NOT NULL
-        AND (
-            access IS NULL
-            OR access NOT IN ('no', 'restricted')
-        )
-        AND motorcar != 'no'
-        AND motor_vehicle != 'no'
+        access NOT IN ('no', 'restricted')
+        OR access IS NULL
     )
-    OR highway = 'unclassified'
-    AND (
-        (maxspeed :: integer > 15)
+    OR (
+        highway = 'unclassified'
         AND (
-            motorcar != 'no'
-            OR motorcar is NULL
+            motorcar <> 'no'
+            OR motorcar IS NULL
         )
         AND (
-            motor_vehicle != 'no'
+            motor_vehicle <> 'no'
             OR motor_vehicle IS NULL
+        )
+        AND (
+            access NOT IN ('no', 'restricted')
+            OR access IS NULL
         )
     );
 
@@ -104,15 +101,11 @@ WHERE
             'path',
             'track',
             'cyclestreet',
-            'bicyccle_road'
-        )
-        AND (
-            access IS NULL
-            OR access NOT IN ('no', 'restricted')
+            'bicycle_road'
         )
         AND (
             bicycle IS NULl
-            OR bicycle NOT IN ('no', 'dismount', 'use_sidepath')
+            OR bicycle NOT IN ('dismount', 'use_sidepath')
         )
     );
 
@@ -121,11 +114,18 @@ UPDATE
 SET
     cycling_allowed = FALSE
 WHERE
-    bicycle IN ('no', 'dismount', 'use_sidepath')
-    OR (
-        highway IN ('motorway', 'motorway_link')
-        AND bicycle_infra_final = FALSE
-    );
+    bicycle IN ('use_sidepath')
+    AND bicycle_infrastructure IS FALSE
+    AND bicycle_infrastructure_final IS TRUE;
+
+UPDATE
+    osm_road_edges
+SET
+    cycling_allowed = FALSE
+WHERE
+    matched IS TRUE
+    AND highway in ('motorway', 'motorway_link')
+    AND bicycle_infrastructure IS FALSE;
 
 -- *** FILL COLUMN ALONG STREET ***
 --Determining whether the segment of cycling infrastructure runs along a street or not
@@ -143,91 +143,111 @@ SET
 WHERE
     matched IS TRUE;
 
--- Capturing cycleways digitized as individual ways but still running parallel to a street
--- Get all bicycle infrastructure mapped with own geometries
--- TODO: confirm that it only is this subsection that has not been classified as along street yet
-CREATE TABLE cycleways AS (
+CREATE TABLE buffered_car_roads AS
+SELECT
+    ST_Buffer(geometry, 20) AS geometry
+FROM
+    osm_road_edges
+WHERE
+    highway IN (
+        'busway',
+        'trunk',
+        'trunk_link',
+        'tertiary',
+        'tertiary_link',
+        'secondary',
+        'secondary_link',
+        'living_street',
+        'primary',
+        'primary_link',
+        'residential',
+        'motorway',
+        'motorway_link' -- 'service',
+        -- 'services'
+    )
+    AND (
+        motorcar <> 'no'
+        OR motorcar IS NULL
+    )
+    AND (
+        motor_vehicle <> 'no'
+        OR motor_vehicle IS NULL
+    );
+
+CREATE TABLE cycleways_points AS WITH cycleways AS (
     SELECT
-        name,
+        id,
         highway,
         bicycle_infrastructure_final,
-        along_street
+        cycling_allowed,
+        along_street,
+        geometry
     FROM
         osm_road_edges
     WHERE
         highway IN ('cycleway', 'path', 'track')
-        AND bicycle_infrastructure_final IS TRUE
-);
+)
+SELECT
+    id,
+    ST_Collect(
+        ARRAY [ ST_StartPoint(geometry),
+        ST_Centroid(geometry),
+        ST_EndPoint(geometry) ]
+    ) AS geometry
+FROM
+    cycleways;
 
-CREATE TABLE buffered_car_roads AS (
-    SELECT
-        (ST_Dump(geom)) .geom
-    FROM
-        (
-            SELECT
-                ST_Union(ST_Buffer(geometry, 20)) AS geom
-            FROM
-                osm_road_edges
-            WHERE
-                car_traffic IS TRUE
-        ) cr
-);
+CREATE TABLE exploded_cycle_points AS
+SELECT
+    id,
+    (ST_Dump(geometry)) .geom AS geometry
+FROM
+    cycleways_points;
 
-CREATE INDEX buffer_geom_idx ON buffered_car_roads USING GIST (geom);
+CREATE INDEX ex_c_points_geom_idx ON exploded_cycle_points USING GIST (geometry);
 
-CREATE INDEX cycleways_geom_idx ON cycleways USING GIST (geometry);
+CREATE INDEX buffered_car_roads_geom_idx ON buffered_car_roads USING GIST (geometry);
 
--- First find cycleways that intersects a car buffer
-WITH intersecting_cycleways AS (
-    SELECT
-        c .id,
-        c .geometry
-    FROM
-        cycleways c,
-        buffered_car_roads br
-    WHERE
-        ST_Intersects(o.geometry, br.geom)
-) CREATE TABLE cycleways_points AS (
-    SELECT
-        id,
-        ST_Collect(
-            ARRAY [ ST_StartPoint(geometry),
-            ST_Centroid(geometry),
-            ST_EndPoint(geometry) ]
-        ) AS geometry
-    FROM
-        intersecting_cycleways
-);
+CREATE TABLE points_along_road AS
+SELECT
+    *
+FROM
+    exploded_cycle_points AS e
+WHERE
+    EXISTS(
+        SELECT
+            1
+        FROM
+            buffered_car_roads AS b
+        where
+            ST_Intersects(e.geometry, b.geometry)
+    );
 
-CREATE INDEX cycle_points_geom_idx ON cycleways_points USING GIST (geometry);
-
--- Then find cycleways where both start, end and mid-point are within a car buffer
-CREATE VIEW cycling_cars AS (
-    SELECT
-        c .id,
-        c .geometry
-    FROM
-        cycle_infra_points c,
-        buffered_car_roads br
-    WHERE
-        ST_CoveredBy(c .geometry, br.geom)
-);
+CREATE TABLE count_along_car AS
+SELECT
+    id,
+    COUNT(*) AS c
+FROM
+    points_along_road
+GROUP BY
+    id;
 
 UPDATE
     osm_road_edges o
 SET
     along_street = TRUE
 FROM
-    cycling_cars c
+    count_along_car c
 WHERE
-    o.id = c .id;
+    o.id = c .id
+    AND c .c = 3;
 
--- TODO: set along street = false if not in cycling_cars?
---
--- TODO: confirm that cycling_allowed, car_traffic and along_street are all filled out
--- find a way to fill out null values
-DROP VIEW cycling_cars;
+DROP TABLE IF EXISTS buffered_car_roads;
 
-DROP TABLE buffered_car_roads;
+DROP TABLE IF EXISTS cycleways_points;
 
-DROP TABLE cycleways;
+DROP TABLE IF EXISTS count_along_car;
+
+DROP TABLE IF EXISTS exploded_cycle_points;
+
+DROP TABLE IF EXISTS cycleways;
