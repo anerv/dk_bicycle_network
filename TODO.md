@@ -5,7 +5,7 @@
 - [X] Adapt matching to use network edges
 
 - [X] Mark all edges as matched/unmatched
-- [ ] Add additional cycling info
+- [X] Add additional cycling info
 - [ ] interpolate missing tags
 - [X] script for identifying intersections in OSM
 - [X] script for classifying intersections
@@ -15,7 +15,11 @@
 - [ ] LTS CLASSIFICATION
 - [ ] Close cycling gaps
 
+- [ ] clean up script: drop osm_roads, planet tables (lines, points, polygons, rels, roads, ways), drop matching schemas
+
 - [ ] documentation
+- [ ] add caveat about matching to documentation - edges with more than 3 parts of matched/unmatched
+
 - [X] installation instructions
 
 - [X] turn 01_create_db.sql into script/make sure in can be run from python
@@ -30,7 +34,6 @@
 
 - [X] update style file to include cycle-columns
 - [X] script for getting road network from OSM (correct highway values, only existing network)
-
 
 ## Questions
 
