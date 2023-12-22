@@ -139,3 +139,7 @@ dbf.run_query_pg(
 
 connection.close()
 # %%
+print("Start", starttime)
+print("Endtime", time.ctime())
+
+# %%
