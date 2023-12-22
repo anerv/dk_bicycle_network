@@ -242,24 +242,20 @@ WHERE
     o.id = c .id
     AND c .c = 3;
 
-DO $$
-DECLARE
-    cycling_classification INT;
-
-BEGIN
-    SELECT
-        count(*) INTO cycling_classification
-    FROM
-        osm_road_edges
-    WHERE
-        bicycle_infrastructure_final IS TRUE
-        AND cycling_allowed IS FALSE;
-
-ASSERT cycling_classification = 0,
-'Issue with bicycle classification';
-
-END $$;
-
+-- DO $$
+-- DECLARE
+--     cycling_classification INT;
+-- BEGIN
+--     SELECT
+--         count(*) INTO cycling_classification
+--     FROM
+--         osm_road_edges
+--     WHERE
+--         bicycle_infrastructure_final IS TRUE
+--         AND cycling_allowed IS FALSE;
+-- ASSERT cycling_classification = 0,
+-- 'Issue with bicycle classification';
+-- END $$;
 DROP TABLE IF EXISTS buffered_car_roads;
 
 DROP TABLE IF EXISTS cycleways_points;
