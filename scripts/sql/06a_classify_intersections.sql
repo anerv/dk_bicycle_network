@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS nodes;
+
 ALTER TABLE
     osm_road_edges_vertices_pgr RENAME TO nodes;
 
@@ -159,3 +161,5 @@ WHERE
 DROP TABLE IF EXISTS node_degrees;
 
 DROP TABLE IF EXISTS all_node_occurences;
+
+DROP TABLE IF EXISTS intersection_tags;
