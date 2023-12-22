@@ -21,6 +21,7 @@ with open(r"../config.yml") as file:
 print("Settings loaded!")
 
 # %%
+# LOAD OSM DATA WITH TAGS
 subprocess.run(
     f"osm2pgsql -c -d {db_name} -U postgres -H localhost --slim --hstore -S {osm_style_file} {osm_fp}",
     shell=True,
@@ -56,7 +57,7 @@ os.rename(
 # %%
 # import into postgres
 subprocess.run(
-    f"psql -h {db_host} -p 5432 -U postgres -d {db_name} -q -f /Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk_osm2_po/dk_2po_4pgr.sql",
+    f"psql -h {db_host} -p 5432 -U postgres -d {db_name} -q -f /Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk_osm2po/dk_2po_4pgr.sql",
     shell=True,
     check=True,
 )
@@ -70,8 +71,5 @@ test = dbf.run_query_pg(q, connection)
 print(test)
 
 connection.close()
-
-# %%
-
 
 # %%
