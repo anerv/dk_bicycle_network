@@ -168,41 +168,9 @@ WHERE
     g.matched_final = TRUE
     AND id = g.id_osm;
 
--- -- Clear topology for updated and adjacent edges
--- WITH updated_nodes AS (
---     SELECT
---         source s
---     FROM
---         matching_geodk_osm._joined_decided_segments
---     UNION
---     SELECT
---         target s
---     FROM
---         matching_geodk_osm._joined_decided_segments
--- )
--- UPDATE
---     osm_road_edges
--- SET
---     source = NULL,
---     target = NULL
--- WHERE
---     source IN (
---         SELECT
---             s
---         FROM
---             updated_nodes
---     )
---     OR target IN (
---         SELECT
---             s
---         FROM
---             updated_nodes
---     );
 UPDATE
     osm_road_edges
 SET
-    -- source = NULL,
-    -- target = NULL,
     x1 = NULL,
     x2 = NULL,
     y1 = NULL,
@@ -387,7 +355,6 @@ SET
 WHERE
     matched = TRUE;
 
--- TODO: write func to make sure no null values have been introduced
 DO $$
 DECLARE
     category_temp_null INT;
@@ -597,6 +564,28 @@ WHERE
 UPDATE
     osm_road_edges
 SET
+    geodk_surface = 'Befæstet'
+WHERE
+    (
+        source IN (
+            SELECT
+                node
+            FROM
+                matching_geodk_osm._befaestet_nodes
+        )
+        OR target IN (
+            SELECT
+                node
+            FROM
+                matching_geodk_osm._befaestet_nodes
+        )
+    )
+    AND matched IS TRUE
+    AND geodk_surface IS NULL;
+
+UPDATE
+    osm_road_edges
+SET
     geodk_category = 'Cykelbane langs vej'
 WHERE
     (
@@ -614,5 +603,98 @@ WHERE
         )
     )
     AND matched IS TRUE
-    AND geodk_category IS NULL
-    AND bicycle_infrastructure IS FALSE;
+    AND geodk_category IS NULL;
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_category = 'Cykelsti langs vej'
+WHERE
+    (
+        source IN (
+            SELECT
+                node
+            FROM
+                matching_geodk_osm._cykelsti_nodes
+        )
+        OR target IN (
+            SELECT
+                node
+            FROM
+                matching_geodk_osm._cykelsti_nodes
+        )
+    )
+    AND matched IS TRUE
+    AND geodk_category IS NULL;
+
+DO $$
+DECLARE
+    matched_no_class INT;
+
+BEGIN
+    SELECT
+        count(*) INTO matched_no_class
+    FROM
+        osm_road_edges
+    WHERE
+        geodk_category IS NULL
+        AND matched IS TRUE;
+
+ASSERT matched_no_class = 0,
+'Issue with category of matched edges';
+
+END $$;
+
+DO $$
+DECLARE
+    matched_no_surface INT;
+
+BEGIN
+    SELECT
+        count(*) INTO matched_no_surface
+    FROM
+        osm_road_edges
+    WHERE
+        geodk_surface IS NULL
+        AND matched IS TRUE;
+
+ASSERT matched_no_surface = 0,
+'Issue with surface of matched edges';
+
+END $$;
+
+DO $$
+DECLARE
+    matched_error_class INT;
+
+BEGIN
+    SELECT
+        count(*) INTO matched_error_class
+    FROM
+        osm_road_edges
+    WHERE
+        geodk_category IS NOT NULL
+        AND matched IS FALSE;
+
+ASSERT matched_error_class = 0,
+'Issue with category of matched edges';
+
+END $$;
+
+DO $$
+DECLARE
+    matched_error_surface INT;
+
+BEGIN
+    SELECT
+        count(*) INTO matched_error_surface
+    FROM
+        osm_road_edges
+    WHERE
+        geodk_surface IS NOT NULL
+        AND matched IS FALSE;
+
+ASSERT matched_error_surface = 0,
+'Issue with surface of matched edges';
+
+END $$;
