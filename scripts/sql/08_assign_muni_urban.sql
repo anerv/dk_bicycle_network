@@ -1,3 +1,7 @@
+DROP INDEX IF EXISTS muni_geom_idx;
+
+DROP INDEX IF EXISTS urban_geom_idx;
+
 CREATE INDEX muni_geom_idx ON muni_boundaries USING GIST (geometry);
 
 CREATE INDEX urban_geom_idx ON urban_polygons_8 USING GIST (geometry);

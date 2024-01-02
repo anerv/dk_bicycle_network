@@ -3,13 +3,9 @@
 import os
 
 os.environ["USE_PYGEOS"] = "0"
-import time
 import yaml
 from src import db_functions as dbf
-from src import preprocess_functions as prep_func
-import geopandas as gpd
-import pandas as pd
-from itertools import groupby
+
 
 with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
