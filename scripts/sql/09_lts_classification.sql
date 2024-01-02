@@ -1,5 +1,0 @@
--- make lts zero for network not accessible to bikes or cars
--- e.g. footways, paths were cycling is not allowed, and maybe also bridleways - places where surface is not suitable for everyday cycling
--- not routing - not considering one-way?
--- but do use oneway for assumed lanes?
--- INTERSECTION LTS? (Identify unmarked intersections where a LTS XX crosses a road with a higher LTS)

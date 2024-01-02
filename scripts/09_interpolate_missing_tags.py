@@ -1,5 +1,3 @@
-# %%
-
 import yaml
 from src import db_functions as dbf
 
@@ -19,32 +17,21 @@ print("Settings loaded!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-# %%
-queries = [
-    "sql/04a_add_additional_cycling_info.sql",
-    # "sql/04b_interpolate_missing_tags.sql",
-]
-
-for i, q in enumerate(queries):
-    print(f"Running step {i+1}...")
-    dbf.run_query_pg(
-        q,
-        connection,
-        success="Query successful!",
-        fail="Query failed!",
-        commit=True,
-        close=False,
-    )
-    print(f"Step {i+1} done!")
+dbf.run_query_pg(
+    "sql/04b_interpolate_missing_tags.sql",
+    connection,
+    success="Query successful!",
+    fail="Query failed!",
+    commit=True,
+    close=False,
+)
 
 # %%
 
-q = f"SELECT id, highway FROM osm_road_edges WHERE along_street IS TRUE AND cycling_allowed IS TRUE and car_traffic IS TRUE LIMIT 10;"
+q = f"SELECT id, highway FROM osm_road_edges WHERE speed_assumed = 30 LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
 print(test)
 
 connection.close()
-
-# %%

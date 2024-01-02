@@ -75,7 +75,7 @@ print("Continuing with processing of incomplete matches....")
 
 # %%
 # Process undecided segments
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 # Undecided segments and edges
 q = "SELECT * FROM matching_geodk_osm._undecided_segments"
@@ -116,7 +116,7 @@ dbf.to_postgis(
     schema="matching_geodk_osm",
 )
 
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port)
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port)
 
 q = f"SELECT segment_ids, id_osm, matched FROM matching_geodk_osm._decided_segments LIMIT 10;"
 
@@ -125,17 +125,31 @@ test = dbf.run_query_pg(q, connection)
 print(test)
 
 # %%
-# Add undecided/split edges
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+# Add undecided/split edges + finish processing
 
-dbf.run_query_pg(
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+
+queries = [
     "sql/03j_identify_matched_edges.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+    "sql/03k_rebuild_topology.sql",
+    "sql/03l_close_matching_gaps.sql",
+    "sql/03m_transfer_geodk_attributes.sql",
+]
+
+
+for i, q in enumerate(queries):
+    print(f"Running step {i+1}...")
+    dbf.run_query_pg(
+        q,
+        connection,
+        success="Query successful!",
+        fail="Query failed!",
+        commit=True,
+        close=False,
+    )
+    print(f"Step {i+1} done!")
+
+print("Processing done!")
 
 connection.close()
 # %%
