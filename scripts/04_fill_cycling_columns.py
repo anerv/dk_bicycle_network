@@ -25,11 +25,6 @@ queries = [
     "sql/04b_update_cycling_classifications.sql",
 ]
 
-# %%
-queries = [
-    # "sql/04a_add_additional_cycling_info.sql",
-    "sql/04b_update_cycling_classifications.sql",
-]
 for i, q in enumerate(queries):
     print(f"Running step {i+1}...")
     dbf.run_query_pg(

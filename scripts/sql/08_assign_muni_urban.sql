@@ -69,26 +69,27 @@ WHERE
     o.urban IS NULL
     AND ST_Within(ST_Centroid(o.geometry), u.geometry);
 
-WITH urban_selection AS (
-    SELECT
-        *
-    FROM
-        urban_polygons_8
-    WHERE
-        urban_code > 10
-)
-UPDATE
-    osm_road_edges o
-SET
-    urban = (
-        SELECT
-            urban
-        FROM
-            urban_selection u
-        ORDER BY
-            u.geometry < -> o.geometry
-        LIMIT
-            1
-    )
-WHERE
-    o.urban IS NULL;
+-- moved to py file
+-- WITH urban_selection AS (
+--     SELECT
+--         *
+--     FROM
+--         urban_polygons_8
+--     WHERE
+--         urban_code > 10
+-- )
+-- UPDATE
+--     osm_road_edges o
+-- SET
+--     urban = (
+--         SELECT
+--             urban
+--         FROM
+--             urban_selection u
+--         ORDER BY
+--             u.geometry < -> o.geometry
+--         LIMIT
+--             1
+--     )
+-- WHERE
+--     o.urban IS NULL;

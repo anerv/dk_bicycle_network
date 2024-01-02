@@ -104,7 +104,7 @@ WHERE
             'bicycle_road'
         )
         AND (
-            bicycle IS NULl
+            bicycle IS NULL
             OR bicycle NOT IN ('dismount', 'use_sidepath')
         )
     );
@@ -124,7 +124,7 @@ SET
     cycling_allowed = FALSE
 WHERE
     matched IS TRUE
-    AND highway in ('motorway', 'motorway_link')
+    AND highway IN ('motorway', 'motorway_link')
     AND bicycle_infrastructure IS FALSE;
 
 UPDATE
@@ -229,14 +229,14 @@ WHERE
             1
         FROM
             buffered_car_roads AS b
-        where
+        WHERE
             ST_Intersects(e.geometry, b.geometry)
     );
 
 CREATE TABLE count_along_car AS
 SELECT
     id,
-    COUNT(*) AS c
+    COUNT(*) AS C
 FROM
     points_along_road
 GROUP BY
@@ -247,10 +247,10 @@ UPDATE
 SET
     along_street = TRUE
 FROM
-    count_along_car c
+    count_along_car C
 WHERE
-    o.id = c .id
-    AND c .c = 3;
+    o.id = C .id
+    AND C .c = 3;
 
 DO $$
 DECLARE
@@ -258,7 +258,7 @@ DECLARE
 
 BEGIN
     SELECT
-        count(*) INTO cycling_classification
+        COUNT(*) INTO cycling_classification
     FROM
         osm_road_edges
     WHERE

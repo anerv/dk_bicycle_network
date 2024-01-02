@@ -14,11 +14,7 @@ WHERE
     OR bicycle_road = 'yes'
     OR cyclestreet = 'yes'
     OR (
-        highway = 'track'
-        AND bicycle IN ('designated', 'yes')
-    )
-    OR (
-        highway = 'path'
+        highway IN ('track', 'path')
         AND bicycle IN ('designated', 'yes')
     )
     OR cycleway IN (
@@ -26,6 +22,7 @@ WHERE
         'opposite_track',
         'share_sidewalk',
         'share_busway',
+        'shared_lane',
         'opposite_lane',
         'crossing',
         'lane'
@@ -35,6 +32,7 @@ WHERE
         'opposite_track',
         'share_sidewalk',
         'share_busway',
+        'shared_lane',
         'opposite_lane',
         'crossing',
         'lane'
@@ -44,6 +42,7 @@ WHERE
         'opposite_track',
         'share_sidewalk',
         'share_busway',
+        'shared_lane',
         'opposite_lane',
         'crossing',
         'lane'
@@ -53,6 +52,7 @@ WHERE
         'opposite_track',
         'share_sidewalk',
         'share_busway',
+        'shared_lane',
         'opposite_lane',
         'crossing',
         'lane'
@@ -101,23 +101,27 @@ WHERE
     OR cycleway IN (
         'share_busway',
         'opposite_lane',
+        'shared_lane',
         'crossing',
         'lane'
     )
     OR "cycleway:left" IN (
         'share_busway',
+        'shared_lane',
         'opposite_lane',
         'crossing',
         'lane'
     )
     OR "cycleway:right" IN (
         'share_busway',
+        'shared_lane',
         'opposite_lane',
         'crossing',
         'lane'
     )
     OR "cycleway:both" IN (
         'share_busway',
+        'shared_lane',
         'opposite_lane',
         'crossing',
         'lane'
@@ -130,7 +134,7 @@ DECLARE
 
 BEGIN
     SELECT
-        count(*) INTO non_classified_bicycle_infra
+        COUNT(*) INTO non_classified_bicycle_infra
     FROM
         osm_road_edges
     WHERE
