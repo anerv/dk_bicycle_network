@@ -1,0 +1,2 @@
+-- TODO: update classification of protected and unprotected based on new geodk infra
+-- TODO: make a new column with either cykelsti, cykelbane, shared_lane, shared_busway, crossing

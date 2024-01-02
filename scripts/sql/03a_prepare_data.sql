@@ -33,7 +33,12 @@ SELECT
 FROM
     osm_road_edges
 WHERE
-    highway NOT IN ('footway', 'bridleway', 'pedestrian')
+    highway NOT IN (
+        'footway',
+        'bridleway',
+        'pedestrian',
+        'motorway_link'
+    )
 GROUP BY
     id,
     bicycle_infrastructure;

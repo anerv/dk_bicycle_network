@@ -27,7 +27,7 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_h
 # )
 
 dbf.run_query_pg(
-    "sql/05a_create_vertices.sql",
+    "sql/05_create_vertices.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",

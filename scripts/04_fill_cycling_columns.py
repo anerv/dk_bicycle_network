@@ -22,9 +22,14 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_h
 # %%
 queries = [
     "sql/04a_add_additional_cycling_info.sql",
-    # "sql/04b_interpolate_missing_tags.sql",
+    "sql/04b_update_cycling_classifications.sql",
 ]
 
+# %%
+queries = [
+    # "sql/04a_add_additional_cycling_info.sql",
+    "sql/04b_update_cycling_classifications.sql",
+]
 for i, q in enumerate(queries):
     print(f"Running step {i+1}...")
     dbf.run_query_pg(

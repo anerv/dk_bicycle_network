@@ -127,6 +127,16 @@ WHERE
     AND highway in ('motorway', 'motorway_link')
     AND bicycle_infrastructure IS FALSE;
 
+UPDATE
+    osm_road_edges
+SET
+    bicycle_infrastructure_final = FALSE
+WHERE
+    bicycle_infrastructure IS FALSE
+    AND cycling_allowed IS FALSE
+    AND bicycle IN ('use_sidepath')
+    AND bicycle_infrastructureture_final IS TRUE;
+
 -- *** FILL COLUMN ALONG STREET ***
 --Determining whether the segment of cycling infrastructure runs along a street or not
 UPDATE
@@ -242,20 +252,24 @@ WHERE
     o.id = c .id
     AND c .c = 3;
 
--- DO $$
--- DECLARE
---     cycling_classification INT;
--- BEGIN
---     SELECT
---         count(*) INTO cycling_classification
---     FROM
---         osm_road_edges
---     WHERE
---         bicycle_infrastructure_final IS TRUE
---         AND cycling_allowed IS FALSE;
--- ASSERT cycling_classification = 0,
--- 'Issue with bicycle classification';
--- END $$;
+DO $$
+DECLARE
+    cycling_classification INT;
+
+BEGIN
+    SELECT
+        count(*) INTO cycling_classification
+    FROM
+        osm_road_edges
+    WHERE
+        bicycle_infrastructure_final IS TRUE
+        AND cycling_allowed IS FALSE;
+
+ASSERT cycling_classification = 0,
+'Issue with bicycle classification';
+
+END $$;
+
 DROP TABLE IF EXISTS buffered_car_roads;
 
 DROP TABLE IF EXISTS cycleways_points;

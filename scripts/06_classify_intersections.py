@@ -22,7 +22,7 @@ print("Settings loaded!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/06a_classify_intersections.sql",
+    "sql/06_classify_intersections.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
@@ -39,4 +39,5 @@ print(test)
 
 print("Network vertices created successfully!")
 
+connection.close()
 # %%

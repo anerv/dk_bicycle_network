@@ -178,8 +178,16 @@ UPDATE
     osm_road_edges
 SET
     bicycle_class = CASE
-        WHEN highway = cycleway THEN 1
+        WHEN highway = 'cycleway'
+        AND along_street IS FALSE THEN 1
+        WHEN highway = 'path'
+        AND cycling_allowed IS TRUE THEN 1 -- todo: make use of surface?
+        WHEN highway = 'track'
+        AND cycling_allowed IS TRUE THEN 1 -- todo: make use of surface??
+        WHEN highway IN ('bicycle_road', 'cyclestreet') THEN 3
+        WHEN
     END;
 
+-- make use of surface?
 -- TODO: check if cars are ever allowed on tracks???
 -- DIFFERENCES FROM WASSERMAN: assumption about centerline on unclassified, classification of tracks
