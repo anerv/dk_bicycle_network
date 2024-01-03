@@ -15,7 +15,7 @@ FROM
     matching_geodk_osm._grouped_osm g
 WHERE
     d.matched = TRUE
-    and d.id_osm = g.id_osm;
+    AND d.id_osm = g.id_osm;
 
 -- save org edges which will be split
 CREATE TABLE matching_geodk_osm._org_split_edges AS (
@@ -119,6 +119,7 @@ SELECT
     "bicycle_road",
     "flashing_lights",
     "foot",
+    "footway",
     "highway",
     "junction",
     "lanes",
