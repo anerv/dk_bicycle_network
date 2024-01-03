@@ -22,7 +22,8 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_h
 # %%
 queries = [
     "sql/04a_add_additional_cycling_info.sql",
-    "sql/04b_update_cycling_classifications.sql",
+    "sql/04b_fill_bicycle_gaps.sql",
+    "sql/04c_update_cycling_classifications.sql",
 ]
 
 for i, q in enumerate(queries):

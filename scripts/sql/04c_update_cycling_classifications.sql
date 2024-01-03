@@ -53,6 +53,22 @@ SET
             AND geodk_category = 'Cykelbane langs vej'
         ) THEN 'cyclelane'
         WHEN (
+            bicycle_infrastructure_final IS TRUE
+            AND bicycle_gap = 'cycletrack'
+        ) THEN 'cycletrack'
+        WHEN (
+            bicycle_infrastructure_final IS TRUE
+            AND bicycle_gap = 'cyclelane'
+        ) THEN 'cyclelane'
+        WHEN (
+            bicycle_infrastructure_final IS TRUE
+            AND bicycle_gap = 'cycleway'
+        ) THEN 'cycleway'
+        WHEN (
+            bicycle_infrastructure_final IS TRUE
+            AND bicycle_gap = 'crossing'
+        ) THEN 'crossing'
+        WHEN (
             cycleway IN ('crossing')
             OR "cycleway:left" IN ('crossing')
             OR "cycleway:right" IN ('crossing')
