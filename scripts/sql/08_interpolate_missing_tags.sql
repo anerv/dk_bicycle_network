@@ -22,6 +22,14 @@ WHERE
 UPDATE
     osm_road_edges
 SET
+    bicycle_surface_assumed = surface
+WHERE
+    surface IS NOT NULL
+    AND bicycle_surface_assumed IS NULL;
+
+UPDATE
+    osm_road_edges
+SET
     bicycle_surface_assumed = 'paved'
 WHERE
     bicycle_surface_assumed IS NULL
@@ -242,41 +250,3 @@ ASSERT centerline_null = 0,
 'Assumed speeds missing';
 
 END $$;
-
---Assign bicycle class
-UPDATE
-    osm_road_edges
-SET
-    bicycle_class = CASE
-        WHEN bicycle_category = 'crossing' THEN 3
-        WHEN bicycle_category = 'cyclestreet' THEN 2
-        WHEN bicycle_category = 'cycletrack' THEN 4
-        WHEN bicycle_category = 'cyclelane' THEN 3
-        WHEN bicycle_category = 'cycleway' THEN 1
-        WHEN bicycle_category = 'cyclestreet' THEN 3
-        WHEN bicycle_category = 'shared_track' THEN 4
-        WHEN bicycle_category = 'shared_lane' THEN 3
-        WHEN bicycle_category = 'shared_busway' THEN 2
-    END;
-
-DO $$
-DECLARE
-    bike_class_null INT;
-
-BEGIN
-    SELECT
-        COUNT(*) INTO bike_class_null
-    FROM
-        osm_road_edges
-    WHERE
-        bicycle_infrastructure_final IS TRUE
-        AND bicycle_class IS NULL;
-
-ASSERT bike_class_null = 0,
-'Edges missing bicycle category';
-
-END $$;
-
--- make use of surface? e.g. do not include paths and tracks if they have specific surface types
--- consider busway - should it really be two? What is the meaning of class 4?
--- DIFFERENCES FROM WASSERMAN: assumption about centerline on unclassified, classification of tracks
