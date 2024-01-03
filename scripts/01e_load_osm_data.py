@@ -28,9 +28,6 @@ subprocess.run(
     check=True,
 )
 
-print("OSM data load complete!")
-
-# %%
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
 
 q = "SELECT osm_id, highway FROM planet_osm_roads WHERE highway IS NOT NULL LIMIT 10;"
@@ -41,6 +38,8 @@ print(test)
 
 connection.close()
 
+print("OSM tag data load complete!")
+
 # %%
 # Load OSM data with correct topology to use for OSM routing using osm2po
 subprocess.run(
@@ -50,9 +49,15 @@ subprocess.run(
 )
 
 # %%
+# Rename paths for osm2po
+new_osm2po_path = "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk_osm2po/"
+
+if os.path.exists(new_osm2po_path):
+    os.remove(new_osm2po_path)
+
 os.rename(
     "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk/",
-    "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk_osm2po/",
+    new_osm2po_path,
 )
 # %%
 # import into postgres
@@ -61,7 +66,7 @@ subprocess.run(
     shell=True,
     check=True,
 )
-# %%
+
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
 
 q = "SELECT osm_id, source, target, osm_name FROM dk_2po_4pgr WHERE osm_name IS NOT NULL LIMIT 10;"
@@ -71,5 +76,7 @@ test = dbf.run_query_pg(q, connection)
 print(test)
 
 connection.close()
+
+print("OSM topology data load complete!")
 
 # %%
