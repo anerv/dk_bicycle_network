@@ -2,7 +2,7 @@
 
 This repository contains the code for creating a routable road network for all of Denmark divided into XX categorizations of Low Traffic Stress for cycling ([see Mekuria et al 2021](https://transweb.sjsu.edu/research/Low-Stress-Bicycling-and-Network-Connectivity)).
 
-The road network is based on data from OpenStreetMap but enriched with bicycle infrastructure data from [GeoDanmark](https://www.geodanmark.dk) to improve data completeness on bicycle infrastructure.
+The road network is based on data from OpenStreetMap but enriched with bicycle infrastructure data from [GeoDanmark](https://www.geodanmark.dk) to improve data completeness on dedicated bicycle infrastructure.
 
 For further instructions, see the installation instructions (*docs/installation.md*) and the guide (*docs/how-to.md*).
 
