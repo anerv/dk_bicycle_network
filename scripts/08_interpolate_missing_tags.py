@@ -1,8 +1,3 @@
-# %%
-import os
-
-os.environ["USE_PYGEOS"] = "0"
-
 import yaml
 from src import db_functions as dbf
 
@@ -23,7 +18,7 @@ print("Settings loaded!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/05_create_vertices.sql",
+    "sql/08_interpolate_missing_tags.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
@@ -33,13 +28,10 @@ dbf.run_query_pg(
 
 # %%
 
-q = f"SELECT id, the_geom FROM osm_road_edges_vertices_pgr LIMIT 10;"
+q = f"SELECT id, highway FROM osm_road_edges WHERE speed_assumed = 30 LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
 print(test)
 
-print("Network vertices created successfully!")
-
 connection.close()
-# %%

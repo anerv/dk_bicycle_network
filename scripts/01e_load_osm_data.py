@@ -2,6 +2,7 @@
 import yaml
 import subprocess
 import os
+import shutil
 from src import db_functions as dbf
 
 with open(r"../config.yml") as file:
@@ -53,7 +54,7 @@ subprocess.run(
 new_osm2po_path = "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk_osm2po/"
 
 if os.path.exists(new_osm2po_path):
-    os.remove(new_osm2po_path)
+    shutil.rmtree(new_osm2po_path)
 
 os.rename(
     "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk/",

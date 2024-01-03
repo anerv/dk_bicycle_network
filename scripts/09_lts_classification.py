@@ -18,7 +18,7 @@ print("Settings loaded!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/04b_interpolate_missing_tags.sql",
+    "sql/09_lts_classification.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
@@ -28,7 +28,7 @@ dbf.run_query_pg(
 
 # %%
 
-q = f"SELECT id, highway FROM osm_road_edges WHERE speed_assumed = 30 LIMIT 10;"
+q = f"SELECT id, highway FROM osm_road_edges WHERE lts = 1 LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 

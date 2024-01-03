@@ -23,7 +23,7 @@ print("Settings loaded!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/08_assign_muni_urban.sql",
+    "sql/07_assign_muni_urban.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
