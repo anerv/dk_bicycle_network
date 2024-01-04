@@ -1,6 +1,6 @@
 -- *** STEP 2: CREATE SEGMENTS ***
 -- CREATE GEODK SEGMENTS
-WITH data(id, geom) AS (
+WITH DATA(id, geom) AS (
     SELECT
         id,
         geom
@@ -20,7 +20,7 @@ FROM
             ST_Length(geom) len,
             10 sublen
         FROM
-            data
+            DATA
     ) AS d
     CROSS JOIN LATERAL (
         SELECT
@@ -28,13 +28,13 @@ FROM
             (sublen * i) / len AS startfrac,
             (sublen * (i + 1)) / len AS endfrac
         FROM
-            generate_series(0, floor(len / sublen) :: integer) AS t(i)
+            generate_series(0, floor(len / sublen) :: INTEGER) AS t(i)
         WHERE
             (sublen * i) / len <> 1.0
     ) AS d2;
 
 -- CREATE OSM SEGMENTS
-WITH data(id, geom) AS (
+WITH DATA(id, geom) AS (
     SELECT
         id,
         geom
@@ -54,7 +54,7 @@ FROM
             ST_Length(geom) len,
             10 sublen
         FROM
-            data
+            DATA
     ) AS d
     CROSS JOIN LATERAL (
         SELECT
@@ -62,7 +62,7 @@ FROM
             (sublen * i) / len AS startfrac,
             (sublen * (i + 1)) / len AS endfrac
         FROM
-            generate_series(0, floor(len / sublen) :: integer) AS t(i)
+            generate_series(0, floor(len / sublen) :: INTEGER) AS t(i)
         WHERE
             (sublen * i) / len <> 1.0
     ) AS d2;
@@ -155,7 +155,7 @@ DROP TABLE IF EXISTS matching_geodk_osm._merged_osm_segments CASCADE;
 DROP TABLE IF EXISTS matching_geodk_osm._too_short_osm_segs CASCADE;
 
 CREATE TABLE matching_geodk_osm._merged_osm_segments (
-    id_osm decimal,
+    id_osm DECIMAL,
     long_seg_id VARCHAR,
     short_seg_id VARCHAR,
     long_i VARCHAR,
@@ -228,7 +228,7 @@ DROP TABLE IF EXISTS matching_geodk_osm._merged_geodk_segments CASCADE;
 DROP TABLE IF EXISTS matching_geodk_osm._too_short_geodk_segs CASCADE;
 
 CREATE TABLE matching_geodk_osm._merged_geodk_segments (
-    id_geodk decimal,
+    id_geodk DECIMAL,
     long_seg_id VARCHAR,
     short_seg_id VARCHAR,
     long_i VARCHAR,

@@ -188,9 +188,9 @@ ADD
     COLUMN matched_final BOOLEAN DEFAULT NULL;
 
 -- COUNT MATCHED
-WITH count AS (
+WITH COUNT AS (
     SELECT
-        COUNT(*) c,
+        COUNT(*) C,
         id_osm
     FROM
         matching_geodk_osm._segments_osm_all
@@ -202,16 +202,16 @@ WITH count AS (
 UPDATE
     matching_geodk_osm._grouped_osm o
 SET
-    count_matched = c
+    count_matched = C
 FROM
-    count
+    COUNT
 WHERE
-    o.id_osm = count .id_osm;
+    o.id_osm = COUNT .id_osm;
 
 -- COUNT UNMATCHED
-WITH count AS (
+WITH COUNT AS (
     SELECT
-        COUNT(*) c,
+        COUNT(*) C,
         id_osm
     FROM
         matching_geodk_osm._segments_osm_all
@@ -223,11 +223,11 @@ WITH count AS (
 UPDATE
     matching_geodk_osm._grouped_osm o
 SET
-    count_unmatched = c
+    count_unmatched = C
 FROM
-    count
+    COUNT
 WHERE
-    o.id_osm = count .id_osm;
+    o.id_osm = COUNT .id_osm;
 
 -- DELETE ALL THAT ARE COMPLETELY UNMATCHED
 DELETE FROM
