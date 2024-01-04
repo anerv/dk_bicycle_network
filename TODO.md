@@ -18,6 +18,8 @@
 
 - [ ] clean up script: drop osm_roads, planet tables (lines, points, polygons, rels, roads, ways), drop matching schemas
 
+- [ ] split matching so geodk bike lanes are only matched to non-bike??
+
 - [ ] documentation
 - [ ] add caveat about matching to documentation - edges with more than 3 parts of matched/unmatched
 
