@@ -1,8 +1,8 @@
 # *** Loading GeoDK data to PostGIS db ***
 
 # %%
-import geopandas as gpd
 import yaml
+import subprocess
 from src import db_functions as dbf
 
 # %%
@@ -22,44 +22,16 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 # %%
-# NOTE: This can take a while!
-geodk = gpd.read_file(geodk_fp)
 
-# %%
-geodk.columns = geodk.columns.str.lower()
+subprocess.run(
+    f"""ogr2ogr -f PostgreSQL "PG:user={db_user} password={db_password} dbname={db_name}" {geodk_fp}""",
+    shell=True,
+    check=True,
+)
 
-# Get cycling infrastructure
-geodk_bike = geodk.loc[
-    geodk.vejkategori.isin(["Cykelsti langs vej", "Cykelbane langs vej"])
-]
-
-if geodk_bike.crs != crs:
-    geodk_bike = geodk_bike.to_crs(crs)
-
-assert geodk_bike.crs == crs
-
-assert len(geodk_bike) == len(geodk_bike[geodk_id_col].unique())
-
-useful_cols = [
-    "objectid",
-    "status",
-    "geometry",
-    "kommunekode",
-    "trafikart",
-    "niveau",
-    "overflade",
-    "vejmidtetype",
-    "vejkategori",
-]
-
-geodk_bike = geodk_bike[useful_cols]
-
-# %%
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
 
-engine = dbf.connect_alc(db_name, db_user, db_password, db_port=db_port)
-
-dbf.to_postgis(geodataframe=geodk_bike, table_name="geodk_bike", engine=engine)
+dbf.run_query_pg("sql/01b_process_geodk.sql", connection)
 
 q = "SELECT objectid, vejkategori FROM geodk_bike LIMIT 10;"
 

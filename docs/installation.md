@@ -41,7 +41,7 @@ On Mac, osm2pgsql can be installed by running:
 
 `brew install osm2pgsql`
 
-## **4. Install osm2po**
+## **5. Install osm2po**
 
 [osm2po](https://osm2po.de/) is used for loading OSM data to Postgresql in a format compatible with PgRouting.
 
@@ -49,7 +49,15 @@ The necessary files are *already included* in this repository. If a newer versio
 
 *If* a newer version is used, once installed, replace the osm2po.config file with the one included on this repository.
 
-## **5. Create conda environment**
+## **6. Install GDAL**
+
+Used for loading the GeoDanmark geopackage to PostgreSQL.
+
+On mac, run:
+
+`brew install gdal`
+
+## **7. Create conda environment**
 
 To ensure that all packages needed for the analysis are installed, it is recommended to create and activate a new conda environment using the `environment.yml`:
 
