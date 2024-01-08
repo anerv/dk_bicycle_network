@@ -23,7 +23,7 @@ print("Settings loaded!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/xx_clean_up.sql",
+    "sql/10a_clean_up.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
