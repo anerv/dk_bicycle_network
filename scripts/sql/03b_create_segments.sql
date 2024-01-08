@@ -11,7 +11,7 @@ SELECT
     ROW_NUMBER () OVER () AS id,
     id AS id_geodk,
     i,
-    ST_LineSubstring(geom, startfrac, LEAST(endfrac, 1)) AS geom INTO matching_geodk_osm._segments_geodk
+    ST_LineSubstring(geom, startfrac, LEAST(endfrac, 1)) AS geom INTO matching_geodk_osm._segments_geodk_all
 FROM
     (
         SELECT
@@ -110,22 +110,22 @@ END $$;
 
 -- CREATE UNIQUE SEGMENT ID GEODK
 ALTER TABLE
-    matching_geodk_osm._segments_geodk
+    matching_geodk_osm._segments_geodk_all
 ADD
     COLUMN unique_seg_id VARCHAR;
 
 ALTER TABLE
-    matching_geodk_osm._segments_geodk
+    matching_geodk_osm._segments_geodk_all
 ADD
     COLUMN neighbor_seg_id VARCHAR;
 
 UPDATE
-    matching_geodk_osm._segments_geodk
+    matching_geodk_osm._segments_geodk_all
 SET
     unique_seg_id = CAST (id AS text) || '_' || CAST (i AS text);
 
 UPDATE
-    matching_geodk_osm._segments_geodk
+    matching_geodk_osm._segments_geodk_all
 SET
     neighbor_seg_id = CAST (id -1 AS text) || '_' || CAST ((i -1) AS text);
 
@@ -137,13 +137,13 @@ BEGIN
     SELECT
         COUNT(DISTINCT unique_seg_id) INTO count_unique_seg_id
     FROM
-        matching_geodk_osm._segments_geodk;
+        matching_geodk_osm._segments_geodk_all;
 
 ASSERT count_unique_seg_id = (
     SELECT
         COUNT(*)
     FROM
-        matching_geodk_osm._segments_geodk
+        matching_geodk_osm._segments_geodk_all
 ),
 'GeoDK seg IDS not unique';
 
@@ -154,6 +154,8 @@ DROP TABLE IF EXISTS matching_geodk_osm._merged_osm_segments CASCADE;
 
 DROP TABLE IF EXISTS matching_geodk_osm._too_short_osm_segs CASCADE;
 
+DROP VIEW IF EXISTS matching_geodk_osm._too_short_osm_segs CASCADE;
+
 CREATE TABLE matching_geodk_osm._merged_osm_segments (
     id_osm DECIMAL,
     long_seg_id VARCHAR,
@@ -163,7 +165,7 @@ CREATE TABLE matching_geodk_osm._merged_osm_segments (
     geom geometry
 );
 
-CREATE TABLE matching_geodk_osm._too_short_osm_segs AS
+CREATE VIEW matching_geodk_osm._too_short_osm_segs AS
 SELECT
     *
 FROM
@@ -171,8 +173,7 @@ FROM
 WHERE
     ST_Length(geom) < 3;
 
-CREATE INDEX idx_osm_short_segs_geometry ON matching_geodk_osm._too_short_osm_segs USING gist(geom);
-
+--CREATE INDEX idx_osm_short_segs_geometry ON matching_geodk_osm._too_short_osm_segs USING gist(geom);
 WITH joined_data AS (
     SELECT
         short_segs.id_osm AS id_osm,
@@ -192,7 +193,7 @@ SELECT
 FROM
     joined_data;
 
--- MERGE MULTILINESTRINGS
+--MERGE MULTILINESTRINGS
 UPDATE
     matching_geodk_osm._merged_osm_segments
 SET
@@ -227,6 +228,8 @@ DROP TABLE IF EXISTS matching_geodk_osm._merged_geodk_segments CASCADE;
 
 DROP TABLE IF EXISTS matching_geodk_osm._too_short_geodk_segs CASCADE;
 
+DROP VIEW IF EXISTS matching_geodk_osm._too_short_geodk_segs CASCADE;
+
 CREATE TABLE matching_geodk_osm._merged_geodk_segments (
     id_geodk DECIMAL,
     long_seg_id VARCHAR,
@@ -236,11 +239,11 @@ CREATE TABLE matching_geodk_osm._merged_geodk_segments (
     geom geometry
 );
 
-CREATE TABLE matching_geodk_osm._too_short_geodk_segs AS
+CREATE VIEW matching_geodk_osm._too_short_geodk_segs AS
 SELECT
     *
 FROM
-    matching_geodk_osm._segments_geodk
+    matching_geodk_osm._segments_geodk_all
 WHERE
     ST_Length(geom) < 3;
 
@@ -256,7 +259,7 @@ WITH joined_data AS (
         ST_Collect(short_segs.geom, neighbor_segs.geom) AS geom
     FROM
         matching_geodk_osm._too_short_geodk_segs short_segs
-        JOIN matching_geodk_osm._segments_geodk neighbor_segs ON short_segs.neighbor_seg_id = neighbor_segs.unique_seg_id
+        JOIN matching_geodk_osm._segments_geodk_all neighbor_segs ON short_segs.neighbor_seg_id = neighbor_segs.unique_seg_id
 )
 INSERT INTO
     matching_geodk_osm._merged_geodk_segments
@@ -277,11 +280,11 @@ WITH joined_data AS (
         merged.geom AS new_geom,
         geodk_segs.unique_seg_id AS seg_id
     FROM
-        matching_geodk_osm._segments_geodk geodk_segs
+        matching_geodk_osm._segments_geodk_all geodk_segs
         JOIN matching_geodk_osm._merged_geodk_segments merged ON geodk_segs.unique_seg_id = merged.long_seg_id
 )
 UPDATE
-    matching_geodk_osm._segments_geodk
+    matching_geodk_osm._segments_geodk_all
 SET
     geom = new_geom
 FROM
@@ -291,58 +294,115 @@ WHERE
 
 -- DELETE TOO SHORT geodk SEGMENTS
 DELETE FROM
-    matching_geodk_osm._segments_geodk geodk_segs USING matching_geodk_osm._too_short_geodk_segs too_short
+    matching_geodk_osm._segments_geodk_all geodk_segs USING matching_geodk_osm._too_short_geodk_segs too_short
 WHERE
     geodk_segs.unique_seg_id = too_short.unique_seg_id;
 
 -- SPATIAL INDEX ON GEODK SEGMENTS
-CREATE INDEX idx_segments_geodk_seg_geometry ON matching_geodk_osm._segments_geodk USING gist(geom);
+CREATE INDEX idx_segments_geodk_seg_geometry ON matching_geodk_osm._segments_geodk_all USING gist(geom);
 
 -- SPATIAL INDEX ON OSM SEGMENTS
 CREATE INDEX idx_segments_osm_geometry ON matching_geodk_osm._segments_osm_all USING gist(geom);
 
-ALTER TABLE
-    matching_geodk_osm._segments_osm_all
-ADD
-    COLUMN bicycle_infrastructure BOOLEAN DEFAULT FALSE;
-
-WITH bicycle_infra AS (
-    SELECT
-        *
-    FROM
-        matching_geodk_osm._extract_osm
-    WHERE
-        bicycle_infrastructure IS TRUE
-)
-UPDATE
-    matching_geodk_osm._segments_osm_all o
-SET
-    bicycle_infrastructure = TRUE
-FROM
-    bicycle_infra b
-WHERE
-    o.id_osm = b.id;
-
--- CREATE OSM SEGMENTS WITH AND WITHOUT BIKE
-CREATE TABLE matching_geodk_osm._segments_osm AS (
-    SELECT
-        *
-    FROM
-        matching_geodk_osm._segments_osm_all
-    WHERE
-        bicycle_infrastructure IS TRUE
-);
-
-CREATE TABLE matching_geodk_osm_no_bike._segments_osm AS (
-    SELECT
-        *
-    FROM
-        matching_geodk_osm._segments_osm_all
-    WHERE
-        bicycle_infrastructure IS FALSE
-);
-
--- SPATIAL INDEX ON OSM SEGMENTS
-CREATE INDEX idx_segments_osm_no_bike_geometry ON matching_geodk_osm._segments_osm USING gist(geom);
-
-CREATE INDEX idx_segments_osm_bike_geometry ON matching_geodk_osm_no_bike._segments_osm USING gist(geom);
+-- ALTER TABLE
+--     matching_geodk_osm._segments_osm_all
+-- ADD
+--     COLUMN bicycle_infrastructure BOOLEAN DEFAULT FALSE;
+-- ALTER TABLE
+--     matching_geodk_osm._segments_geodk_all
+-- ADD
+--     COLUMN road_category VARCHAR DEFAULT FALSE;
+-- UPDATE
+--     matching_geodk_osm._segments_osm_all o
+-- SET
+--     bicycle_infrastructure = TRUE
+-- WHERE
+--     id_osm IN (
+--         SELECT
+--             id
+--         FROM
+--             matching_geodk_osm._extract_osm
+--         WHERE
+--             bicycle_infrastructure IS TRUE
+--     );
+-- UPDATE
+--     matching_geodk_osm._segments_geodk_all
+-- SET
+--     road_category = 'Cykelsti langs vej'
+-- WHERE
+--     id_geodk IN (
+--         SELECT
+--             id
+--         FROM
+--             matching_geodk_osm._extract_geodk
+--         WHERE
+--             vejkategori = 'Cykelsti langs vej'
+--     );
+-- UPDATE
+--     matching_geodk_osm._segments_geodk_all
+-- SET
+--     road_category = 'Cykelbane langs vej'
+-- WHERE
+--     id_geodk IN (
+--         SELECT
+--             id
+--         FROM
+--             matching_geodk_osm._extract_geodk
+--         WHERE
+--             vejkategori = 'Cykelbane langs vej'
+--     );
+-- -- CREATE OSM SEGMENTS WITH AND WITHOUT BIKE
+-- CREATE TABLE matching_geodk_osm_all_bike._segments_osm AS (
+--     SELECT
+--         *
+--     FROM
+--         matching_geodk_osm._segments_osm_all
+--     WHERE
+--         bicycle_infrastructure IS TRUE
+-- );
+-- CREATE TABLE matching_geodk_osm_no_cycleways._segments_osm AS (
+--     SELECT
+--         *
+--     FROM
+--         matching_geodk_osm_all_bike._segments_osm
+--     WHERE
+--         id_osm IN (
+--             SELECT
+--                 id
+--             FROM
+--                 matching_geodk_osm._extract_osm
+--             WHERE
+--                 highway NOT IN ('cycleway', 'path', 'track')
+--         )
+-- );
+-- CREATE TABLE matching_geodk_osm_no_bike._segments_osm AS (
+--     SELECT
+--         *
+--     FROM
+--         matching_geodk_osm._segments_osm_all
+--     WHERE
+--         bicycle_infrastructure IS FALSE
+-- );
+-- -- CREATE GEODK SEGMENTS BASED ON VEJKATEGORI
+-- CREATE TABLE matching_geodk_osm_all_bike._segments_geodk AS (
+--     SELECT
+--         *
+--     FROM
+--         matching_geodk_osm._segments_geodk_all
+--     WHERE
+--         road_category = 'Cykelsti langs vej'
+-- );
+-- CREATE TABLE matching_geodk_osm_no_cycleways._segments_geodk AS (
+--     SELECT
+--         *
+--     FROM
+--         matching_geodk_osm._segments_geodk_all
+--     WHERE
+--         road_category = 'Cykelbane langs vej'
+-- );
+-- -- SPATIAL INDEX ON OSM SEGMENTS
+-- CREATE INDEX idx_segments_osm_all_bike_geometry ON matching_geodk_osm_all_bike._segments_osm USING gist(geom);
+-- CREATE INDEX idx_segments_osm_no_cycleways_geometry ON matching_geodk_osm_no_cycleways._segments_osm USING gist(geom);
+-- CREATE INDEX idx_segments_osm_no_bike_geometry ON matching_geodk_osm_no_bike._segments_osm USING gist(geom);
+-- CREATE INDEX idx_segments_geodk_track_geom ON matching_geodk_osm_all_bike._segments_geodk USING gist(geom);
+-- CREATE INDEX idx_segments_geodk_lane_geom ON matching_geodk_osm_no_cycleways._segments_geodk USING gist(geom);
