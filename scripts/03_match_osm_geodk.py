@@ -30,6 +30,7 @@ starttime = time.ctime()
 
 # %%
 # Perform initial matching
+# NOTE: This step takes a while
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 queries = [
@@ -146,7 +147,7 @@ print(f"Split edges processed!")
 
 # %%
 # Rebuild topology
-
+# NOTE: This takes a while
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 q = "sql/03k_rebuild_topology.sql"
@@ -161,16 +162,6 @@ dbf.run_query_pg(
 )
 # %%
 print(f"Topology rebuild")
-
-# %%
-dbf.run_query_pg(
-    "VACUUM ANALYZE;",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
 
 # %%
 # finish processing
