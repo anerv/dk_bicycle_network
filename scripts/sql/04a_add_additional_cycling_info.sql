@@ -135,7 +135,7 @@ WHERE
     bicycle_infrastructure IS FALSE
     AND cycling_allowed IS FALSE
     AND bicycle IN ('use_sidepath')
-    AND bicycle_infrastructureture_final IS TRUE;
+    AND bicycle_infrastructure_final IS TRUE;
 
 -- *** FILL COLUMN ALONG STREET ***
 --Determining whether the segment of cycling infrastructure runs along a street or not
