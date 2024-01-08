@@ -62,7 +62,7 @@ If this fails, the environment can be created by running:
 
 ```
 conda config --prepend channels conda-forge
-conda create -n dk_bike_network --strict-channel-priority geopandas psycopg2 sqlalchemy geoalchemy2 rasterio rioxarray h3-py qgis ipykernel
+conda create -n dk_bike_network --strict-channel-priority geopandas psycopg2 sqlalchemy geoalchemy2 pyarrow rasterio rioxarray h3-py qgis ipykernel
 ```
 
 ## **6. Install src package**
