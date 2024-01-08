@@ -124,7 +124,9 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    matched = FALSE
+    matched = FALSE,
+    geodk_category = NULL,
+    geodk_surface = NULL
 WHERE
     id IN (
         SELECT
@@ -133,8 +135,6 @@ WHERE
             matching_geodk_osm._potential_floating_edges
     );
 
-DROP TABLE IF EXISTS matching_geodk_osm._potential_floating_edges;
-
-DROP TABLE IF EXISTS matching_geodk_osm._node_matched_edges;
-
-DROP VIEW IF EXISTS matching_geodk_osm._matched_nodes;
+-- DROP TABLE IF EXISTS matching_geodk_osm._potential_floating_edges;
+-- DROP TABLE IF EXISTS matching_geodk_osm._node_matched_edges;
+-- DROP VIEW IF EXISTS matching_geodk_osm._matched_nodes;
