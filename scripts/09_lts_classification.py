@@ -35,3 +35,4 @@ test = dbf.run_query_pg(q, connection)
 print(test)
 
 connection.close()
+# %%

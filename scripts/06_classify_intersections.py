@@ -30,13 +30,13 @@ dbf.run_query_pg(
     close=False,
 )
 
-# %%
 q = f"SELECT osm_id, intersection_type, geometry FROM nodes LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
 print(test)
 
+# %%
 print("Network vertices created successfully!")
 
 connection.close()
