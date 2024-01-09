@@ -1,3 +1,4 @@
+-- UPDATE PROTECTED CLASSIFICATION FOR UNCLASSIFIED BICYCLE INFRA
 UPDATE
     osm_road_edges
 SET
@@ -34,6 +35,7 @@ ASSERT count_protection_null = 0,
 
 END $$;
 
+-- CREATE COLUMN WITH SIMPLE BICYCLE INFRA TYPE
 ALTER TABLE
     osm_road_edges
 ADD
@@ -52,6 +54,13 @@ SET
             bicycle_infrastructure_final IS TRUE
             AND geodk_category = 'Cykelbane langs vej'
         ) THEN 'cyclelane'
+        WHEN (
+            highway IN ('bicycle_road', 'cyclestreet', 'living_street')
+        ) THEN 'cyclestreet'
+        WHEN (
+            cyclestreet = 'yes'
+            OR bicycle_road = 'yes'
+        ) THEN 'cyclestreet'
         WHEN (
             bicycle_infrastructure_final IS TRUE
             AND bicycle_gap = 'cycletrack'
@@ -104,13 +113,6 @@ SET
             OR "cycleway:right" IN ('track', 'opposite_track')
             OR "cycleway:both" IN ('track', 'opposite_track')
         ) THEN 'cycletrack'
-        WHEN (
-            highway IN ('bicycle_road', 'cyclestreet', 'living_street')
-        ) THEN 'cyclestreet'
-        WHEN (
-            cyclestreet = 'yes'
-            OR bicycle_road = 'yes'
-        ) THEN 'cyclestreet'
         WHEN (
             highway IN ('track', 'path')
             AND bicycle_infrastructure_final IS TRUE
