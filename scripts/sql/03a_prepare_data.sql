@@ -2,9 +2,17 @@
 -- PREPARE DATABASE
 DROP SCHEMA IF EXISTS matching_geodk_osm CASCADE;
 
-CREATE SCHEMA matching_geodk_osm;
+DROP SCHEMA IF EXISTS matching_geodk_osm_all_bike CASCADE;
+
+DROP SCHEMA IF EXISTS matching_geodk_osm_no_cycleways CASCADE;
 
 DROP SCHEMA IF EXISTS matching_geodk_osm_no_bike CASCADE;
+
+CREATE SCHEMA matching_geodk_osm;
+
+CREATE SCHEMA matching_geodk_osm_all_bike;
+
+CREATE SCHEMA matching_geodk_osm_no_cycleways;
 
 CREATE SCHEMA matching_geodk_osm_no_bike;
 
@@ -27,6 +35,7 @@ GROUP BY
 SELECT
     MIN(id) AS id,
     bicycle_infrastructure,
+    highway,
     (
         st_dump(ST_LineMerge(st_union(ST_Force2D(geometry))))
     ) .geom AS geom INTO matching_geodk_osm._extract_osm
@@ -41,4 +50,5 @@ WHERE
     )
 GROUP BY
     id,
+    highway,
     bicycle_infrastructure;

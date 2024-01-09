@@ -4,7 +4,12 @@ CREATE TABLE matching_geodk_osm._matches_geodk_all AS (
     SELECT
         *
     FROM
-        matching_geodk_osm._matches_geodk
+        matching_geodk_osm_all_bike._matches_geodk
+    UNION
+    SELECT
+        *
+    FROM
+        matching_geodk_osm_no_cycleways._matches_geodk
     UNION
     SELECT
         *
@@ -30,7 +35,7 @@ SET
     road_category = 'Cykelbane langs vej',
     surface = 'Befæstet'
 WHERE
-    id_geodk = (
+    id_geodk IN (
         SELECT
             DISTINCT id
         FROM
@@ -46,7 +51,7 @@ SET
     road_category = 'Cykelsti langs vej',
     surface = 'Befæstet'
 WHERE
-    id_geodk = (
+    id_geodk IN (
         SELECT
             DISTINCT id
         FROM
@@ -62,7 +67,7 @@ SET
     road_category = 'Cykelsti langs vej',
     surface = 'Ukendt'
 WHERE
-    id_geodk = (
+    id_geodk IN (
         SELECT
             DISTINCT id
         FROM
@@ -78,7 +83,7 @@ SET
     road_category = 'Cykelbane langs vej',
     surface = 'Ukendt'
 WHERE
-    id_geodk = (
+    id_geodk IN (
         SELECT
             DISTINCT id
         FROM
@@ -94,7 +99,7 @@ SET
     road_category = 'Cykelsti langs vej',
     surface = 'Ubefæstet'
 WHERE
-    id_geodk = (
+    id_geodk IN (
         SELECT
             DISTINCT id
         FROM
@@ -110,7 +115,7 @@ SET
     road_category = 'Cykelbane langs vej',
     surface = 'Ubefæstet'
 WHERE
-    id_geodk = (
+    id_geodk IN (
         SELECT
             DISTINCT id
         FROM

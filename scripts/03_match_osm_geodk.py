@@ -30,18 +30,19 @@ starttime = time.ctime()
 
 # %%
 # Perform initial matching
+# NOTE: This step takes a while
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 queries = [
     "sql/03a_prepare_data.sql",
     "sql/03b_create_segments.sql",
-    "sql/03c_find_candidates_bike.sql",
-    "sql/03d_find_best_match_bike.sql",
-    "sql/03e_find_unmatched_geodk_segments.sql",
+    "sql/03c_process_segments.sql",
+    "sql/03d_find_candidates_bike.sql",
+    "sql/03e_find_best_match_bike.sql",
+    "sql/03f_find_unmatched_geodk_segments.sql",
     "sql/03g_find_candidates_no_bike.sql",
     "sql/03h_find_best_matches_no_bike.sql",
 ]
-
 
 for i, q in enumerate(queries):
     print(f"Running step {i+1}...")
@@ -55,11 +56,13 @@ for i, q in enumerate(queries):
     )
     print(f"Step {i+1} done!")
 
+# %%
 print("Matching done!")
 print("Process matching starting...")
 
 # %%
 # Process matches
+connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
     "sql/03i_process_matches.sql",
@@ -70,6 +73,7 @@ dbf.run_query_pg(
     close=False,
 )
 
+# %%
 print("First preprocessing complete!")
 print("Continuing with processing of incomplete matches....")
 
@@ -138,11 +142,12 @@ dbf.run_query_pg(
     commit=True,
     close=False,
 )
+# %%
 print(f"Split edges processed!")
 
 # %%
 # Rebuild topology
-
+# NOTE: This takes a while
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 q = "sql/03k_rebuild_topology.sql"
@@ -155,8 +160,8 @@ dbf.run_query_pg(
     commit=True,
     close=False,
 )
+# %%
 print(f"Topology rebuild")
-
 
 # %%
 # finish processing
@@ -178,6 +183,7 @@ for i, q in enumerate(queries):
     )
     print(f"Step {i+1} done!")
 
+# %%
 print("Processing done!")
 
 connection.close()

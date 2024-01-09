@@ -12,8 +12,8 @@ SELECT
         ELSE angle
     END AS angle_red,
     hausdorffdist,
-    geodk_seg_geom,
-    osm_seg_geom INTO matching_geodk_osm_no_bike._candidates
+    --osm_seg_geom,
+    geodk_seg_geom INTO matching_geodk_osm_no_bike._candidates
 FROM
     (
         SELECT
@@ -28,12 +28,12 @@ FROM
                 )
             ) AS angle,
             ST_HausdorffDistance(segments_geodk.geom, segments_osm.geom) AS hausdorffdist,
-            segments_geodk.geom AS geodk_seg_geom,
-            segments_osm.geom AS osm_seg_geom
+            --segments_osm.geom AS osm_seg_geom,
+            segments_geodk.geom AS geodk_seg_geom
         FROM
             matching_geodk_osm_no_bike._segments_geodk AS segments_geodk
             JOIN matching_geodk_osm_no_bike._segments_osm AS segments_osm ON ST_Intersects(
                 segments_osm.geom,
                 ST_Buffer(segments_geodk.geom, 15)
             )
-    ) AS a;
+    ) AS A;

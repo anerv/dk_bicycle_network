@@ -12,7 +12,7 @@ UPDATE
 SET
     surface_temp =(
         SELECT
-            array(
+            ARRAY(
                 SELECT
                     unnest(geodk_surface :: text [ ])
                 EXCEPT
@@ -28,7 +28,7 @@ UPDATE
 SET
     category_temp =(
         SELECT
-            array(
+            ARRAY(
                 SELECT
                     unnest(geodk_category :: text [ ])
                 EXCEPT
@@ -70,7 +70,7 @@ DECLARE
 
 BEGIN
     SELECT
-        count(*) INTO category_temp_null
+        COUNT(*) INTO category_temp_null
     FROM
         osm_road_edges
     WHERE
@@ -88,7 +88,7 @@ DECLARE
 
 BEGIN
     SELECT
-        count(*) INTO surface_temp_null
+        COUNT(*) INTO surface_temp_null
     FROM
         osm_road_edges
     WHERE
@@ -342,7 +342,7 @@ DECLARE
 
 BEGIN
     SELECT
-        count(*) INTO matched_no_class
+        COUNT(*) INTO matched_no_class
     FROM
         osm_road_edges
     WHERE
@@ -360,7 +360,7 @@ DECLARE
 
 BEGIN
     SELECT
-        count(*) INTO matched_no_surface
+        COUNT(*) INTO matched_no_surface
     FROM
         osm_road_edges
     WHERE
@@ -378,7 +378,7 @@ DECLARE
 
 BEGIN
     SELECT
-        count(*) INTO matched_error_class
+        COUNT(*) INTO matched_error_class
     FROM
         osm_road_edges
     WHERE
@@ -396,7 +396,7 @@ DECLARE
 
 BEGIN
     SELECT
-        count(*) INTO matched_error_surface
+        COUNT(*) INTO matched_error_surface
     FROM
         osm_road_edges
     WHERE
