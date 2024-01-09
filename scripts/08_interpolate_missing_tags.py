@@ -1,3 +1,4 @@
+# %%
 import yaml
 from src import db_functions as dbf
 
@@ -28,10 +29,12 @@ dbf.run_query_pg(
 
 # %%
 
-q = f"SELECT id, highway FROM osm_road_edges WHERE speed_assumed = 30 LIMIT 10;"
+q = f"SELECT id, highway FROM osm_road_edges WHERE maxspeed_assumed = 30 LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
 print(test)
 
 connection.close()
+
+# %%
