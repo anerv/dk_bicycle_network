@@ -198,8 +198,33 @@ SET
     lts = 1
 WHERE
     bicycle_class = 1
-    AND bicycle_infrastructure_final = TRUE
-    AND surface_assumed NOT IN ('gravel', 'grass');
+    AND bicycle_infrastructure_final = TRUE -- AND bicycle_surface_assumed IN (
+    --     'asphalt',
+    --     'bricks',
+    --     'chipseal',
+    --     'cobblestone',
+    --     'compacted',
+    --     'concrete',
+    --     'concrete:lanes',
+    --     'concrete:plates',
+    --     'fine_gravel',
+    --     'grass_paver',
+    --     'metal',
+    --     'metal_grid',
+    --     'paved',
+    --     'paving_stones',
+    --     'pebblestone',
+    --     'plastic',
+    --     'sett',
+    --     'sp',
+    --     'steel',
+    --     'stone',
+    --     'tartan',
+    --     'tree',
+    --     'unpaved',
+    --     'wood'
+    -- )
+;
 
 -- *** LTS '5' WHERE cycling is not allowed but car traffic is **
 UPDATE
