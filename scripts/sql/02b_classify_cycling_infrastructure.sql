@@ -58,6 +58,7 @@ WHERE
         'lane'
     );
 
+-- Don't include infrastructure with non-bikeable surface
 UPDATE
     osm_road_edges
 SET
@@ -110,6 +111,7 @@ WHERE
     )
     OR tracktype IN ('grade4', 'grade5');
 
+-- don't include paths etc where cycling is not allowed
 UPDATE
     osm_road_edges
 SET
