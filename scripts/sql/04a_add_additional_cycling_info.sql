@@ -105,7 +105,7 @@ WHERE
         )
         AND (
             bicycle IS NULL
-            OR bicycle NOT IN ('dismount', 'use_sidepath')
+            OR bicycle NOT IN ('dismount', 'use_sidepath', 'no')
         )
     );
 

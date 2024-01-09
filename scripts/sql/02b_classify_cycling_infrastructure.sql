@@ -63,7 +63,60 @@ UPDATE
 SET
     bicycle_infrastructure = FALSE
 WHERE
-    bicycle IN ('no', 'dismount');
+    highway IN ('track', 'path')
+    AND (
+        surface IN (
+            'artificial_turf',
+            'clay',
+            'dirt',
+            'dirt/sand',
+            'driving_plates',
+            'earth',
+            'grass',
+            'grass_paver;sand',
+            'ground',
+            'mixed',
+            'mud',
+            'rock',
+            'rocks',
+            'sand',
+            'sas',
+            'stepping_stones',
+            'unhewn_cobblestone',
+            'woodchips',
+            'yes'
+        )
+        OR "cycleway:surface" IN (
+            'artificial_turf',
+            'clay',
+            'dirt',
+            'dirt/sand',
+            'driving_plates',
+            'earth',
+            'grass',
+            'grass_paver;sand',
+            'ground',
+            'mixed',
+            'mud',
+            'rock',
+            'rocks',
+            'sand',
+            'sas',
+            'stepping_stones',
+            'unhewn_cobblestone',
+            'woodchips',
+            'yes'
+        )
+    )
+    OR tracktype IN ('grade4', 'grade5');
+
+UPDATE
+    osm_road_edges
+SET
+    bicycle_infrastructure = FALSE
+WHERE
+    bicycle IN ('no', 'dismount')
+    AND highway IN ('track', 'path', 'living_street');
 
 -- Classify bicycle infra as either protected or unprotected
 ALTER TABLE
