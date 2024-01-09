@@ -18,7 +18,7 @@ print("Settings loaded!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/09_lts_classification.sql",
+    "sql/09a_lts_classification.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
@@ -33,6 +33,26 @@ q = f"SELECT id, highway FROM osm_road_edges WHERE lts = 1 LIMIT 10;"
 test = dbf.run_query_pg(q, connection)
 
 print(test)
+
+# %%
+
+dbf.run_query_pg(
+    "sql/09b_lts_intersections.sql",
+    connection,
+    success="Query successful!",
+    fail="Query failed!",
+    commit=True,
+    close=False,
+)
+
+# %%
+
+q = f"SELECT lts FROM nodes WHERE lts = 1 LIMIT 10;"
+
+test = dbf.run_query_pg(q, connection)
+
+print(test)
+
 
 connection.close()
 # %%
