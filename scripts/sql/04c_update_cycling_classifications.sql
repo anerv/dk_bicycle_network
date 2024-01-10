@@ -1,3 +1,11 @@
+-- CREATE COLUMN WITH SIMPLE BICYCLE INFRA TYPE
+ALTER TABLE
+    osm_road_edges
+ADD
+    COLUMN bicycle_category VARCHAR DEFAULT NULL,
+ADD
+    COLUMN cycleway_shared BOOLEAN DEFAULT NULL;
+
 -- UPDATE PROTECTED CLASSIFICATION FOR UNCLASSIFIED BICYCLE INFRA
 UPDATE
     osm_road_edges
@@ -34,12 +42,6 @@ ASSERT count_protection_null = 0,
 'Edges missing protection classification';
 
 END $$;
-
--- CREATE COLUMN WITH SIMPLE BICYCLE INFRA TYPE
-ALTER TABLE
-    osm_road_edges
-ADD
-    COLUMN bicycle_category VARCHAR DEFAULT NULL;
 
 -- cycle_living_street / cycleway / cycletrack / cyclelane / crossing / shared_track / shared_lane / shared_busway
 UPDATE
@@ -119,12 +121,22 @@ SET
             AND geodk_category = 'Cykelbane langs vej'
         ) THEN 'cyclelane'
         WHEN (
-            highway IN ('track', 'path', 'footway', 'bridleway')
+            highway IN (
+                'track',
+                'path',
+                'bridleway',
+                'footway'
+            )
             AND bicycle_infrastructure_final IS TRUE
         ) THEN 'cycleway'
         WHEN (
             bicycle_infrastructure_final IS TRUE
-            AND highway IN ('bicycle_road', 'cyclestreet', 'living_street')
+            AND highway IN (
+                'bicycle_road',
+                'cyclestreet',
+                'living_street',
+                'pedestrian'
+            )
         ) THEN 'cycle_living_street'
         WHEN (
             bicycle_infrastructure_final IS TRUE
@@ -149,6 +161,21 @@ SET
         ) THEN 'crossing'
         ELSE bicycle_category
     END;
+
+UPDATE
+    osm_road_edges
+SET
+    cycleway_shared = TRUE
+WHERE
+    highway IN (
+        'pedestrian',
+        'living_street',
+        'footway',
+        'bridleway',
+        'path',
+        'track'
+    )
+    AND foot <> 'no';
 
 DO $$
 DECLARE
