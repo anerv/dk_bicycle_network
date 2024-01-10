@@ -17,7 +17,6 @@ WHERE
     OR cyclestreet = 'yes'
     OR (
         highway IN (
-            'track',
             'path',
             'footway',
             'bridleway',
@@ -78,7 +77,7 @@ UPDATE
 SET
     bicycle_infrastructure = FALSE
 WHERE
-    highway IN ('track', 'path', 'footway', 'bridleway')
+    highway IN ('path', 'footway', 'bridleway')
     AND (
         surface IN (
             'artificial_turf',
@@ -132,7 +131,7 @@ SET
     bicycle_infrastructure = FALSE
 WHERE
     bicycle IN ('no', 'dismount')
-    AND highway IN ('track', 'path', 'living_street');
+    AND highway IN ('path', 'living_street');
 
 -- Classify bicycle infra as either protected or unprotected
 UPDATE
@@ -143,7 +142,6 @@ WHERE
     highway = 'cycleway'
     OR (
         highway IN (
-            'track',
             'path',
             'footway',
             'bridleway',

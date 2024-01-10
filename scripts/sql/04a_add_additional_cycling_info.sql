@@ -48,7 +48,8 @@ WHERE
         'motorway',
         'motorway_link',
         'service',
-        'services'
+        'services',
+        'track'
     )
     AND (
         access NOT IN ('no', 'restricted')
@@ -175,7 +176,7 @@ WHERE
         'primary_link',
         'residential',
         'motorway',
-        'motorway_link' -- 'service',
+        'motorway_link' -- 'service', 'track', ??
         -- 'services'
     )
     AND (
@@ -203,7 +204,6 @@ CREATE TABLE cycleways_points AS WITH cycleways AS (
         AND car_traffic IS FALSE -- highway IN (
         --     'cycleway',
         --     'path',
-        --     'track',
         --     'footway',
         --     'bridleway'
         -- )

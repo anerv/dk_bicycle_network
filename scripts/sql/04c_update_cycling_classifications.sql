@@ -122,7 +122,6 @@ SET
         ) THEN 'cyclelane'
         WHEN (
             highway IN (
-                'track',
                 'path',
                 'bridleway',
                 'footway'
@@ -167,15 +166,17 @@ UPDATE
 SET
     cycleway_shared = TRUE
 WHERE
-    highway IN (
-        'pedestrian',
-        'living_street',
-        'footway',
-        'bridleway',
-        'path',
-        'track'
+    (
+        highway IN (
+            'pedestrian',
+            'living_street',
+            'footway',
+            'bridleway',
+            'path'
+        )
+        AND foot <> 'no'
     )
-    AND foot <> 'no';
+    OR bicycle_category = 'shared_track';
 
 DO $$
 DECLARE

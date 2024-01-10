@@ -68,8 +68,13 @@ SET
         WHEN highway = 'tertiary' THEN 3
         WHEN highway = 'secondary' THEN 4
         WHEN highway IN ('primary', 'trunk', 'motorway') THEN 6
-        WHEN highway IN ('cyclestreet', 'bicycle_road', 'living_street') THEN 2
-        WHEN highway IN ('path', 'bridleway', 'track') THEN 1
+        WHEN highway IN (
+            'cyclestreet',
+            'bicycle_road',
+            'living_street',
+            'track'
+        ) THEN 2
+        WHEN highway IN ('path', 'bridleway') THEN 1
         WHEN highway LIKE '%_link' THEN 1
         ELSE lanes_assumed
     END;
@@ -144,7 +149,8 @@ SET
             'trunk_link',
             'primary_link',
             'secondary_link',
-            'tertiary_link'
+            'tertiary_link',
+            'track'
         ) THEN 80
         WHEN highway IN ('motorway', 'motorway_link') THEN 130
     END;
@@ -220,6 +226,7 @@ SET
             'cyclestreet'
         ) THEN FALSE
         WHEN highway IN (
+            'track',
             'trunk',
             'primary',
             'secondary',

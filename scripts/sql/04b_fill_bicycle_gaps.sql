@@ -72,7 +72,8 @@ WHERE
         'primary',
         'trunk',
         'residential',
-        'unclassified'
+        'unclassified',
+        'track'
     );
 
 UPDATE
@@ -80,22 +81,14 @@ UPDATE
 SET
     bicycle_protected = TRUE
 WHERE
-    highway IN (
-        'track',
-        'path',
-        'bridleway'
-    );
+    highway IN ('path', 'bridleway');
 
 UPDATE
     potential_bicycle_gaps
 SET
     bicycle_gap = 'cycletrack'
 WHERE
-    highway IN (
-        'track',
-        'path',
-        'bridleway'
-    )
+    highway IN ('path', 'bridleway')
     AND along_street IS TRUE;
 
 UPDATE
@@ -103,11 +96,7 @@ UPDATE
 SET
     bicycle_gap = 'cycleway'
 WHERE
-    highway IN (
-        'track',
-        'path',
-        'bridleway'
-    )
+    highway IN ('path', 'bridleway')
     AND along_street IS FALSE;
 
 UPDATE

@@ -59,25 +59,15 @@ ASSERT bike_class_null = 0,
 
 END $$;
 
--- *** LTS 1 ***
-UPDATE
-    osm_road_edges
-SET
-    lts_1 = 1
-WHERE
-    bicycle_class = 1
-    OR maxspeed_assumed <= 30
-    OR (
-        bicycle_class = 2
-        AND maxspeed_assumed <= 40
-    )
-    OR (
-        bicycle_class = 2
-        AND maxspeed_assumed <= 50
-        AND lanes_assumed <= 2
-    );
-
--- *** LTS 2 ***
+-- *** LTS 2 ****
+-- IF bicycle class 2:
+-- speed of max 40
+-- If centerline: max 4 lanes, 2 if oneway
+-- No centerline: max 2 lanes, 1 if oneway
+-- If bicycle class 3:
+-- Speed max 50 km/h + With center line, more than 4 lanes (more than 2 if oneway)
+-- 40 km, No center line (4 or more lanes (2 or more if oneway))
+--
 UPDATE
     osm_road_edges
 SET
@@ -85,74 +75,155 @@ SET
 WHERE
     (
         bicycle_class = 2
-        AND maxspeed_assumed > 40
-        AND maxspeed_assumed <= 50
-        AND lanes_assumed > 3
-        AND lanes_assumed <= 4
+        AND maxspeed_assumed <= 40
     )
     OR (
-        bicycle_class = 3
-        AND maxspeed_assumed > 30
+        bicycle_class = 2
+        AND (
+            centerline_assumed IS TRUE
+            AND (
+                lanes_assumed <= 4
+                AND oneway NOT IN ('yes', 'True', 'true', '1')
+                OR (
+                    lanes_assumed <= 2
+                    AND oneway IN ('yes', 'True', 'true', '1')
+                )
+            )
+        )
+    );
+
+UPDATE
+    osm_road_edges
+SET
+    lts_2 = 2
+WHERE
+    bicycle_class = 3
+    AND (
+        centerline_assumed IS TRUE
         AND maxspeed_assumed <= 50
-        AND highway IN ('residential') -- service??
+        AND lanes_assumed <= 3
+    )
+    OR (
+        centerline_assumed IS FALSE
+        AND maxspeed_assumed <= 40
+        AND lanes_assumed <= 2
     );
 
 -- *** LTS 3 ***
+-- IF bicycle category 2:
+-- Max speed of 60 km/h
+-- If centerline: More than four lanes (more than 2 if oneway)
+-- If no centerline (4 lanes (2 if oneway))
+-- IF bicycle category 3:
+-- Max speed 70 km if no centerline
+-- Max speed 50 km if centerline
+-- Max 3 lanes if no centerline
+-- Max 4 lanes if centerline
+--
 UPDATE
     osm_road_edges
 SET
     lts_3 = 3
 WHERE
-    (
-        bicycle_class = 2
-        AND maxspeed_assumed > 50
-        AND maxspeed_assumed <= 60
+    bicycle_class = 2
+    AND (
+        maxspeed_assumed >= 60
+        OR (
+            centerline_assumed IS TRUE
+            AND (
+                lanes_assumed > 4
+                OR (
+                    lanes_assumed > 2
+                    AND oneway IN ('yes', 'True', 'true', '1')
+                )
+            )
+        )
+        OR (
+            centerline_assumed IS FALSE
+            AND (
+                lanes_assumed <= 4
+                OR (
+                    lanes_assumed <= 2
+                    AND oneway IN ('yes', 'True', 'true', '1')
+                )
+            )
+        )
+    );
+
+UPDATE
+    osm_road_edges
+SET
+    lts_3 = 3
+WHERE
+    bicycle_class = 3
+    AND (
+        centerline_assumed IS FALSE
+        AND (
+            lanes_assumed <= 3
+            OR maxspeed_assumed <= 50
+        )
     )
     OR (
-        bicycle_class = 3
-        AND maxspeed_assumed > 30
-        AND maxspeed_assumed <= 50
-        AND highway NOT IN ('residential') -- service??
-    )
-    OR (
-        bicycle_class = 3
-        AND lanes_assumed >= 4
+        centerline_assumed IS TRUE
+        AND (
+            lanes_assumed <= 4
+            OR maxspeed_assumed <= 70
+        )
     );
 
 -- *** LTS 4 ***
+-- If bicycle category 2, speed of 70 km or more or two or more lanes per direction
+-- If bicycle category 3, all roads with a speed of 60 or more or four or more lanes in total
+--
 UPDATE
     osm_road_edges
 SET
     lts_4 = 4
 WHERE
-    (
-        bicycle_class = 2
-        AND maxspeed_assumed > 60
-        AND maxspeed_assumed <= 70
-    )
-    OR (
-        bicycle_class = 3
-        AND maxspeed_assumed > 50
-    )
-    OR (
-        bicycle_class = 3
-        AND lanes_assumed > 4
+    bicycle_class = 2
+    AND (
+        maxspeed_assumed >= 70
+        OR (
+            lanes_assumed >= 4
+            AND oneway IN ('no', 'False', 'false', '0')
+        )
+        OR (
+            lanes_assumed >= 2
+            AND oneway IN ('yes', 'True', 'true', '1')
+        )
     );
 
--- *** LTS 999 ***
 UPDATE
     osm_road_edges
 SET
-    lts_999 = 999
+    lts_4 = 4
 WHERE
-    car_traffic IS FALSE
-    AND cycling_allowed IS FALSE;
+    bicycle_class = 3
+    AND (
+        lanes_assumed >= 4
+        OR maxspeed_assumed >= 60
+    );
 
--- **
--- TODO: WHAT TO DO WITH CYCLING ALLOWED NO??
--- ***
+-- *** LTS 1 ****
 UPDATE
-    DO $$
+    osm_road_edges
+SET
+    lts_1 = 1
+WHERE
+    bicycle_class = 1
+    AND bicycle_infrastructure_final = TRUE;
+
+-- *** LTS '5' WHERE cycling is not allowed but car traffic is **
+-- THIS WILL ALSO INCLUDE ROADS WITH LOW LTS BUT BICYCLE INFRA MAPPED SEPARATELY
+UPDATE
+    osm_road_edges
+SET
+    lts_5 = 5
+WHERE
+    cycling_allowed IS FALSE
+    AND car_traffic IS TRUE;
+
+DO $$
 DECLARE
     lts_car_null INT;
 
