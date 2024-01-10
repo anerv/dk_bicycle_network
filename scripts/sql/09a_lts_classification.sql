@@ -3,20 +3,21 @@ ALTER TABLE
 ADD
     COLUMN lts INTEGER DEFAULT NULL;
 
--- FIX: highway=cycleway and cycleway(both,left,right) = lane --> categorized as unprotected lane (bicycle category issue)
--- FIX: paths with cycling allowed but no cycling class - should they also be 1? (bicycle category/bicycle infra issue)
--- FIX: highway = footway, bicycle = yes, cycling_allowed = yes/true, but bicycle_infra = false? and no category (bicycle category/bicycle infra issue - change throughout!!)
--- Fix: same, but classified as lanes because of geodk (order? should be overwritten) (bicycle category issue)
--- FIX highway = pedestrian and bicycle road = yes (bicycle category issue)
--- FIX: highway = cycleway but also cyclestreet - which category? Which LTS? (bicycle cat issue)
---
--- RERUN AND FIX ALL BICYCLE CLASSIFICATION (BUT KEEP MATCHED!)
--- BEFORE RERUNNING LTS: MAKE SURE THAT BICYCLE CLASSES MAKE SENSE
---
--- TODO: deal with highway=footway bicycle crossings (LTS issue)
--- TODO: deal with highway = 'cycleway' and bicycle class is 2 or 3 (e.g. because of crossing) (LTS issue)
--- FIX highway=footway and category = crossing (LTS issue)
--- FIX highway=pedestrian and category = crossing (LTS issue)
+ALTER TABLE
+    osm_road_edges
+ADD
+    COLUMN lts_1 INTEGER DEFAULT NULL,
+ADD
+    COLUMN lts_2 INTEGER DEFAULT NULL,
+ADD
+    COLUMN lts_3 INTEGER DEFAULT NULL,
+ADD
+    COLUMN lts_4 INTEGER DEFAULT NULL,
+ADD
+    COLUMN lts_5 INTEGER DEFAULT NULL,
+ADD
+    COLUMN lts_999 INTEGER DEFAULT NULL;
+
 -- FIX highway = pedestrian and cycleway = lane (LTS issue)
 -- fix highway = track and category = lane (because of matching) (LTS issue) -- lts mixed traffic
 -- residential, 5 lanes, bicycle lanes (LTS issue)
@@ -33,14 +34,12 @@ SET
         WHEN bicycle_category = 'cycletrack' THEN 1
         WHEN bicycle_category = 'cyclelane' THEN 2
         WHEN bicycle_category = 'shared_busway' THEN 2
-        WHEN bicycle_category = 'cyclestreet' THEN 3
+        WHEN bicycle_category = 'cycle_living_street' THEN 3
         WHEN bicycle_category = 'crossing' THEN 3
         WHEN bicycle_category = 'shared_lane' THEN 3
         WHEN bicycle_category IS NULL
         AND cycling_allowed IS TRUE THEN 3
-    END
-WHERE
-    bicycle_allowed IS TRUE;
+    END;
 
 DO $$
 DECLARE
@@ -72,7 +71,7 @@ END $$;
 UPDATE
     osm_road_edges
 SET
-    lts = 2
+    lts_2 = 2
 WHERE
     (
         bicycle_class = 2
@@ -96,7 +95,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 2
+    lts_2 = 2
 WHERE
     bicycle_class = 3
     AND (
@@ -124,7 +123,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 3
+    lts_3 = 3
 WHERE
     bicycle_class = 2
     AND (
@@ -154,7 +153,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 3
+    lts_3 = 3
 WHERE
     bicycle_class = 3
     AND (
@@ -179,7 +178,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 4
+    lts_4 = 4
 WHERE
     bicycle_class = 2
     AND (
@@ -197,7 +196,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 4
+    lts_4 = 4
 WHERE
     bicycle_class = 3
     AND (
@@ -209,7 +208,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 1
+    lts_1 = 1
 WHERE
     bicycle_class = 1
     AND bicycle_infrastructure_final = TRUE;
@@ -218,57 +217,33 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 5
+    lts_5 = 5
 WHERE
     cycling_allowed IS FALSE
     AND car_traffic IS TRUE;
 
 DO $$
 DECLARE
-    lts_null INT;
+    lts_car_null INT;
 
 BEGIN
     SELECT
-        COUNT(*) INTO lts_null
+        COUNT(*) INTO lts_car_null
     FROM
         osm_road_edges
     WHERE
         lts IS NULL
-        AND (
-            car_traffic IS TRUE
-            OR bicycle_category IS NOT NULL
-        );
+        AND car_traffic IS TRUE;
 
-ASSERT lts_null = 0,
-'Edges missing LTS value';
-
-END $$;
-
-DO $$
-DECLARE
-    lts_error INT;
-
-BEGIN
-    SELECT
-        COUNT(*) INTO lts_error
-    FROM
-        osm_road_edges
-    WHERE
-        lts IS NOT NULL
-        AND (
-            car_traffic IS FALSE
-            AND bicycle_category IS NULL
-        );
-
-ASSERT lts_error = 0,
-'Edges with surplus LTS value';
+ASSERT lts_car_null = 0,
+'Car edges missing LTS value';
 
 END $$;
 
 UPDATE
     osm_road_edges
 SET
-    lts = 999
+    lts_999 = 999
 WHERE
     car_traffic IS FALSE
     AND cycling_allowed IS FALSE;
@@ -277,10 +252,16 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 999
+    lts_999 = 999
 WHERE
     bicycle_infrastructure_final IS FALSE
-    AND highway IN ('path', 'track');
+    AND highway IN (
+        'path',
+        'track',
+        'bridleway',
+        'footway',
+        'pedestrian'
+    );
 
 --bicycle_surface_assumed IN (
 --     'asphalt',
