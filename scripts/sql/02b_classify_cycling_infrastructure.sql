@@ -2,7 +2,9 @@
 ALTER TABLE
     osm_road_edges
 ADD
-    COLUMN bicycle_infrastructure BOOLEAN NOT NULL DEFAULT FALSE;
+    COLUMN bicycle_infrastructure BOOLEAN NOT NULL DEFAULT FALSE,
+ADD
+    COLUMN bicycle_protected BOOLEAN DEFAULT NULL;
 
 UPDATE
     osm_road_edges
@@ -14,8 +16,14 @@ WHERE
     OR bicycle_road = 'yes'
     OR cyclestreet = 'yes'
     OR (
-        highway IN ('track', 'path')
-        AND bicycle IN ('designated', 'yes')
+        highway IN ('track', 'path', 'footway', 'bridleway')
+        AND bicycle IN (
+            'yes',
+            'permissive',
+            'ok',
+            'allowed',
+            'designated'
+        )
     )
     OR cycleway IN (
         'track',
@@ -64,7 +72,7 @@ UPDATE
 SET
     bicycle_infrastructure = FALSE
 WHERE
-    highway IN ('track', 'path')
+    highway IN ('track', 'path', 'footway', 'bridleway')
     AND (
         surface IN (
             'artificial_turf',
@@ -121,11 +129,6 @@ WHERE
     AND highway IN ('track', 'path', 'living_street');
 
 -- Classify bicycle infra as either protected or unprotected
-ALTER TABLE
-    osm_road_edges
-ADD
-    COLUMN bicycle_protected BOOLEAN;
-
 UPDATE
     osm_road_edges
 SET
@@ -133,12 +136,15 @@ SET
 WHERE
     highway = 'cycleway'
     OR (
-        highway = 'track'
-        AND bicycle IN ('designated', 'yes')
-    )
-    OR (
-        highway = 'path'
-        AND bicycle IN ('designated', 'yes')
+        highway IN ('track', 'path', 'footway', 'bridleway')
+        AND bicycle IN (
+            'yes',
+            'permissive',
+            'ok',
+            'allowed',
+            'designated'
+        )
+        AND bicycle_infrastructure IS TRUE
     )
     OR cycleway IN ('track', 'opposite_track', 'share_sidewalk')
     OR "cycleway:left" IN ('track', 'opposite_track', 'share_sidewalk')

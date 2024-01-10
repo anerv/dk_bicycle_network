@@ -198,7 +198,15 @@ CREATE TABLE cycleways_points AS WITH cycleways AS (
     FROM
         osm_road_edges
     WHERE
-        highway IN ('cycleway', 'path', 'track')
+        bicycle_infrastructure IS TRUE
+        AND along_street IS FALSE
+        AND car_traffic IS FALSE -- highway IN (
+        --     'cycleway',
+        --     'path',
+        --     'track',
+        --     'footway',
+        --     'bridleway'
+        -- )
 )
 SELECT
     id,
@@ -282,5 +290,3 @@ DROP TABLE IF EXISTS exploded_cycle_points;
 DROP TABLE IF EXISTS points_along_road;
 
 DROP TABLE IF EXISTS count_along_car;
-
-DROP TABLE IF EXISTS cycleways;
