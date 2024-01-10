@@ -32,20 +32,19 @@ CREATE TABLE matching_geodk_osm._org_split_edges AS (
         )
 );
 
-CREATE TABLE matching_geodk_osm._org_split_edges_copy AS (
-    SELECT
-        *
-    FROM
-        osm_road_edges
-    WHERE
-        id IN (
-            SELECT
-                id_osm
-            FROM
-                matching_geodk_osm._decided_segments
-        )
-);
-
+-- CREATE TABLE matching_geodk_osm._org_split_edges_copy AS (
+--     SELECT
+--         *
+--     FROM
+--         osm_road_edges
+--     WHERE
+--         id IN (
+--             SELECT
+--                 id_osm
+--             FROM
+--                 matching_geodk_osm._decided_segments
+--         )
+-- );
 -- Joing org tags info etc to new split edges
 ALTER TABLE
     matching_geodk_osm._org_split_edges DROP COLUMN geometry;
