@@ -16,7 +16,13 @@ WHERE
     OR bicycle_road = 'yes'
     OR cyclestreet = 'yes'
     OR (
-        highway IN ('track', 'path', 'footway', 'bridleway')
+        highway IN (
+            'track',
+            'path',
+            'footway',
+            'bridleway',
+            'pedestrian'
+        )
         AND bicycle IN (
             'yes',
             'permissive',
@@ -136,7 +142,13 @@ SET
 WHERE
     highway = 'cycleway'
     OR (
-        highway IN ('track', 'path', 'footway', 'bridleway')
+        highway IN (
+            'track',
+            'path',
+            'footway',
+            'bridleway',
+            'pedestrian'
+        )
         AND bicycle IN (
             'yes',
             'permissive',
