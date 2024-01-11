@@ -31,43 +31,43 @@
 ## LTS 1
 
 - if protected bike infra
-- if speed max 50 and unprotected bike infra
-- If speed max 30
+- if speed max 40 and unprotected bike infra
+- if speed max 50 and unprotected bike infra and max 2 lanes
+- If speed max 30 where no bike infra and not more than two lanes
+- if speed max 20 allow for three lanes
 
 ## LTS 2
 
-- if residential street and no bike infra and speed max 50
-- if unprotected bike infra 
+- if unprotected bike infra, speed 40-50 and lanes 3-4
+- no bike infra and speed 30-50, max 3 lanes
 
 ## LTS 3
 
+- unprotected bike infra, speed between 50-60
+- no bike infra, speed 30 - 5, 4 lanes (if 3 lanes, its lts2) 
+
 ## LTS 4
+
+- unprotected, speed over 60 or more than 4 lanes
+- unprotected, speed over 50 and more 
+- no bike infra, speed over 50
+- no bike infra, more than four lanes
 
 25 miles = 40 km
 30 miles = 50 km
 35 = 56 (60)
 40 miles = 70 (64)
 
-look into those with 1, 3, and 4:
-ROADS WITH MANY LANES ASSUMED ENDS UP GETTING LTS 4 DESPITE VERY LOW MAX SPEED
 
-1,2:
-issue with lanes - i think it is fixed
+**2,3**
 
-1,3:
-roads with speed 20 but 4 lanes
+four lanes, no bike infra, speed 50, residential
+--> should be 3
 
-1,999:
-pedestrian etc with low speed but no cycling - fix
+**2,3,4**
+--> should be 4
 
-2,3:
-no bike infra,
-speed 50
-lanes 4
+**3,4**
+lane issue?
 
-
-2,3,4:
-???
-
-3,4:
-???
+**NO LTS**
