@@ -87,59 +87,91 @@ ADD
 UPDATE
     nodes
 SET
-    lts = 1
-WHERE
-    id IN (
-        SELECT
-            node
-        FROM
-            nodes_lts_1
-    );
+    lts = CASE
+        WHEN id IN (
+            SELECT
+                node
+            FROM
+                nodes_lts_4
+        ) THEN 4
+        WHEN id IN (
+            SELECT
+                node
+            FROM
+                nodes_lts_3
+        ) THEN 3
+        WHEN id IN (
+            SELECT
+                node
+            FROM
+                nodes_lts_2
+        ) THEN 2
+        WHEN id IN (
+            SELECT
+                node
+            FROM
+                nodes_lts_1
+        ) THEN 1
+        WHEN id IN (
+            SELECT
+                node
+            FROM
+                nodes_lts_999
+        ) THEN 999
+    END;
 
-UPDATE
-    nodes
-SET
-    lts = 2
-WHERE
-    id IN (
-        SELECT
-            node
-        FROM
-            nodes_lts_2
-    );
-
-UPDATE
-    nodes
-SET
-    lts = 3
-WHERE
-    id IN (
-        SELECT
-            node
-        FROM
-            nodes_lts_3
-    );
-
-UPDATE
-    nodes
-SET
-    lts = 4
-WHERE
-    id IN (
-        SELECT
-            node
-        FROM
-            nodes_lts_4
-    );
-
-UPDATE
-    nodes
-SET
-    lts = 5
-WHERE
-    id IN (
-        SELECT
-            node
-        FROM
-            nodes_lts_5
-    );
+-- UPDATE
+--     nodes
+-- SET
+--     lts = 1
+-- WHERE
+--     id IN (
+--         SELECT
+--             node
+--         FROM
+--             nodes_lts_1
+--     );
+-- UPDATE
+--     nodes
+-- SET
+--     lts = 2
+-- WHERE
+--     id IN (
+--         SELECT
+--             node
+--         FROM
+--             nodes_lts_2
+--     );
+-- UPDATE
+--     nodes
+-- SET
+--     lts = 3
+-- WHERE
+--     id IN (
+--         SELECT
+--             node
+--         FROM
+--             nodes_lts_3
+--     );
+-- UPDATE
+--     nodes
+-- SET
+--     lts = 4
+-- WHERE
+--     id IN (
+--         SELECT
+--             node
+--         FROM
+--             nodes_lts_4
+--     );
+-- UPDATE
+--     nodes
+-- SET
+--     lts = 5
+-- WHERE
+--     id IN (
+--         SELECT
+--             node
+--         FROM
+--             nodes_lts_5
+--     );

@@ -18,12 +18,6 @@ ADD
 ADD
     COLUMN lts_999 INTEGER DEFAULT NULL;
 
--- FIX highway = pedestrian and cycleway = lane (LTS issue)
--- fix highway = track and category = lane (because of matching) (LTS issue) -- lts mixed traffic
--- residential, 5 lanes, bicycle lanes (LTS issue)
--- FIX: why no lts 2 lol?
--- FIX: too many in lts 4??
---
 --Assign bicycle class
 UPDATE
     osm_road_edges
@@ -60,16 +54,41 @@ ASSERT bike_class_null = 0,
 END $$;
 
 -- *** LTS 1 ***
+-- OBS - LTS 1 does not consider whether cycling is allowed or not
 UPDATE
     osm_road_edges
 SET
     lts_1 = 1
 WHERE
     bicycle_class = 1
-    OR maxspeed_assumed <= 30
     OR (
-        bicycle_class = 2
-        AND maxspeed_assumed <= 40
+        -- implicit also includes bicycle class 3 here
+        maxspeed_assumed <= 30
+        AND lanes_assumed <= 2
+        AND (
+            bicycle_infrastructure_final IS TRUE
+            OR highway NOT IN (
+                'path',
+                'bridleway',
+                'footway',
+                'pedestrian'
+            )
+        )
+    )
+    OR (
+        -- implicit also includes bicycle class 3 here
+        maxspeed_assumed <= 20
+        AND cycling_allowed IS TRUE
+        AND lanes_assumed <= 3
+        AND (
+            bicycle_infrastructure_final IS TRUE
+            OR highway NOT IN (
+                'path',
+                'bridleway',
+                'footway',
+                'pedestrian'
+            )
+        )
     )
     OR (
         bicycle_class = 2
@@ -84,17 +103,29 @@ SET
     lts_2 = 2
 WHERE
     (
-        bicycle_class = 2
-        AND maxspeed_assumed > 40
+        bicycle_class = 2 --AND maxspeed_assumed > 40
         AND maxspeed_assumed <= 50
-        AND lanes_assumed > 3
+        AND lanes_assumed >= 3
         AND lanes_assumed <= 4
     )
     OR (
-        bicycle_class = 3
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
         AND maxspeed_assumed > 30
         AND maxspeed_assumed <= 50
-        AND highway IN ('residential') -- service??
+        AND lanes_assumed < 4
+    )
+    OR (
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
+        AND maxspeed_assumed >= 30
+        AND maxspeed_assumed <= 50
+        AND lanes_assumed < 4
+        AND lanes_assumed > 2
     );
 
 -- *** LTS 3 ***
@@ -107,16 +138,16 @@ WHERE
         bicycle_class = 2
         AND maxspeed_assumed > 50
         AND maxspeed_assumed <= 60
+        AND lanes_assumed < 5
     )
     OR (
-        bicycle_class = 3
-        AND maxspeed_assumed > 30
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
+        AND maxspeed_assumed >= 30
         AND maxspeed_assumed <= 50
-        AND highway NOT IN ('residential') -- service??
-    )
-    OR (
-        bicycle_class = 3
-        AND lanes_assumed >= 4
+        AND lanes_assumed = 4
     );
 
 -- *** LTS 4 ***
@@ -127,17 +158,40 @@ SET
 WHERE
     (
         bicycle_class = 2
-        AND maxspeed_assumed > 60
-        AND maxspeed_assumed <= 70
+        AND (
+            maxspeed_assumed >= 50
+            AND lanes_assumed >= 5
+        )
     )
     OR (
-        bicycle_class = 3
+        bicycle_class = 2
+        AND (maxspeed_assumed >= 70)
+    )
+    OR (
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
         AND maxspeed_assumed > 50
     )
     OR (
-        bicycle_class = 3
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
         AND lanes_assumed > 4
     );
+
+UPDATE
+    osm_road_edges
+SET
+    lts_4 = 4,
+    lts_2 = NULL,
+    lts_1 = NULL,
+    lts_3 = NULL
+WHERE
+    highway IN ('motorway_link')
+    AND bicycle_class IS NULL;
 
 -- *** LTS 999 ***
 UPDATE
@@ -146,13 +200,15 @@ SET
     lts_999 = 999
 WHERE
     car_traffic IS FALSE
-    AND cycling_allowed IS FALSE;
+    AND cycling_allowed IS FALSE
+    AND (
+        lts_1 IS NULL
+        AND lts_2 IS NULL
+        AND lts_3 IS NULL
+        AND lts_4 IS NULL
+    );
 
--- **
--- TODO: WHAT TO DO WITH CYCLING ALLOWED NO??
--- ***
-UPDATE
-    DO $$
+DO $$
 DECLARE
     lts_car_null INT;
 
@@ -170,63 +226,36 @@ ASSERT lts_car_null = 0,
 
 END $$;
 
-UPDATE
-    osm_road_edges
-SET
-    lts_999 = 999
-WHERE
-    car_traffic IS FALSE
-    AND cycling_allowed IS FALSE;
-
+-- TODO; paths where cycling is allowed but not desirable - bicycle infra FALSE
 --make sure paths and tracks with bad surface or bicycle no are not included
+-- **
+-- make sure that all bike that has no lts are crossings?
+-- ***
+ALTER TABLE
+    osm_road_edges DROP column lts_arr;
+
+ALTER TABLE
+    osm_road_edges
+ADD
+    column lts_arr text [ ];
+
 UPDATE
     osm_road_edges
 SET
-    lts_999 = 999
-WHERE
-    bicycle_infrastructure_final IS FALSE
-    AND highway IN (
-        'path',
-        'track',
-        'bridleway',
-        'footway',
-        'pedestrian'
+    lts_arr = array_remove(
+        ARRAY [ lts_1,
+        lts_2,
+        lts_3,
+        lts_4,
+        lts_5,
+        lts_999 ],
+        NULL
     );
 
---bicycle_surface_assumed IN (
---     'asphalt',
---     'bricks',
---     'chipseal',
---     'cobblestone',
---     'compacted',
---     'concrete',
---     'concrete:lanes',
---     'concrete:plates',
---     'fine_gravel',
---     'grass_paver',
---     'metal',
---     'metal_grid',
---     'paved',
---     'paving_stones',
---     'pebblestone',
---     'plastic',
---     'sett',
---     'sp',
---     'steel',
---     'stone',
---     'tartan',
---     'tree',
---     'unpaved',
---     'wood'
--- )
----
--- *** LTS 1 ****
--- if protected bike infra = LTS1
--- if speed max 50 and unprotected bike infra -- LTS 1
--- if speed max 40 and no bike infra/class 3 -- LTS 1
--- *** LTS 2 ****
--- if residential and no bike infra -- LTS 2
---if speed above XXXX and no bike infra --> lts 4
---if lanes above XXXX and no bike infra --> lts 4
---IF speed above XXXX AND unprotected bike infra --> lts 
---IF lanes above XXXX AND no bike infra --> lts 4
+SELECT
+    COUNT(*),
+    lts_arr
+FROM
+    osm_road_edges
+GROUP BY
+    lts_arr;
