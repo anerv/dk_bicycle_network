@@ -60,14 +60,19 @@ WHERE
     AND cycling_allowed IS TRUE;
 
 -- LANES assumed
+-- Based on Wasserman, https: / / wiki.openstreetmap.org / wiki / Key :lanes and most typical values for each category
 UPDATE
     osm_road_edges
 SET
     lanes_assumed = CASE
-        WHEN highway IN ('residential', 'unclassified', 'service') THEN 2
-        WHEN highway = 'tertiary' THEN 3
-        WHEN highway = 'secondary' THEN 4
-        WHEN highway IN ('primary', 'trunk', 'motorway') THEN 6
+        WHEN highway IN (
+            'residential',
+            'unclassified',
+            'service',
+            'tertiary',
+            'secondary''primary'
+        ) THEN 2
+        WHEN highway IN ('trunk', 'motorway') THEN 6
         WHEN highway IN (
             'cyclestreet',
             'bicycle_road',
@@ -75,7 +80,7 @@ SET
             'track'
         ) THEN 2
         WHEN highway IN ('path', 'bridleway') THEN 1
-        WHEN highway LIKE '%_link' THEN 1
+        WHEN highway LIKE '%_link' THEN 2
         ELSE lanes_assumed
     END;
 
