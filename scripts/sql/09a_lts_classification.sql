@@ -173,7 +173,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts = 4,
+    lts = 4
 WHERE
     highway IN ('motorway_link')
     AND bicycle_class IS NULL;
@@ -182,7 +182,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts_999 = 999
+    lts = 999
 WHERE
     car_traffic IS FALSE
     AND cycling_allowed IS FALSE
@@ -216,6 +216,47 @@ WHERE
     AND car_traffic IS FALSE
     AND cycling_allowed IS TRUE
     AND lts IS NULL;
+
+-- bicycle infrastructure missing an lts value
+UPDATE
+    osm_road_edges
+SET
+    lts = 1
+WHERE
+    highway IN ('pedestrian', 'living_street')
+    AND cycling_allowed IS TRUE
+    AND bicycle_infrastructure_final IS TRUE
+    AND bicycle_class IS NOT NULL
+    AND lts IS NULL;
+
+UPDATE
+    osm_road_edges
+SET
+    lts = 2
+WHERE
+    highway IN ('path')
+    AND bicycle_infrastructure_final IS TRUE
+    AND lts IS NULL
+    AND bicycle_category = 'cyclelane';
+
+DO $$
+DECLARE
+    bike_null INT;
+
+BEGIN
+    SELECT
+        COUNT(*) INTO bike_null
+    FROM
+        osm_road_edges
+    WHERE
+        lts IS NULL
+        AND bicycle_infrastructure_final IS TRUE
+        AND bicycle_category <> 'crossing';
+
+ASSERT bike_null = 0,
+'Bike edges missing LTS value';
+
+END $$;
 
 -- TODO: look at edges where lts is null and cycling allowed
 -- some pedestrian missing lts - cycle_living_street
