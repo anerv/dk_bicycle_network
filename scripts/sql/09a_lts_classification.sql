@@ -1,22 +1,9 @@
 ALTER TABLE
     osm_road_edges
 ADD
+    COLUMN bicycle_class INTEGER DEFAULT NULL,
+ADD
     COLUMN lts INTEGER DEFAULT NULL;
-
-ALTER TABLE
-    osm_road_edges
-ADD
-    COLUMN lts_1 INTEGER DEFAULT NULL,
-ADD
-    COLUMN lts_2 INTEGER DEFAULT NULL,
-ADD
-    COLUMN lts_3 INTEGER DEFAULT NULL,
-ADD
-    COLUMN lts_4 INTEGER DEFAULT NULL,
-ADD
-    COLUMN lts_5 INTEGER DEFAULT NULL,
-ADD
-    COLUMN lts_999 INTEGER DEFAULT NULL;
 
 --Assign bicycle class
 UPDATE
@@ -49,7 +36,7 @@ BEGIN
         AND bicycle_class IS NULL;
 
 ASSERT bike_class_null = 0,
-'Edges missing bicycle category';
+'Edges missing bicycle class';
 
 END $$;
 
@@ -58,7 +45,7 @@ END $$;
 UPDATE
     osm_road_edges
 SET
-    lts_1 = 1
+    lts = 1
 WHERE
     bicycle_class = 1
     OR (
@@ -100,7 +87,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts_2 = 2
+    lts = 2
 WHERE
     (
         bicycle_class = 2 --AND maxspeed_assumed > 40
@@ -132,7 +119,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts_3 = 3
+    lts = 3
 WHERE
     (
         bicycle_class = 2
@@ -154,7 +141,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts_4 = 4
+    lts = 4
 WHERE
     (
         bicycle_class = 2
@@ -185,10 +172,7 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    lts_4 = 4,
-    lts_2 = NULL,
-    lts_1 = NULL,
-    lts_3 = NULL
+    lts = 4,
 WHERE
     highway IN ('motorway_link')
     AND bicycle_class IS NULL;
@@ -201,12 +185,7 @@ SET
 WHERE
     car_traffic IS FALSE
     AND cycling_allowed IS FALSE
-    AND (
-        lts_1 IS NULL
-        AND lts_2 IS NULL
-        AND lts_3 IS NULL
-        AND lts_4 IS NULL
-    );
+    AND lts IS NULL;
 
 DO $$
 DECLARE
@@ -226,36 +205,18 @@ ASSERT lts_car_null = 0,
 
 END $$;
 
--- TODO; paths where cycling is allowed but not desirable - bicycle infra FALSE
---make sure paths and tracks with bad surface or bicycle no are not included
--- **
--- make sure that all bike that has no lts are crossings?
--- ***
-ALTER TABLE
-    osm_road_edges DROP column lts_arr;
-
-ALTER TABLE
-    osm_road_edges
-ADD
-    column lts_arr text [ ];
-
+-- SET LTS to 0 where cycling is allowed but edges are not part of bicycle infrastructure
 UPDATE
     osm_road_edges
 SET
-    lts_arr = array_remove(
-        ARRAY [ lts_1,
-        lts_2,
-        lts_3,
-        lts_4,
-        lts_5,
-        lts_999 ],
-        NULL
-    );
+    lts = 0
+WHERE
+    bicycle_infrastructure_final IS FALSE
+    AND car_traffic IS FALSE
+    AND cycling_allowed IS TRUE
+    AND lts IS NULL;
 
-SELECT
-    COUNT(*),
-    lts_arr
-FROM
-    osm_road_edges
-GROUP BY
-    lts_arr;
+-- TODO: look at edges where lts is null and cycling allowed
+-- some pedestrian missing lts - cycle_living_street
+-- some pedestrian/paths classified as cyclelanes 
+-- some cat crossing
