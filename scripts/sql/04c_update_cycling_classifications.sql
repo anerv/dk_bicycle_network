@@ -107,9 +107,9 @@ SET
             bicycle_infrastructure_final IS TRUE
             AND (
                 cycleway IN ('share_busway')
-                OR "cycleway:left" IN ('share_busway')
-                OR "cycleway:right" IN ('share_busway')
-                OR "cycleway:both" IN ('share_busway')
+                OR "cycleway:left" IN ('share_busway', 'opposite_share_busway')
+                OR "cycleway:right" IN ('share_busway', 'opposite_share_busway')
+                OR "cycleway:both" IN ('share_busway', 'opposite_share_busway')
             )
         ) THEN 'shared_busway'
         WHEN (
@@ -175,6 +175,7 @@ WHERE
             'path'
         )
         AND foot <> 'no'
+        AND segregated <> 'no'
     )
     OR bicycle_category = 'shared_track';
 
@@ -210,6 +211,6 @@ BEGIN
         AND bicycle_category IS NOT NULL;
 
 ASSERT bike_category_ex = 0,
-'Edges missing bicycle category';
+'Too many edges with bicycle category';
 
 END $$;
