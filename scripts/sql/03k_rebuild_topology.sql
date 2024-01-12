@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS nodes;
+
+DROP TABLE IF EXISTS osm_road_edges_vertices_pgr;
+
 -- rebuild topology
 SELECT
     pgr_createTopology(
@@ -7,5 +11,5 @@ SELECT
         'id',
         'source',
         'target',
-        clean := true
+        clean := TRUE
     );
