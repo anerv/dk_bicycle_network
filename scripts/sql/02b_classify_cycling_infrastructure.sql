@@ -35,6 +35,7 @@ WHERE
         'opposite_track',
         'share_sidewalk',
         'share_busway',
+        'opposite_share_busway',
         'shared_lane',
         'opposite_lane',
         'crossing',
@@ -45,6 +46,7 @@ WHERE
         'opposite_track',
         'share_sidewalk',
         'share_busway',
+        'opposite_share_busway',
         'shared_lane',
         'opposite_lane',
         'crossing',
@@ -55,6 +57,7 @@ WHERE
         'opposite_track',
         'share_sidewalk',
         'share_busway',
+        'opposite_share_busway',
         'shared_lane',
         'opposite_lane',
         'crossing',
@@ -65,6 +68,7 @@ WHERE
         'opposite_track',
         'share_sidewalk',
         'share_busway',
+        'opposite_share_busway',
         'shared_lane',
         'opposite_lane',
         'crossing',
@@ -171,6 +175,7 @@ WHERE
     OR cyclestreet = 'yes'
     OR cycleway IN (
         'share_busway',
+        'opposite_share_busway',
         'opposite_lane',
         'shared_lane',
         'crossing',
@@ -178,6 +183,7 @@ WHERE
     )
     OR "cycleway:left" IN (
         'share_busway',
+        'opposite_share_busway',
         'shared_lane',
         'opposite_lane',
         'crossing',
@@ -185,6 +191,7 @@ WHERE
     )
     OR "cycleway:right" IN (
         'share_busway',
+        'opposite_share_busway',
         'shared_lane',
         'opposite_lane',
         'crossing',
@@ -192,6 +199,7 @@ WHERE
     )
     OR "cycleway:both" IN (
         'share_busway',
+        'opposite_share_busway',
         'shared_lane',
         'opposite_lane',
         'crossing',
