@@ -165,6 +165,7 @@ print(f"Topology rebuild")
 
 # %%
 # finish processing
+connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 queries = [
     "sql/03l_close_matching_gaps.sql",
