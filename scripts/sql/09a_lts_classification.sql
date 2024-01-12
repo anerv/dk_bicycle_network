@@ -12,6 +12,7 @@ SET
     bicycle_class = CASE
         WHEN bicycle_category = 'shared_track' THEN 1
         WHEN bicycle_category = 'cycleway' THEN 1
+        WHEN bicycle_category = 'cycleway_shared' THEN 1
         WHEN bicycle_category = 'cycletrack' THEN 1
         WHEN bicycle_category = 'cyclelane' THEN 2
         WHEN bicycle_category = 'shared_busway' THEN 2

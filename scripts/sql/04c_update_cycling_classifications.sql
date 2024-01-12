@@ -4,7 +4,7 @@ ALTER TABLE
 ADD
     COLUMN bicycle_category VARCHAR DEFAULT NULL,
 ADD
-    COLUMN cycleway_shared BOOLEAN DEFAULT NULL;
+    COLUMN cycleway_segregated BOOLEAN DEFAULT NULL;
 
 -- UPDATE PROTECTED CLASSIFICATION FOR UNCLASSIFIED BICYCLE INFRA
 UPDATE
@@ -43,7 +43,7 @@ ASSERT count_protection_null = 0,
 
 END $$;
 
--- cycle_living_street / cycleway / cycletrack / cyclelane / crossing / shared_track / shared_lane / shared_busway
+-- cycle_living_street / cycleway / 'cycleway_shared' / cycletrack / cyclelane / crossing / shared_track / shared_lane / shared_busway
 UPDATE
     osm_road_edges
 SET
@@ -127,7 +127,7 @@ SET
                 'footway'
             )
             AND bicycle_infrastructure_final IS TRUE
-        ) THEN 'cycleway'
+        ) THEN 'cycleway_shared'
         WHEN (
             bicycle_infrastructure_final IS TRUE
             AND highway IN (
@@ -164,7 +164,7 @@ SET
 UPDATE
     osm_road_edges
 SET
-    cycleway_shared = TRUE
+    cycleway_segregated = TRUE
 WHERE
     (
         highway IN (

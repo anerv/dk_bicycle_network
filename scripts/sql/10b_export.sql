@@ -34,7 +34,7 @@ CREATE VIEW osm_edges_export AS (
         bicycle_category,
         bicycle_class,
         along_street,
-        cycleway_shared,
+        cycleway_segregated,
         cycling_allowed,
         car_traffic,
         lit,
