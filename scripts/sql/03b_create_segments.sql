@@ -247,8 +247,7 @@ FROM
 WHERE
     ST_Length(geom) < 3;
 
-CREATE INDEX idx_geodk_short_segs_geometry ON matching_geodk_osm._too_short_geodk_segs USING gist(geom);
-
+--CREATE INDEX idx_geodk_short_segs_geometry ON matching_geodk_osm._too_short_geodk_segs USING gist(geom);
 WITH joined_data AS (
     SELECT
         short_segs.id_geodk :: DECIMAL AS id_geodk,
