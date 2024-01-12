@@ -7,9 +7,7 @@ ADD
 ADD
     COLUMN centerline_assumed BOOLEAN DEFAULT NULL,
 ADD
-    COLUMN maxspeed_assumed INTEGER DEFAULT NULL,
-ADD
-    COLUMN bicycle_class INTEGER DEFAULT NULL;
+    COLUMN maxspeed_assumed INTEGER DEFAULT NULL;
 
 -- SURFACE
 UPDATE
