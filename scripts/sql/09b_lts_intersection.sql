@@ -63,20 +63,36 @@ CREATE VIEW nodes_lts_4 AS (
         lts = 4
 );
 
-CREATE VIEW nodes_lts_5 AS (
+CREATE VIEW nodes_lts_0 AS (
     SELECT
         source AS node
     FROM
         osm_road_edges
     WHERE
-        lts = 5
+        lts = 0
     UNION
     SELECT
         target AS node
     FROM
         osm_road_edges
     WHERE
-        lts = 5
+        lts = 0
+);
+
+CREATE VIEW nodes_lts_999 AS (
+    SELECT
+        source AS node
+    FROM
+        osm_road_edges
+    WHERE
+        lts = 999
+    UNION
+    SELECT
+        target AS node
+    FROM
+        osm_road_edges
+    WHERE
+        lts = 999
 );
 
 ALTER TABLE
