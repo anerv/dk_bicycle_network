@@ -3,6 +3,9 @@
 -- FIX highway=footway and category = crossing (LTS issue)
 -- FIX highway=pedestrian and category = crossing (LTS issue)
 -- GIVE THEM HIGHEST LTS OF THEIR NODES
+-- **
+-- make sure that all bike that has no lts are crossings?
+-- ***
 UPDATE
     osm_road_edges
 SET
