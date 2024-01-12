@@ -68,7 +68,8 @@ SET
             'unclassified',
             'service',
             'tertiary',
-            'secondary''primary'
+            'secondary',
+            'primary'
         ) THEN 2
         WHEN highway IN ('trunk', 'motorway') THEN 6
         WHEN highway IN (
