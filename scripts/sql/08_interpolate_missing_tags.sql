@@ -166,7 +166,7 @@ UPDATE
 SET
     maxspeed_assumed = 50
 WHERE
-    urban IN ('urban', 'sub-semi-urban')
+    urban IN ('1', '3')
     AND highway IN (
         'residential',
         'trunk',
