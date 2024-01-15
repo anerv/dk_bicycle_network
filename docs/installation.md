@@ -73,7 +73,7 @@ conda config --prepend channels conda-forge
 conda create -n dk_bike_network --strict-channel-priority geopandas psycopg2 sqlalchemy geoalchemy2 pyarrow rasterio rioxarray h3-py qgis ipykernel
 ```
 
-## **6. Install src package**
+## **8. Install src package**
 
 The repository has been set up using the structure described in the [Good Research Developer](https://goodresearch.dev/setup.html). Once the repository has been downloaded, activate the dk_bike_network environment, navigate to the main folder in a terminal window and run the commands:
 
@@ -82,3 +82,22 @@ conda activate dk_bike_network
 conda install pip
 pip install -e .
 ```
+
+## **9. Download data**
+
+The workflow makes use of 5 different data sets:
+
+1. **OpenStreetMap**
+Download the newest OSM-pbf file for Denmark (`denmark-latest.osm.pbf`) from, for example, [GeoFabrik](https://download.geofabrik.de/europe/denmark.html) and place it in the folder `data/raw/road_networks/`.
+
+2. **GeoDanmark**
+Download the data set of the Danish road network ('Vejmidte') from [Dataforsyningen](https://dataforsyningen.dk/data/1049) and place it as `vejmidte.gpkg` in `data/raw/road_networks/`.
+
+3. **Municipal boundaries**
+Download the data set with municipal boundaries from [Dataforsyningen](https://dataforsyningen.dk/data/3901) and place it in the folder `data/raw/study_area/muni_boundary.gpkg`.
+
+4. **Land use**
+Download the data set of urban and summerhouse zones from e.g. [Miljøportalen](https://arealdata.miljoeportal.dk/datasets/urn:dmp:ds:planlaegning-zonekort) and place it in the folder `data/raw/urban/` with the file name `zonekort_samlet_v.gpkg`.
+
+5. **Population data**
+Download the two population rasters covering Denmark including Bornholm at [GHSL](https://ghsl.jrc.ec.europa.eu/download.php?ds=pop) and place them in the folder `data/raw/pop`. Update the file paths to the population rasters in `config.yml` if necessary.
