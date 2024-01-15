@@ -56,13 +56,9 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    urban_zone = 'urban'
-WHERE
-    urban = 1;
+    urban_zone = CASE
+        WHEN urban = '1' THEN 'urban'
+        WHEN urban = '3' THEN 'summerhouse'
+    END;
 
-UPDATE
-    osm_road_edges
-SET
-    urban_zone = 'summerhouse'
-WHERE
-    urban = 3;
+DROP MATERIALIZED VIEW IF EXISTS urban_buffer;
