@@ -142,19 +142,20 @@ SET
     maxspeed_assumed = CASE
         WHEN highway = 'living_street' THEN 15
         WHEN highway IN ('bicycle_road', 'cyclestreet') THEN 30
+        WHEN bicycle_road IN ('yes') THEN 30
+        WHEN cyclestreet IN ('yes') THEN 30
+        WHEN highway IN ('residential') THEN 50
+        WHEN highway IN ('track', 'service') THEN 50
         WHEN highway IN (
-            'residential',
             'trunk',
             'primary',
             'secondary',
             'tertiary',
             'unclassified',
-            'service',
             'trunk_link',
             'primary_link',
             'secondary_link',
-            'tertiary_link',
-            'track'
+            'tertiary_link'
         ) THEN 80
         WHEN highway IN ('motorway', 'motorway_link') THEN 130
     END;
