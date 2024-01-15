@@ -45,7 +45,7 @@ On Mac, osm2pgsql can be installed by running:
 
 [osm2po](https://osm2po.de/) is used for loading OSM data to Postgresql in a format compatible with PgRouting.
 
-The necessary files are *already included* in this repository. If a newer version is needed, replace the content in the folder osm2po. See e.g. [this link](https://mapscaping.com/getting-started-with-pgrouting/) for an installation guide.
+The necessary files are *already included* in this repository. If a newer version is needed, replace the content in the folder osm2po. (See e.g. [this link](https://mapscaping.com/getting-started-with-pgrouting/) for an installation guide.)
 
 *If* a newer version is used, once installed, replace the osm2po.config file with the one included on this repository.
 
