@@ -13,9 +13,8 @@
 
 - [ ] LTS CLASSIFICATION
 - [X] Close cycling gaps
-- [ ] identify edges crossing unmarked intersections with higher LTS (assign all intersections the highest LTS of the connected edges?)
 
-- [ ] clean up script: drop osm_roads, planet tables 
+- [ ] clean up script: drop osm_roads, planet tables
 - [ ] export script: drop unneccessary columns (keep pgrouting, cycling, surface, speed, matching, assumed_tags, lts - or remove matching or org tags?)
 
 - [ ] documentation
