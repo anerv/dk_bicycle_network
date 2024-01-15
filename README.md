@@ -22,9 +22,17 @@ Downloaded fall 2023 from GeoFabrik.
 ### GeoDanmark
 
 Data from GeoDanmark © SDFE (Styrelsen for Dataforsyning og Effektivisering og Danske kommuner)  
-License: [GeoDanmark](https://www.geodanmark.dk/wp-content/uploads/2022/08/Vilkaar-for-brug-af-frie-geografiske-data_GeoDanmark-grunddata-august-2022.pdf)
+License: [GeoDanmark](https://www.geodanmark.dk/wp-content/uploads/2022/08/Vilkaar-for-brug-af-frie-geografiske-data_GeoDanmark-grunddata-august-2022.pdf).
 
 Downloaded fall 2023.
+
+### Bolig- og Planstyrelsen
+
+[Areal data for urban zones](https://arealdata.miljoeportal.dk/datasets/urn:dmp:ds:planlaegning-zonekort).
+
+License: [Arealdata](https://arealdata.miljoeportal.dk/terms).
+
+Downloaded winter 2024.
 
 ### GHSL
 
@@ -33,8 +41,8 @@ Contains data from the European Commission's GHSL (Global Human Settlement Layer
 Schiavina M., Freire S., Carioli A., MacManus K. (2023):
 GHS-POP R2023A - GHS population grid multitemporal (1975-2030). European Commission, Joint Research Centre (JRC).
 
-Schiavina M., Melchiorri M., Pesaresi M. (2023):
-GHS-SMOD R2023A - GHS settlement layers, application of the Degree of Urbanisation methodology (stage I) to GHS-POP R2023A and GHS-BUILT-S R2023A, multitemporal (1975-2030). European Commission, Joint Research Centre (JRC)
+<!-- Schiavina M., Melchiorri M., Pesaresi M. (2023):
+GHS-SMOD R2023A - GHS settlement layers, application of the Degree of Urbanisation methodology (stage I) to GHS-POP R2023A and GHS-BUILT-S R2023A, multitemporal (1975-2030). European Commission, Joint Research Centre (JRC) -->
 
 Downloaded fall 2023.
 
