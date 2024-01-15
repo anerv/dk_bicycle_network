@@ -1,8 +1,8 @@
-# How To
+# How to run the code
 
 ## Installation
 
-See XXXX
+See `installation.md` for instructions for installation of necessary software and where to download the input data.
 
 ## Code description
 
@@ -26,5 +26,4 @@ urban
 
 pop??
 
-
-
+## fM
