@@ -47,7 +47,8 @@ WHERE
         'secondary_link',
         'tertiary_link',
         'trunk_link'
-    );
+    )
+    AND bicycle NOT IN ('no', 'use_sidepath');
 
 UPDATE
     potential_bicycle_gaps
@@ -102,7 +103,8 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    bicycle_infrastructure_final = TRUE
+    bicycle_infrastructure_final = TRUE,
+    cycling_allowed = TRUE
 WHERE
     id IN (
         SELECT

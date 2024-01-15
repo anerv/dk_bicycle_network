@@ -1,5 +1,5 @@
 -- INTERSECTION LTS? (Identify unmarked intersections where a LTS XX crosses a road with a higher LTS)
-CREATE VIEW nodes_lts_1 AS (
+CREATE VIEW nodes_lts_1 AS WITH nodes AS (
     SELECT
         source AS node
     FROM
@@ -13,9 +13,13 @@ CREATE VIEW nodes_lts_1 AS (
         osm_road_edges
     WHERE
         lts = 1
-);
+)
+SELECT
+    DISTINCT node
+FROM
+    nodes;
 
-CREATE VIEW nodes_lts_2 AS (
+CREATE VIEW nodes_lts_2 AS WITH nodes AS (
     SELECT
         source AS node
     FROM
@@ -29,9 +33,13 @@ CREATE VIEW nodes_lts_2 AS (
         osm_road_edges
     WHERE
         lts = 2
-);
+)
+SELECT
+    DISTINCT node
+FROM
+    nodes;
 
-CREATE VIEW nodes_lts_3 AS (
+CREATE VIEW nodes_lts_3 AS WITH nodes AS (
     SELECT
         source AS node
     FROM
@@ -45,9 +53,13 @@ CREATE VIEW nodes_lts_3 AS (
         osm_road_edges
     WHERE
         lts = 3
-);
+)
+SELECT
+    DISTINCT node
+FROM
+    nodes;
 
-CREATE VIEW nodes_lts_4 AS (
+CREATE VIEW nodes_lts_4 AS WITH nodes AS (
     SELECT
         source AS node
     FROM
@@ -61,9 +73,13 @@ CREATE VIEW nodes_lts_4 AS (
         osm_road_edges
     WHERE
         lts = 4
-);
+)
+SELECT
+    DISTINCT node
+FROM
+    nodes;
 
-CREATE VIEW nodes_lts_0 AS (
+CREATE VIEW nodes_lts_0 AS WITH nodes AS (
     SELECT
         source AS node
     FROM
@@ -77,9 +93,13 @@ CREATE VIEW nodes_lts_0 AS (
         osm_road_edges
     WHERE
         lts = 0
-);
+)
+SELECT
+    DISTINCT node
+FROM
+    nodes;
 
-CREATE VIEW nodes_lts_999 AS (
+CREATE VIEW nodes_lts_999 AS WITH nodes AS (
     SELECT
         source AS node
     FROM
@@ -93,7 +113,11 @@ CREATE VIEW nodes_lts_999 AS (
         osm_road_edges
     WHERE
         lts = 999
-);
+)
+SELECT
+    DISTINCT node
+FROM
+    nodes;
 
 ALTER TABLE
     nodes
@@ -132,62 +156,12 @@ SET
             SELECT
                 node
             FROM
+                nodes_lts_0
+        ) THEN 0
+        WHEN id IN (
+            SELECT
+                node
+            FROM
                 nodes_lts_999
         ) THEN 999
     END;
-
--- UPDATE
---     nodes
--- SET
---     lts = 1
--- WHERE
---     id IN (
---         SELECT
---             node
---         FROM
---             nodes_lts_1
---     );
--- UPDATE
---     nodes
--- SET
---     lts = 2
--- WHERE
---     id IN (
---         SELECT
---             node
---         FROM
---             nodes_lts_2
---     );
--- UPDATE
---     nodes
--- SET
---     lts = 3
--- WHERE
---     id IN (
---         SELECT
---             node
---         FROM
---             nodes_lts_3
---     );
--- UPDATE
---     nodes
--- SET
---     lts = 4
--- WHERE
---     id IN (
---         SELECT
---             node
---         FROM
---             nodes_lts_4
---     );
--- UPDATE
---     nodes
--- SET
---     lts = 5
--- WHERE
---     id IN (
---         SELECT
---             node
---         FROM
---             nodes_lts_5
---     );
