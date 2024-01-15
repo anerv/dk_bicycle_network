@@ -1,3 +1,5 @@
+# %%
+
 import yaml
 from src import db_functions as dbf
 
@@ -14,17 +16,24 @@ with open(r"../config.yml") as file:
 print("Settings loaded!")
 
 # %%
-
+queries = [
+    "sql/09a_lts_classification.sql",
+    "sql/09b_lts_intersections.sql",
+    "sql/09c_lts_crossings.sql",
+]
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-dbf.run_query_pg(
-    "sql/09a_lts_classification.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+for i, q in enumerate(queries):
+    print(f"Running step {i+1}...")
+    dbf.run_query_pg(
+        q,
+        connection,
+        success="Query successful!",
+        fail="Query failed!",
+        commit=True,
+        close=False,
+    )
+    print(f"Step {i+1} done!")
 
 # %%
 
@@ -34,25 +43,11 @@ test = dbf.run_query_pg(q, connection)
 
 print(test)
 
-# %%
-
-dbf.run_query_pg(
-    "sql/09b_lts_intersections.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
-
-# %%
-
-q = f"SELECT lts FROM nodes WHERE lts = 1 LIMIT 10;"
+q = f"SELECT id, lts FROM osm_road_edges WHERE lts = 3 LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
 print(test)
-
 
 connection.close()
 # %%
