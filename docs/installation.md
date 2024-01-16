@@ -70,8 +70,9 @@ If this fails, the environment can be created by running:
 
 ```
 conda config --prepend channels conda-forge
-conda create -n dk_bike_network --strict-channel-priority geopandas psycopg2 sqlalchemy geoalchemy2 pyarrow rasterio rioxarray h3-py qgis ipykernel
+conda create -n dk_bike_network --strict-channel-priority geopandas psycopg2 sqlalchemy geoalchemy2 pyarrow pyyaml ipykernel
 ```
+<!-- rasterio rioxarray h3-py -->
 
 ## **8. Install src package**
 
@@ -85,7 +86,7 @@ pip install -e .
 
 ## **9. Download data**
 
-The workflow makes use of 5 different data sets:
+The workflow makes use of 4 different data sets:
 
 1. **OpenStreetMap**
 Download the newest OSM-pbf file for Denmark (`denmark-latest.osm.pbf`) from, for example, [GeoFabrik](https://download.geofabrik.de/europe/denmark.html) and place it in the folder `data/raw/road_networks/`.
@@ -99,5 +100,5 @@ Download the data set with municipal boundaries from [Dataforsyningen](https://d
 4. **Land use**
 Download the data set of urban and summerhouse zones from e.g. [Miljøportalen](https://arealdata.miljoeportal.dk/datasets/urn:dmp:ds:planlaegning-zonekort) and place it in the folder `data/raw/urban/` with the file name `zonekort_samlet_v.gpkg`.
 
-5. **Population data**
-Download the two population rasters covering Denmark including Bornholm at [GHSL](https://ghsl.jrc.ec.europa.eu/download.php?ds=pop) and place them in the folder `data/raw/pop`. Update the file paths to the population rasters in `config.yml` if necessary.
+<!-- 5. **Population data**
+Download the two population rasters covering Denmark including Bornholm at [GHSL](https://ghsl.jrc.ec.europa.eu/download.php?ds=pop) and place them in the folder `data/raw/pop`. Update the file paths to the population rasters in `config.yml` if necessary. -->

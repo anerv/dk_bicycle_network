@@ -34,12 +34,12 @@ License: [Arealdata](https://arealdata.miljoeportal.dk/terms).
 
 Downloaded winter 2024.
 
-### GHSL
+<!-- ### GHSL
 
 Contains data from the European Commission's GHSL (Global Human Settlement Layer) on [population](https://ghsl.jrc.ec.europa.eu/download.php?ds=pop) and [degree of urbanization](https://ghsl.jrc.ec.europa.eu/ghs_smod2023.php).
 
 Schiavina M., Freire S., Carioli A., MacManus K. (2023):
-GHS-POP R2023A - GHS population grid multitemporal (1975-2030). European Commission, Joint Research Centre (JRC).
+GHS-POP R2023A - GHS population grid multitemporal (1975-2030). European Commission, Joint Research Centre (JRC). -->
 
 <!-- Schiavina M., Melchiorri M., Pesaresi M. (2023):
 GHS-SMOD R2023A - GHS settlement layers, application of the Degree of Urbanisation methodology (stage I) to GHS-POP R2023A and GHS-BUILT-S R2023A, multitemporal (1975-2030). European Commission, Joint Research Centre (JRC) -->
