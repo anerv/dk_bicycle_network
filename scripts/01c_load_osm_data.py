@@ -21,7 +21,6 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-# %%
 # LOAD OSM DATA WITH TAGS
 subprocess.run(
     f"osm2pgsql -c -d {db_name} -U postgres -H localhost --slim --hstore -S {osm_style_file} {osm_fp}",
@@ -41,7 +40,7 @@ connection.close()
 
 print("OSM tag data load complete!")
 
-# %%
+
 # Load OSM data with correct topology to use for OSM routing using osm2po
 subprocess.run(
     f"java -jar /Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/osm2po/osm2po-5.5.5/osm2po-core-5.5.5-signed.jar cmd=c prefix=dk {osm_fp}",
@@ -49,7 +48,6 @@ subprocess.run(
     check=True,
 )
 
-# %%
 # Rename paths for osm2po
 new_osm2po_path = "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk_osm2po/"
 
@@ -60,7 +58,7 @@ os.rename(
     "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk/",
     new_osm2po_path,
 )
-# %%
+
 # import into postgres
 subprocess.run(
     f"psql -h {db_host} -p 5432 -U postgres -d {db_name} -q -f /Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/scripts/dk_osm2po/dk_2po_4pgr.sql",
@@ -80,4 +78,5 @@ connection.close()
 
 print("OSM topology data load complete!")
 
+print("Script 01c complete!")
 # %%

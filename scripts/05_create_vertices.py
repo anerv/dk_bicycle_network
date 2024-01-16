@@ -18,7 +18,6 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-# %%
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
@@ -31,7 +30,6 @@ dbf.run_query_pg(
     close=False,
 )
 
-# %%
 
 q = f"SELECT id, the_geom FROM osm_road_edges_vertices_pgr LIMIT 10;"
 
@@ -42,4 +40,6 @@ print(test)
 print("Network vertices created successfully!")
 
 connection.close()
+
+print("Script 05 complete!")
 # %%

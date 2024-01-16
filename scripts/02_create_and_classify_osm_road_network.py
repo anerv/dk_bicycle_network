@@ -1,5 +1,6 @@
-# GET OSM ROADS + IDENTIFY OSM BICYCLE INFRASTRUCTURE
 # %%
+
+# GET OSM ROADS + IDENTIFY OSM BICYCLE INFRASTRUCTURE
 
 import yaml
 from src import db_functions as dbf
@@ -16,7 +17,6 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-# %%
 print("Creating OSM road table...")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
@@ -38,7 +38,6 @@ for i, q in enumerate(queries):
     )
     print(f"Step {i+1} done!")
 
-# %%
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
 
@@ -53,7 +52,8 @@ connection.close()
 print("Road table created successfully!")
 print("Bicycle infrastructure classified!")
 
-# %%
 with open("vacuum_analyze.py") as f:
     exec(f.read())
+
+print("Script 02 complete!")
 # %%

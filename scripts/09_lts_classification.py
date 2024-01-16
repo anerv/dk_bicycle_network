@@ -15,7 +15,6 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-# %%
 queries = [
     "sql/09a_lts_classification.sql",
     "sql/09b_lts_intersections.sql",
@@ -35,7 +34,6 @@ for i, q in enumerate(queries):
     )
     print(f"Step {i+1} done!")
 
-# %%
 
 q = f"SELECT id, highway FROM osm_road_edges WHERE lts = 1 LIMIT 10;"
 
@@ -50,7 +48,9 @@ test = dbf.run_query_pg(q, connection)
 print(test)
 
 connection.close()
-# %%
+
 with open("vacuum_analyze.py") as f:
     exec(f.read())
+
+print("Script 09 complete!")
 # %%

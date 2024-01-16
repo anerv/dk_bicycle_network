@@ -69,4 +69,6 @@ nodes.to_parquet("../data/processed/osm_road_nodes.parquet")
 connection.close()
 
 print("Tables exported!")
+
+print("Script 10 complete!")
 # %%

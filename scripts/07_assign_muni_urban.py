@@ -19,7 +19,7 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-# %%
+
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
@@ -31,7 +31,6 @@ dbf.run_query_pg(
     close=False,
 )
 
-# %%
 q = f"SELECT highway, urban, municipality FROM osm_road_edges LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
@@ -40,7 +39,9 @@ print(test)
 
 connection.close()
 
-# %%
+
 with open("vacuum_analyze.py") as f:
     exec(f.read())
+
+print("Script 07 complete!")
 # %%

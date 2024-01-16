@@ -15,11 +15,9 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-# %%
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-# %%
 queries = [
     "sql/04a_add_additional_cycling_info.sql",
     "sql/04b_fill_bicycle_gaps.sql",
@@ -38,7 +36,6 @@ for i, q in enumerate(queries):
     )
     print(f"Step {i+1} done!")
 
-# %%
 
 q = f"SELECT id, highway FROM osm_road_edges WHERE along_street IS TRUE AND cycling_allowed IS TRUE and car_traffic IS TRUE LIMIT 10;"
 
@@ -48,7 +45,9 @@ print(test)
 
 connection.close()
 
-# %%
+
 with open("vacuum_analyze.py") as f:
     exec(f.read())
+
+print("Script 04 complete!")
 # %%

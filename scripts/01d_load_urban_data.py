@@ -4,7 +4,6 @@ import pandas as pd
 import yaml
 
 from src import db_functions as dbf
-from src import preprocess_functions as prep
 
 with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
@@ -30,7 +29,7 @@ assert all_zones.crs == crs
 
 all_zones = all_zones[["zone", "zonestatus", "geometry"]]
 
-# %%
+
 # *** EXPORT ***
 
 print("Saving data to Postgres!")
@@ -48,4 +47,6 @@ test = dbf.run_query_pg(q, connection)
 print(test)
 
 connection.close()
+
+print("Script 01d complete!")
 # %%

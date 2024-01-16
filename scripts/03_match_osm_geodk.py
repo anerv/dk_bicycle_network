@@ -28,7 +28,6 @@ print("Start", time.ctime())
 
 starttime = time.ctime()
 
-# %%
 # Perform initial matching
 # NOTE: This step takes a while
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
@@ -56,11 +55,11 @@ for i, q in enumerate(queries):
     )
     print(f"Step {i+1} done!")
 
-# %%
+
 print("Matching done!")
 print("Process matching starting...")
 
-# %%
+
 # Process matches
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
@@ -73,11 +72,11 @@ dbf.run_query_pg(
     close=False,
 )
 
-# %%
+
 print("First preprocessing complete!")
 print("Continuing with processing of incomplete matches....")
 
-# %%
+
 # Process undecided segments
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
@@ -126,7 +125,6 @@ test = dbf.run_query_pg(q, connection)
 
 print(test)
 
-# %%
 # Add undecided/split edges to edge table
 # identify matched edges
 
@@ -142,10 +140,10 @@ dbf.run_query_pg(
     commit=True,
     close=False,
 )
-# %%
+
 print(f"Split edges processed!")
 
-# %%
+
 # Rebuild topology
 # NOTE: This takes a while
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
@@ -160,10 +158,10 @@ dbf.run_query_pg(
     commit=True,
     close=False,
 )
-# %%
+
 print(f"Topology rebuild")
 
-# %%
+
 # finish processing
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
@@ -184,15 +182,18 @@ for i, q in enumerate(queries):
     )
     print(f"Step {i+1} done!")
 
-# %%
+
 print("Processing done!")
 
 connection.close()
-# %%
+
 print("Start", starttime)
 print("Endtime", time.ctime())
 
-# %%
+
 with open("vacuum_analyze.py") as f:
     exec(f.read())
+
+
+print("Script 03 complete!")
 # %%

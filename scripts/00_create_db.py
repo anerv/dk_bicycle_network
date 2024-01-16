@@ -41,4 +41,6 @@ dbf.run_query_pg(
 )
 
 connection.close()
+
+print("Script 00 complete!")
 # %%

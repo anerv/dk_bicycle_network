@@ -5,7 +5,6 @@ import yaml
 import subprocess
 from src import db_functions as dbf
 
-# %%
 with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -20,7 +19,6 @@ with open(r"../config.yml") as file:
     db_port = parsed_yaml_file["db_port"]
 
 print("Settings loaded!")
-# %%
 
 subprocess.run(
     f"""ogr2ogr -f PostgreSQL "PG:user={db_user} password={db_password} dbname={db_name}" {geodk_fp}""",
@@ -40,4 +38,5 @@ print(test)
 
 connection.close()
 
+print("Script 01b complete!")
 # %%

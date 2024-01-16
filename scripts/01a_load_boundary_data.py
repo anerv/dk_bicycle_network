@@ -6,7 +6,6 @@ import geopandas as gpd
 import yaml
 from src import db_functions as dbf
 
-# %%
 with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -23,7 +22,6 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-# %%
 # read muni data
 muni = gpd.read_file(muni_fp)
 
@@ -42,7 +40,7 @@ useful_cols = [
 
 muni = muni[useful_cols]
 
-# %%
+
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
 
 engine = dbf.connect_alc(db_name, db_user, db_password, db_port=db_port)
@@ -59,4 +57,5 @@ print(test1)
 
 connection.close()
 
+print("Script 01a complete!")
 # %%
