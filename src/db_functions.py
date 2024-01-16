@@ -11,7 +11,9 @@ import sqlalchemy
 
 
 # Function for connecting to database using psycopg2
-def connect_pg(db_name, db_user, db_password, db_port, db_host="localhost"):
+def connect_pg(
+    db_name, db_user, db_password, db_port, db_host="localhost", print=False
+):
     """
     Function for connecting to database using psycopg2
     Required input are database name, username, password
@@ -29,7 +31,8 @@ def connect_pg(db_name, db_user, db_password, db_port, db_host="localhost"):
             port=db_port,
         )
 
-        print("You are connected to the database %s!" % db_name)
+        if print:
+            print("You are connected to the database %s!" % db_name)
 
         return connection
 
