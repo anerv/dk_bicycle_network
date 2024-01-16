@@ -73,6 +73,7 @@ conda config --prepend channels conda-forge
 conda create -n dk_bike_network --strict-channel-priority geopandas psycopg2 sqlalchemy geoalchemy2 pyarrow pyyaml ipykernel
 ```
 <!-- rasterio rioxarray h3-py -->
+<!-- conda env export --no-builds | grep -v "prefix" > environment.yml -->
 
 ## **8. Install src package**
 

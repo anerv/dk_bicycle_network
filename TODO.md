@@ -11,10 +11,10 @@
 - [X] script for indexing infra with muni
 - [X] split matching so geodk bike lanes are only matched to non-bike??
 
-- [ ] LTS CLASSIFICATION
+- [X] LTS CLASSIFICATION
 - [X] Close cycling gaps
 
-- [ ] clean up script: drop osm_roads, planet tables
+- [X] clean up script: drop osm_roads, planet tables
 - [ ] export script: drop unneccessary columns (keep pgrouting, cycling, surface, speed, matching, assumed_tags, lts - or remove matching or org tags?)
 
 - [ ] documentation

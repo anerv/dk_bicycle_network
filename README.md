@@ -1,4 +1,4 @@
-# Data Preprocessing for 'A Network Analysis of the Danish Bicycle Infrastructure'
+# Data preprocessing for 'A Network Analysis of the Danish Bicycle Infrastructure'
 
 This repository contains the code for creating a routable road network for all of Denmark with each road assigned a Low Traffic Stress score based on the cycling friendliness ([Mekuria et al 2021](https://transweb.sjsu.edu/research/Low-Stress-Bicycling-and-Network-Connectivity) and [Wasserman et al 2019](https://journals.sagepub.com/doi/full/10.1177/0361198119836772)).
 

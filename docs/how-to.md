@@ -1,4 +1,4 @@
-# How to run the code
+# How to use
 
 ## Installation
 
@@ -6,24 +6,27 @@ See `installation.md` for instructions for installation of necessary software an
 
 ## Code description
 
-python/sql
+The data processing workflow for producing the enriched OSM road network for bicycle LTS analysis consist of a number of Python and PostgreSQL scripts.
+All SQL scripts are run through Python. The SQL scripts are labelled with a number referencing the Python script in which they are used (for example, `00_create_db.py` makes use of `00_create_db.sql` and `03_match_osm_geodk.py` makes use of all SQL scripts starting with `03x_xxx.sql`).
 
-corresponding numbers
+The Python scripts must be run in numerical order. They can either be run one-by-one (in this way, intermediate results can be examined) or alternatively, navigate to the main folder of this repository and run:
+
+``` python
+python scripts/run_all_scripts.py
+```
+
+## Conflation of OSM and GeoDanmark data
+
+An important part of the workflow is the conflation of OSM and GeoDanmark data on bicycle tracks and lanes.
+For further details see `network_matching.md`.
 
 ## LTS classification
 
-Refer to Wasserman and Ohio paper
-
-Refer to scripts for assumption
+See `low_traffic_stress_critera.md` for further details on the LTS classification.
 
 ## Final datasets
 
-osm road edges - important tags
+The final outcome of the data procesing is 2 data sets: A table with OSM road network edges enriched with GeoDanmark data and classified with an LTS value and additional cycling characteristics, and a corresponding node data set.
+One the workflow is completed both data sets are exported to the `data/processed/` folder.
 
-nodes - important tags/cols
-
-urban
-
-pop??
-
-## fM
+For an overview of the included columns in the data, that are not originally part of the OSM data set, see `bicycle_classification.md`. See the documentation for PgRouting for explanations of remaining columns.
