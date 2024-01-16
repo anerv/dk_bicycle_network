@@ -1,7 +1,7 @@
 # %%
 
 import os
-
+import geopandas as gpd 
 os.environ["USE_PYGEOS"] = "0"
 
 import yaml
@@ -56,29 +56,34 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_h
 
 q = "SELECT * FROM osm_edges_export;"
 
-edges = dbf.run_query_pg(
-    q,
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+edges = gpd.GeoDataFrame.from_postgis(q, connection)  
+
+# edges = dbf.run_query_pg(
+#     q,
+#     connection,
+#     success="Query successful!",
+#     fail="Query failed!",
+#     commit=True,
+#     close=False,
+# )
 
 edges.to_parquet("../data/processed/osm_road_edges.parquet")
 
 del edges
 
+#%%
 q = "SELECT * FROM osm_nodes_export;"
 
-nodes = dbf.run_query_pg(
-    q,
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+nodes = gpd.GeoDataFrame.from_postgis(q, connection)
+
+# nodes = dbf.run_query_pg(
+#     q,
+#     connection,
+#     success="Query successful!",
+#     fail="Query failed!",
+#     commit=True,
+#     close=False,
+# )
 
 nodes.to_parquet("../data/processed/osm_road_nodes.parquet")
 
