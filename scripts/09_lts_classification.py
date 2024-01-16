@@ -51,3 +51,6 @@ print(test)
 
 connection.close()
 # %%
+with open("vacuum_analyze.py") as f:
+    exec(f.read())
+# %%

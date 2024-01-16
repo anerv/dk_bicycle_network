@@ -193,3 +193,6 @@ print("Start", starttime)
 print("Endtime", time.ctime())
 
 # %%
+with open("vacuum_analyze.py") as f:
+    exec(f.read())
+# %%

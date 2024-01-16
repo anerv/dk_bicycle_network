@@ -54,3 +54,6 @@ print("Road table created successfully!")
 print("Bicycle infrastructure classified!")
 
 # %%
+with open("vacuum_analyze.py") as f:
+    exec(f.read())
+# %%
