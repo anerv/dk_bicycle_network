@@ -20,7 +20,6 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-# %%
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
@@ -36,7 +35,6 @@ connection.close()
 
 print("Clean up done!")
 
-# %%
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
@@ -52,7 +50,6 @@ connection.close()
 
 print("Export views ready!")
 
-# %%
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 q = "SELECT * FROM osm_edges_export;"
