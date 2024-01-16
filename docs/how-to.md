@@ -9,7 +9,7 @@ See `installation.md` for instructions for installation of necessary software an
 The data processing workflow for producing the enriched OSM road network for bicycle LTS analysis consist of a number of Python and PostgreSQL scripts.
 All SQL scripts are run through Python. The SQL scripts are labelled with a number referencing the Python script in which they are used (for example, `00_create_db.py` makes use of `00_create_db.sql` and `03_match_osm_geodk.py` makes use of all SQL scripts starting with `03x_xxx.sql`).
 
-The Python scripts must be run in numerical order. They can either be run one-by-one (in this way, intermediate results can be examined) or alternatively, navigate to the main folder of this repository and run:
+The Python scripts must be run in numerical order. They can either be run one-by-one (in this way, intermediate results can be examined) or alternatively, navigate to the scripts folder in this repository, activate the conda environment `dk_bike_network` and run:
 
 ``` python
 python scripts/run_all_scripts.py
