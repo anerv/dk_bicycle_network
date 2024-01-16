@@ -14,11 +14,11 @@ SET
 CREATE VIEW osm_edges_export AS (
     SELECT
         id,
-        osmid,
+        osm_id,
         x1,
         y1,
-        x1,
         x2,
+        y2,
         source,
         target,
         km,
@@ -26,7 +26,7 @@ CREATE VIEW osm_edges_export AS (
         cost,
         reverse_cost,
         highway,
-        NAME,
+        "name",
         bicycle_infrastructure AS bicycle_infrastructure_osm,
         bicycle_infrastructure_final,
         matched,
