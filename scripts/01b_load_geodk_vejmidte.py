@@ -10,7 +10,6 @@ with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
 
     geodk_fp = parsed_yaml_file["geodk_fp"]
-    geodk_id_col = parsed_yaml_file["geodk_id_col"]
 
     crs = parsed_yaml_file["CRS"]
 
