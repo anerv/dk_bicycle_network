@@ -141,11 +141,11 @@ UPDATE
 SET
     maxspeed_assumed = CASE
         WHEN highway = 'living_street' THEN 15
-        WHEN highway IN ('bicycle_road', 'cyclestreet') THEN 30
+        WHEN highway IN ('bicycle_road', 'cyclestreet', 'track') THEN 30
         WHEN bicycle_road IN ('yes') THEN 30
         WHEN cyclestreet IN ('yes') THEN 30
         WHEN highway IN ('residential') THEN 50
-        WHEN highway IN ('track', 'service') THEN 50
+        WHEN highway IN ('service') THEN 50
         WHEN highway IN (
             'trunk',
             'primary',
@@ -228,10 +228,10 @@ SET
             'unclassified',
             'living_street',
             'bicycle_road',
-            'cyclestreet'
+            'cyclestreet',
+            'track'
         ) THEN FALSE
         WHEN highway IN (
-            'track',
             'trunk',
             'primary',
             'secondary',
@@ -259,6 +259,6 @@ BEGIN
         AND car_traffic IS TRUE;
 
 ASSERT centerline_null = 0,
-'Assumed speeds missing';
+'Centerline missing';
 
 END $$;
