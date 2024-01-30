@@ -111,9 +111,9 @@ WHERE
             OR bicycle_class IS NULL
         )
         AND maxspeed_assumed >= 30
-        AND maxspeed_assumed <= 50
-        AND lanes_assumed < 4
-        AND lanes_assumed > 2
+        AND maxspeed_assumed < 50 -- changed from =<
+        AND lanes_assumed = 3 -- AND lanes_assumed < 4
+        -- AND lanes_assumed > 2
     );
 
 -- *** LTS 3 ***
@@ -136,6 +136,14 @@ WHERE
         AND maxspeed_assumed >= 30
         AND maxspeed_assumed <= 50
         AND lanes_assumed = 4
+    ) -- below is new
+    OR (
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
+        AND maxspeed_assumed = 50
+        AND lanes_assumed = 3
     );
 
 -- *** LTS 4 ***
