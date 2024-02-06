@@ -136,7 +136,7 @@ WHERE
         AND maxspeed_assumed >= 30
         AND maxspeed_assumed <= 50
         AND lanes_assumed = 4
-    ) -- below is new
+    )
     OR (
         (
             bicycle_class = 3
@@ -185,6 +185,28 @@ SET
 WHERE
     highway IN ('motorway_link')
     AND bicycle_class IS NULL;
+
+UPDATE
+    osm_road_edges
+SET
+    lts = 3
+WHERE
+    highway = 'unclassified'
+    AND (
+        bicycle_class IS NULL
+        OR bicycle_class = 3
+    )
+    AND lanes_assumed < 3;
+
+UPDATE
+    osm_road_edges
+SET
+    lts = 2
+WHERE
+    highway = 'residential'
+    AND lanes_assumed < 4
+    AND maxspeed_assumed <= 50
+    AND lts = 3;
 
 -- *** LTS 999 ***
 UPDATE
@@ -265,8 +287,3 @@ ASSERT bike_null = 0,
 'Bike edges missing LTS value';
 
 END $$;
-
--- TODO: look at edges where lts is null and cycling allowed
--- some pedestrian missing lts - cycle_living_street
--- some pedestrian/paths classified as cyclelanes 
--- some cat crossing
