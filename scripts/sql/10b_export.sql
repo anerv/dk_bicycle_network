@@ -11,7 +11,33 @@ SET
     cost = km * kmh,
     reverse_cost = km * kmh;
 
-CREATE VIEW osm_edges_export AS (
+ALTER TABLE
+    osm_road_edges
+ADD
+    COLUMN lts_viz VARCHAR;
+
+UPDATE
+    osm_road_edges
+SET
+    lts_viz = CASE
+        WHEN lts = 1
+        AND cycling_allowed IS TRUE THEN 'all_cyclists'
+        WHEN lts = 2
+        AND cycling_allowed IS TRUE THEN 'most_cyclists'
+        WHEN lts = 3
+        AND cycling_allowed IS TRUE THEN 'confident_cyclists'
+        WHEN lts IN (1, 2, 3)
+        AND cycling_allowed IS FALSE THEN 'no_cycling'
+        WHEN lts = 999 THEN 'pedestrian'
+        WHEN lts = 0 THEN 'paths_bike'
+        WHEN lts = 4 THEN 'no_cycling'
+    END;
+
+DROP MATERIALIZED VIEW IF EXISTS osm_edges_export;
+
+DROP MATERIALIZED VIEW IF EXISTS osm_nodes_export;
+
+CREATE MATERIALIZED VIEW osm_edges_export AS (
     SELECT
         id,
         osm_id,
@@ -44,12 +70,31 @@ CREATE VIEW osm_edges_export AS (
         centerline_assumed,
         urban,
         lts,
+        lts_viz,
         geometry
     FROM
         osm_road_edges
 );
 
-CREATE VIEW osm_nodes_export AS (
+DO $$
+DECLARE
+    lts_viz INT;
+
+BEGIN
+    SELECT
+        COUNT(*) INTO lts_viz
+    FROM
+        osm_road_edges
+    WHERE
+        lts IS NOT NULL
+        AND lts_viz IS NULL;
+
+ASSERT lts_viz = 0,
+'Edges missing LTS viz value';
+
+END $$;
+
+CREATE MATERIALIZED VIEW osm_nodes_export AS (
     SELECT
         id,
         osm_id,
