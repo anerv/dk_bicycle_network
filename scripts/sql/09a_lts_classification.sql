@@ -178,6 +178,7 @@ WHERE
         AND lanes_assumed > 4
     );
 
+-- *** EDGES CASES ***
 UPDATE
     osm_road_edges
 SET
@@ -196,7 +197,9 @@ WHERE
         bicycle_class IS NULL
         OR bicycle_class = 3
     )
-    AND lanes_assumed < 3;
+    AND lanes_assumed < 3
+    AND lts = 4 -- only decrease LTS value
+;
 
 UPDATE
     osm_road_edges

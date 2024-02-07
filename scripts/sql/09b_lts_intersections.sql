@@ -1,4 +1,9 @@
--- INTERSECTION LTS? (Identify unmarked intersections where a LTS XX crosses a road with a higher LTS)
+-- INTERSECTION LTS 
+ALTER TABLE
+    nodes
+ADD
+    COLUMN lts INTEGER DEFAULT NULL;
+
 CREATE VIEW nodes_lts_1 AS WITH nodes AS (
     SELECT
         source AS node
@@ -118,11 +123,6 @@ SELECT
     DISTINCT node
 FROM
     nodes;
-
-ALTER TABLE
-    nodes
-ADD
-    COLUMN lts INTEGER DEFAULT NULL;
 
 UPDATE
     nodes

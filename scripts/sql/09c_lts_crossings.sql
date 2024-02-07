@@ -1,11 +1,3 @@
--- TODO: deal with highway=footway bicycle crossings (LTS issue)
--- TODO: deal with highway = 'cycleway' and bicycle class is 2 or 3 (e.g. because of crossing) (LTS issue)
--- FIX highway=footway and category = crossing (LTS issue)
--- FIX highway=pedestrian and category = crossing (LTS issue)
--- GIVE THEM HIGHEST LTS OF THEIR NODES
--- **
--- make sure that all bike that has no lts are crossings?
--- ***
 CREATE TABLE crossings AS (
     SELECT
         *
@@ -99,22 +91,6 @@ ASSERT lts_missing = 0,
 
 END $$;
 
--- DO $$
--- DECLARE
---     lts_error INT;
--- BEGIN
---     SELECT
---         COUNT(*) INTO lts_error
---     FROM
---         osm_road_edges
---     WHERE
---         lts IS NOT NULL
---         AND lts <> 999
---         AND car_traffic IS FALSE
---         AND cycling_allowed IS FALSE;
--- ASSERT lts_error = 0,
--- 'Edges with surplus LTS value';
--- END $$;
 DROP VIEW IF EXISTS nodes_lts_999;
 
 DROP VIEW IF EXISTS nodes_lts_0;
