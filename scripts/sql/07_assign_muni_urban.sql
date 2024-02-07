@@ -4,15 +4,12 @@ DROP INDEX IF EXISTS urban_geom_idx;
 
 CREATE INDEX muni_geom_idx ON muni_boundaries USING GIST (geometry);
 
---CREATE INDEX urban_zones_geom_idx ON urban_zones USING GIST (geometry);
 ALTER TABLE
     osm_road_edges
 ADD
     COLUMN municipality VARCHAR DEFAULT NULL,
 ADD
-    COLUMN urban VARCHAR DEFAULT NULL,
-ADD
-    COLUMN urban_zone VARCHAR DEFAULT NULL;
+    COLUMN urban VARCHAR DEFAULT NULL;
 
 -- Assign municipality to network
 UPDATE
@@ -34,10 +31,10 @@ WHERE
     o.municipality IS NULL
     AND ST_Intersects(o.geometry, ST_Buffer(m.geometry, 100));
 
--- Assign urban
+-- Assign urban part 1
 CREATE MATERIALIZED VIEW urban_buffer AS
 SELECT
-    ZONE,
+    area_class,
     ST_buffer(geometry, 20) geometry
 FROM
     urban_zones;
@@ -47,18 +44,31 @@ CREATE INDEX urban_buffer_geom_idx ON urban_buffer USING GIST (geometry);
 UPDATE
     osm_road_edges o
 SET
-    urban = u.zone
+    urban = u.area_class
 FROM
     urban_buffer u
 WHERE
     ST_Within(o.geometry, u.geometry);
 
+-- Assign urban part 2
+CREATE MATERIALIZED VIEW area_buffer AS
+SELECT
+    area_class,
+    ST_buffer(geometry, 20) geometry
+FROM
+    building_areas;
+
+CREATE INDEX area_buffer_geom_idx ON area_buffer USING GIST (geometry);
+
 UPDATE
-    osm_road_edges
+    osm_road_edges o
 SET
-    urban_zone = CASE
-        WHEN urban = '1' THEN 'urban'
-        WHEN urban = '3' THEN 'summerhouse'
-    END;
+    urban = ab.area_class
+FROM
+    area_buffer ab
+WHERE
+    ST_Within(o.geometry, ab.geometry);
 
 DROP MATERIALIZED VIEW IF EXISTS urban_buffer;
+
+DROP MATERIALIZED VIEW IF EXISTS area_buffer;

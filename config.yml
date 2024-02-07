@@ -15,6 +15,8 @@ geodk_fp: '../data/raw/road_networks/vejmidte.gpkg'
 
 muni_fp: '../data/raw/study_area/muni_boundary.gpkg'
 
-urban_fp: "../data/raw/urban/zonekort_samlet_v.gpkg"
+urban_fp1: "../data/raw/urban/zonekort_samlet_v.gpkg"
+urban_fp2: "../data/raw/urban/bebyggelse.gpkg"
+
 
 osm_style_file: "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/resources/modified.style"
