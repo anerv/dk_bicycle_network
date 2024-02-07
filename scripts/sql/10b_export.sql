@@ -33,6 +33,24 @@ SET
         WHEN lts = 4 THEN 'no_cycling'
     END;
 
+DO $$
+DECLARE
+    lts_viz_count INT;
+
+BEGIN
+    SELECT
+        COUNT(*) INTO lts_viz_count
+    FROM
+        osm_road_edges
+    WHERE
+        lts IS NOT NULL
+        AND lts_viz IS NULL;
+
+ASSERT lts_viz_count = 0,
+'Edges missing LTS viz value';
+
+END $$;
+
 DROP MATERIALIZED VIEW IF EXISTS osm_edges_export;
 
 DROP MATERIALIZED VIEW IF EXISTS osm_nodes_export;
@@ -75,24 +93,6 @@ CREATE MATERIALIZED VIEW osm_edges_export AS (
     FROM
         osm_road_edges
 );
-
-DO $$
-DECLARE
-    lts_viz INT;
-
-BEGIN
-    SELECT
-        COUNT(*) INTO lts_viz
-    FROM
-        osm_road_edges
-    WHERE
-        lts IS NOT NULL
-        AND lts_viz IS NULL;
-
-ASSERT lts_viz = 0,
-'Edges missing LTS viz value';
-
-END $$;
 
 CREATE MATERIALIZED VIEW osm_nodes_export AS (
     SELECT
