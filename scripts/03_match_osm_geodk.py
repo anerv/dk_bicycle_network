@@ -61,7 +61,7 @@ print("Process matching starting...")
 
 
 # Process matches
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
     "sql/03i_process_matches.sql",
@@ -78,14 +78,16 @@ print("Continuing with processing of incomplete matches....")
 
 
 # Process undecided segments
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+
+engine = dbf.connect_alc(db_name, db_user, db_password, db_port=db_port)
 
 # Undecided segments and edges
 q = "SELECT * FROM matching_geodk_osm._undecided_segments"
-undecided_segments = gpd.GeoDataFrame.from_postgis(q, connection, crs="EPSG:25832")
+undecided_segments = gpd.GeoDataFrame.from_postgis(q, engine, crs="EPSG:25832")
 
 q = "SELECT * FROM matching_geodk_osm._undecided_groups"
-undecided_groups = pd.read_sql(q, connection)
+undecided_groups = pd.read_sql(q, engine)
 
 # Group adjacent identical matching vales
 undecided_groups["group_matching"] = undecided_groups["matched_count"].apply(
@@ -103,6 +105,8 @@ undecided_groups["group_matching"] = undecided_groups.group_matching.apply(
 undecided_groups["len"] = undecided_groups.group_matching.apply(lambda x: len(x))
 
 edges_to_split = undecided_groups.loc[undecided_groups.len == 2]
+
+edges_for_manual_review = undecided_groups.loc[undecided_groups.len > 2]
 
 new_edges = prep_func.split_edges(edges_to_split, undecided_segments)
 
@@ -128,7 +132,7 @@ print(test)
 # Add undecided/split edges to edge table
 # identify matched edges
 
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 q = "sql/03j_identify_matched_edges.sql"
 
@@ -146,7 +150,7 @@ print(f"Split edges processed!")
 
 # Rebuild topology
 # NOTE: This takes a while
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 q = "sql/03k_rebuild_topology.sql"
 
@@ -160,7 +164,6 @@ dbf.run_query_pg(
 )
 
 print(f"Topology rebuild")
-
 
 # finish processing
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
