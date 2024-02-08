@@ -49,6 +49,8 @@ The feature matching is done in 13 steps:
 
 * Identify matched OSM edges (going from segment to edge level).
 
+NOTE: Edges that are only partly matched, and where the matched segments are not adjacent are not marked as matched. A manual inspection is recommended.
+
 11. **Rebuild topology (03k)**
 
 * Rebuild graph topology after splitting edges in step X.
