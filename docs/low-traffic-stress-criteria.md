@@ -1,6 +1,6 @@
-# Low Traffic Stress Classification of the Danish Road Network
+# Level of Traffic Stress Classification of the Danish Road Network
 
-The oad network is classified into four different levels of 'traffic stress' (LTS), as conceptualized by e.g. [Mekuria et al 2021](https://transweb.sjsu.edu/research/Low-Stress-Bicycling-and-Network-Connectivity) and [Furth et al 2016](https://journals.sagepub.com/doi/10.3141/2587-06). Many of the criteria being used in the original LTS classifications make use of data that often are not available such as traffic counts, width of bicycle infrastructure, or the presence of on-street parking.
+The road network is classified into four different 'Levels of Traffic stress' (LTS), as conceptualized by e.g. [Mekuria et al 2021](https://transweb.sjsu.edu/research/Low-Stress-Bicycling-and-Network-Connectivity) and [Furth et al 2016](https://journals.sagepub.com/doi/10.3141/2587-06). Many of the criteria being used in the original LTS classifications make use of data that often are not available such as traffic counts, width of bicycle infrastructure, or the presence of on-street parking.
 
 The LTS simplification used here is inspired by the adaptiation of LTS criteria for OpenStreetMap data by [Wasserman et al 2019](https://journals.sagepub.com/doi/full/10.1177/0361198119836772), but simplified and adapted to the Danish context.
 
@@ -11,7 +11,7 @@ All roads with car traffic and all cycleways, lanes and paths that are classifie
 * **LTS 3:** For the confident cyclists.
 * **LTS 4:** For the "strong and fearless" [Geller, 2006, Dill and McNeil, 2016](https://journals.sagepub.com/doi/10.3141/2587-11)
 
-Notice that roads are also given a LTS value even if they have no public access.
+Notice that roads also are given a LTS value even if they have no public access.
 
 Footways, paths, pedestrian areas etc. that do not allow for cycling are given a LTS value of 999, indicating that thet are not part of the cycling network. Footways, paths, pedestrian areas etc. where cycling is allowed but the surface is deemed insufficient for cycling are given a LTS value of 0 and we recommend excluding them from the bicycle network.
 
