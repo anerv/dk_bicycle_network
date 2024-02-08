@@ -51,11 +51,11 @@ ASSERT lts_viz_count = 0,
 
 END $$;
 
-DROP MATERIALIZED VIEW IF EXISTS osm_edges_export;
+DROP TABLE IF EXISTS osm_edges_export;
 
-DROP MATERIALIZED VIEW IF EXISTS osm_nodes_export;
+DROP TABLE IF EXISTS osm_nodes_export;
 
-CREATE MATERIALIZED VIEW osm_edges_export AS (
+CREATE TABLE osm_edges_export AS (
     SELECT
         id,
         osm_id,
@@ -94,7 +94,7 @@ CREATE MATERIALIZED VIEW osm_edges_export AS (
         osm_road_edges
 );
 
-CREATE MATERIALIZED VIEW osm_nodes_export AS (
+CREATE TABLE osm_nodes_export AS (
     SELECT
         id,
         osm_id,
