@@ -1,3 +1,4 @@
+# %%
 import yaml
 from src import db_functions as dbf
 
@@ -24,3 +25,5 @@ dbf.run_query_pg(
 )
 
 connection.close()
+
+# %%
