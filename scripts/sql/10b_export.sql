@@ -12,6 +12,9 @@ SET
     reverse_cost = km * kmh;
 
 ALTER TABLE
+    osm_road_edges DROP COLUMN IF EXISTS lts_viz;
+
+ALTER TABLE
     osm_road_edges
 ADD
     COLUMN lts_viz VARCHAR;
@@ -26,7 +29,9 @@ SET
         AND cycling_allowed IS TRUE THEN 'most_cyclists'
         WHEN lts = 3
         AND cycling_allowed IS TRUE THEN 'confident_cyclists'
-        WHEN lts IN (1, 2, 3)
+        WHEN lts = 4
+        AND cycling_allowed IS TRUE THEN 'very_confident_cyclists'
+        WHEN lts IN (1, 2, 3, 4)
         AND cycling_allowed IS FALSE THEN 'no_cycling'
         WHEN lts = 999 THEN 'pedestrian'
         WHEN lts = 0 THEN 'paths_bike'
