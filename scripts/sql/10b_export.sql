@@ -17,7 +17,9 @@ ALTER TABLE
 ALTER TABLE
     osm_road_edges
 ADD
-    COLUMN lts_viz VARCHAR;
+    COLUMN lts_viz VARCHAR,
+ADD
+    COLUMN bicycle_category_dk VARCHAR;
 
 UPDATE
     osm_road_edges
@@ -37,6 +39,47 @@ SET
         WHEN lts = 0 THEN 'paths_bike'
         WHEN lts = 4 THEN 'no_cycling'
     END;
+
+UPDATE
+    osm_road_edges
+SET
+    bicycle_category_dk = CASE
+        WHEN bicycle_category = 'shared_track' THEN 'delt sti langs vej'
+        WHEN bicycle_category = 'cycleway' THEN 'cykelsti i eget trace'
+        WHEN bicycle_category = 'cycleway_shared' THEN 'delt sti i eget trace'
+        WHEN bicycle_category = 'cycletrack' THEN 'cykelsti langs vej'
+        WHEN bicycle_category = 'cyclelane' THEN 'cykelbane'
+        WHEN bicycle_category = 'shared_busway' THEN 'delt busbane'
+        WHEN bicycle_category = 'cycle_living_street'
+        AND (
+            highway IN ('bicycle_road', 'cyclestreet', 'living_street')
+            OR cyclestreet = 'yes'
+            OR bicycle_road = 'yes'
+        ) THEN 'cykelgade'
+        WHEN bicycle_category = 'cycle_living_street'
+        AND highway IN ('pedestrian')
+        AND bicycle_infrastructure_final IS TRUE THEN 'gågade cykling tilladt'
+        WHEN bicycle_category = 'crossing' THEN 'cykelbane i kryds'
+        WHEN bicycle_category = 'shared_lane' THEN 'delt cykelbane'
+    END;
+
+DO $$
+DECLARE
+    bike_dk_count INT;
+
+BEGIN
+    SELECT
+        COUNT(*) INTO bike_dk_count
+    FROM
+        osm_road_edges
+    WHERE
+        bicycle_category IS NOT NULL
+        AND bicycle_category_dk IS NULL;
+
+ASSERT bike_dk_count = 0,
+'Edges missing bicycle category value in Danish';
+
+END $$;
 
 DO $$
 DECLARE
@@ -62,6 +105,27 @@ DROP TABLE IF EXISTS osm_nodes_export;
 
 CREATE TABLE osm_edges_export AS (
     SELECT
+        highway,
+        "name",
+        bicycle_category_dk,
+        cycling_allowed,
+        car_traffic,
+        along_street,
+        lit,
+        cycleway_segregated,
+        maxspeed_assumed AS maxspeed,
+        lanes_assumed AS lanes,
+        bicycle_surface_assumed AS surface,
+        centerline_assumed AS centerline,
+        urban,
+        bicycle_infrastructure AS bicycle_infrastructure_osm,
+        bicycle_infrastructure_final,
+        matched,
+        geodk_category,
+        bicycle_category,
+        bicycle_class,
+        lts,
+        lts_viz,
         id,
         osm_id,
         x1,
@@ -74,26 +138,6 @@ CREATE TABLE osm_edges_export AS (
         kmh,
         cost,
         reverse_cost,
-        highway,
-        "name",
-        bicycle_infrastructure AS bicycle_infrastructure_osm,
-        bicycle_infrastructure_final,
-        matched,
-        geodk_category,
-        bicycle_category,
-        bicycle_class,
-        along_street,
-        cycleway_segregated,
-        cycling_allowed,
-        car_traffic,
-        lit,
-        maxspeed_assumed,
-        lanes_assumed,
-        bicycle_surface_assumed,
-        centerline_assumed,
-        urban,
-        lts,
-        lts_viz,
         geometry
     FROM
         osm_road_edges
