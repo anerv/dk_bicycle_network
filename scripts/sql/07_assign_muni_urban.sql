@@ -1,6 +1,22 @@
 DROP INDEX IF EXISTS muni_geom_idx;
 
-DROP INDEX IF EXISTS urban_geom_idx;
+DROP MATERIALIZED VIEW IF EXISTS urban_buffer;
+
+DROP MATERIALIZED VIEW IF EXISTS summerhouse_buffer;
+
+DROP MATERIALIZED VIEW IF EXISTS industrial_buffer;
+
+DROP TABLE IF EXISTS urban_areas;
+
+DROP TABLE IF EXISTS summerhouse_areas;
+
+DROP TABLE IF EXISTS industrial_areas;
+
+DROP TABLE IF EXISTS urban_areas_dissolved;
+
+DROP TABLE IF EXISTS summerhouse_areas_dissolved;
+
+DROP TABLE IF EXISTS industrial_areas_dissolved;
 
 CREATE INDEX muni_geom_idx ON muni_boundaries USING GIST (geometry);
 
@@ -31,44 +47,149 @@ WHERE
     o.municipality IS NULL
     AND ST_Intersects(o.geometry, ST_Buffer(m.geometry, 100));
 
--- Assign urban part 1
-CREATE MATERIALIZED VIEW urban_buffer AS
+CREATE TABLE urban_areas AS
 SELECT
     area_class,
-    ST_buffer(geometry, 20) geometry
+    geometry
 FROM
-    urban_zones;
+    urban_zones
+WHERE
+    area_class = 'urban'
+UNION
+SELECT
+    area_class,
+    geometry
+FROM
+    building_areas
+WHERE
+    area_class = 'urban';
+
+CREATE TABLE summerhouse_areas AS
+SELECT
+    area_class,
+    geometry
+FROM
+    urban_zones
+WHERE
+    area_class = 'summerhouse'
+UNION
+SELECT
+    area_class,
+    geometry
+FROM
+    building_areas
+WHERE
+    area_class = 'summerhouse';
+
+CREATE TABLE industrial_areas AS
+SELECT
+    area_class,
+    geometry
+FROM
+    urban_zones
+WHERE
+    area_class = 'industrial'
+UNION
+SELECT
+    area_class,
+    geometry
+FROM
+    building_areas
+WHERE
+    area_class = 'industial';
+
+-- Assign urban land use class
+CREATE TABLE urban_areas_dissolved AS
+SELECT
+    --area_class,
+    (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom AS geometry
+FROM
+    urban_areas;
+
+CREATE MATERIALIZED VIEW urban_buffer AS
+SELECT
+    --area_class,
+    ST_buffer(ST_Simplify(geometry, 10), 20) geometry
+FROM
+    urban_areas_dissolved;
 
 CREATE INDEX urban_buffer_geom_idx ON urban_buffer USING GIST (geometry);
+
+-- Assign summerhouse land use class
+CREATE TABLE summerhouse_areas_dissolved AS
+SELECT
+    --area_class,
+    (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom AS geometry
+FROM
+    summerhouse_areas;
+
+CREATE MATERIALIZED VIEW summerhouse_buffer AS
+SELECT
+    --area_class,
+    ST_buffer(ST_Simplify(geometry, 10), 20) geometry
+FROM
+    summerhouse_areas_dissolved;
+
+CREATE INDEX summerhouse_buffer_geom_idx ON summerhouse_buffer USING GIST (geometry);
+
+-- Assign industrial land use class
+CREATE TABLE industrial_areas_dissolved AS
+SELECT
+    --area_class,
+    (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom AS geometry
+FROM
+    industrial_areas;
+
+CREATE MATERIALIZED VIEW industrial_buffer AS
+SELECT
+    --area_class,
+    ST_buffer(ST_Simplify(geometry, 10), 20) geometry
+FROM
+    industrial_areas_dissolved;
+
+CREATE INDEX indu_buffer_geom_idx ON industrial_buffer USING GIST (geometry);
 
 UPDATE
     osm_road_edges o
 SET
-    urban = u.area_class
+    urban = 'industrial'
+FROM
+    industrial_buffer u
+WHERE
+    ST_Within(o.geometry, u.geometry);
+
+UPDATE
+    osm_road_edges o
+SET
+    urban = 'summerhouse'
+FROM
+    summerhouse_buffer u
+WHERE
+    ST_Within(o.geometry, u.geometry);
+
+UPDATE
+    osm_road_edges o
+SET
+    urban = 'urban'
 FROM
     urban_buffer u
 WHERE
     ST_Within(o.geometry, u.geometry);
 
--- Assign urban part 2
-CREATE MATERIALIZED VIEW area_buffer AS
-SELECT
-    area_class,
-    ST_buffer(geometry, 20) geometry
-FROM
-    building_areas;
-
-CREATE INDEX area_buffer_geom_idx ON area_buffer USING GIST (geometry);
-
-UPDATE
-    osm_road_edges o
-SET
-    urban = ab.area_class
-FROM
-    area_buffer ab
-WHERE
-    ST_Within(o.geometry, ab.geometry);
-
 DROP MATERIALIZED VIEW IF EXISTS urban_buffer;
 
-DROP MATERIALIZED VIEW IF EXISTS area_buffer;
+DROP MATERIALIZED VIEW IF EXISTS summerhouse_buffer;
+
+DROP MATERIALIZED VIEW IF EXISTS industrial_buffer;
+
+DROP TABLE IF EXISTS urban_areas;
+
+DROP TABLE IF EXISTS summerhouse_areas;
+
+DROP TABLE IF EXISTS industrial_areas;
+
+DROP TABLE IF EXISTS urban_areas_areas_dissolved;
+
+DROP TABLE IF EXISTS summerhouse_areas_dissolved;
+
+DROP TABLE IF EXISTS industrial_areas_dissolved;
