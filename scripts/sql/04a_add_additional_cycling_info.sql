@@ -141,6 +141,13 @@ WHERE
     AND highway IN ('motorway', 'motorway_link')
     AND bicycle_infrastructure IS FALSE;
 
+UPDATE
+    osm_road_edges
+SET
+    cycling_allowed = FALSE
+WHERE
+    motorroad IS IN ('yes');
+
 -- *** FILL COLUMN ALONG STREET ***
 --Determining whether the segment of cycling infrastructure runs along a street or not
 UPDATE

@@ -7,7 +7,28 @@ ADD
 ADD
     COLUMN centerline_assumed BOOLEAN DEFAULT NULL,
 ADD
-    COLUMN maxspeed_assumed INTEGER DEFAULT NULL;
+    COLUMN maxspeed_assumed INTEGER DEFAULT NULL,
+ADD
+    COLUMN all_access BOOLEAN DEFAULT TRUE;
+
+-- ACCESS
+UPDATE
+    osm_road_edges
+SET
+    all_access = FALSE
+WHERE
+    access IN (
+        'no',
+        'private',
+        'foresty',
+        'agricultural',
+        'customers',
+        'residents',
+        'delivery',
+        'private;customers',
+        'permit',
+        'permit2'
+    );
 
 -- SURFACE
 UPDATE

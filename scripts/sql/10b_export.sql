@@ -26,18 +26,25 @@ UPDATE
 SET
     lts_viz = CASE
         WHEN lts = 1
-        AND cycling_allowed IS TRUE THEN 'all_cyclists'
+        AND cycling_allowed IS TRUE
+        AND all_access IS TRUE THEN 'all_cyclists'
         WHEN lts = 2
-        AND cycling_allowed IS TRUE THEN 'most_cyclists'
+        AND cycling_allowed IS TRUE
+        AND all_access IS TRUE THEN 'most_cyclists'
         WHEN lts = 3
-        AND cycling_allowed IS TRUE THEN 'confident_cyclists'
+        AND cycling_allowed IS TRUE
+        AND all_access IS TRUE THEN 'confident_cyclists'
         WHEN lts = 4
-        AND cycling_allowed IS TRUE THEN 'very_confident_cyclists'
+        AND cycling_allowed IS TRUE
+        AND all_access IS TRUE THEN 'very_confident_cyclists'
         WHEN lts IN (1, 2, 3, 4)
-        AND cycling_allowed IS FALSE THEN 'no_cycling'
-        WHEN lts = 999 THEN 'pedestrian'
-        WHEN lts = 0 THEN 'paths_bike'
-        WHEN lts = 4 THEN 'no_cycling'
+        AND cycling_allowed IS FALSE
+        AND all_access IS TRUE THEN 'no_cycling'
+        WHEN lts = 999
+        AND all_access IS TRUE THEN 'pedestrian'
+        WHEN lts = 0
+        AND all_access IS TRUE THEN 'paths_bike' --WHEN lts = 4 THEN 'no_cycling'
+        WHEN all_access IS FALSE THEN 'no_access'
     END;
 
 UPDATE
@@ -118,6 +125,7 @@ CREATE TABLE osm_edges_export AS (
         bicycle_surface_assumed AS surface,
         centerline_assumed AS centerline,
         urban,
+        all_access,
         bicycle_infrastructure AS bicycle_infrastructure_osm,
         bicycle_infrastructure_final,
         matched,
