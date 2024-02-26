@@ -117,7 +117,7 @@ node,way   landuse      text         polygon
 way        lanes        text         linear
 way        lanes:backward    text    linear
 way        lanes:forward     text    linear
-node,way   layer        text         linear
+node,way   layer        text         linearx
 node,way   leisure      text         polygon
 node,way   lit          text         linear
 # node,way   man_made      text        linear
@@ -126,6 +126,7 @@ way        maxspeed:advisory  text   linear
 way        moped        text         linear
 node,way   motorcar     text         linear
 node,way   motor_vehicle     text    linear
+node,way   motorroad    text         linear
 node,way   name         text         linear
 node,way   natural      text         polygon  # natural=coastline tags are discarded by a hard coded rule in osm2pgsql
 node,way   noexit       text         linear
