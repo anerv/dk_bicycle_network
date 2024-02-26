@@ -50,7 +50,7 @@ WHERE
 CREATE TABLE urban_areas AS
 SELECT
     area_class,
-    geometry
+    (ST_Dump(geometry)) .geom AS geometry
 FROM
     urban_zones
 WHERE
@@ -58,7 +58,7 @@ WHERE
 UNION
 SELECT
     area_class,
-    geometry
+    (ST_Dump(geometry)) .geom AS geometry
 FROM
     building_areas
 WHERE
@@ -67,7 +67,7 @@ WHERE
 CREATE TABLE summerhouse_areas AS
 SELECT
     area_class,
-    geometry
+    (ST_Dump(geometry)) .geom AS geometry
 FROM
     urban_zones
 WHERE
@@ -75,7 +75,7 @@ WHERE
 UNION
 SELECT
     area_class,
-    geometry
+    (ST_Dump(geometry)) .geom AS geometry
 FROM
     building_areas
 WHERE
@@ -84,7 +84,7 @@ WHERE
 CREATE TABLE industrial_areas AS
 SELECT
     area_class,
-    geometry
+    (ST_Dump(geometry)) .geom AS geometry
 FROM
     urban_zones
 WHERE
@@ -92,17 +92,21 @@ WHERE
 UNION
 SELECT
     area_class,
-    geometry
+    (ST_Dump(geometry)) .geom AS geometry
 FROM
     building_areas
 WHERE
-    area_class = 'industial';
+    area_class = 'industrial';
 
 -- Assign urban land use class
 CREATE TABLE urban_areas_dissolved AS
 SELECT
     --area_class,
-    (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom AS geometry
+    ST_MakePolygon(
+        ST_ExteriorRing(
+            (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom
+        )
+    ) AS geometry
 FROM
     urban_areas;
 
@@ -119,7 +123,11 @@ CREATE INDEX urban_buffer_geom_idx ON urban_buffer USING GIST (geometry);
 CREATE TABLE summerhouse_areas_dissolved AS
 SELECT
     --area_class,
-    (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom AS geometry
+    ST_MakePolygon(
+        ST_ExteriorRing(
+            (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom
+        )
+    ) AS geometry
 FROM
     summerhouse_areas;
 
@@ -136,7 +144,11 @@ CREATE INDEX summerhouse_buffer_geom_idx ON summerhouse_buffer USING GIST (geome
 CREATE TABLE industrial_areas_dissolved AS
 SELECT
     --area_class,
-    (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom AS geometry
+    ST_MakePolygon(
+        ST_ExteriorRing(
+            (ST_Dump(ST_Union(ST_Buffer(geometry, 1)))) .geom
+        )
+    ) AS geometry
 FROM
     industrial_areas;
 
