@@ -24,6 +24,7 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_h
 queries = [
     "sql/02a_create_osm_road_table.sql",
     "sql/02b_classify_cycling_infrastructure.sql",
+    "sql/02c_add_osm_bus_routes.sql",
 ]
 
 for i, q in enumerate(queries):
@@ -41,7 +42,7 @@ for i, q in enumerate(queries):
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
 
-q = "SELECT osm_id, highway FROM osm_road_edges WHERE bicycle_infrastructure IS TRUE LIMIT 10;"
+q = "SELECT osm_id, highway, bus_route FROM osm_road_edges WHERE bicycle_infrastructure IS TRUE LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
