@@ -20,3 +20,4 @@ urban_fp2: "../data/raw/urban/bebyggelse.gpkg"
 
 
 osm_style_file: "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/resources/modified.style"
+lua_style_file: "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/resources/style.lua"

@@ -10,6 +10,7 @@ with open(r"../config.yml") as file:
 
     osm_fp = parsed_yaml_file["osm_fp"]
     osm_style_file = parsed_yaml_file["osm_style_file"]
+    lua_file = parsed_yaml_file["lua_style_file"]
 
     crs = parsed_yaml_file["CRS"]
 
@@ -39,6 +40,25 @@ print(test)
 connection.close()
 
 print("OSM tag data load complete!")
+
+# LOAD OSM BUS ROUTE/RELATION DATA
+subprocess.run(
+    f"osm2pgsql -c -d {db_name} -U postgres -H localhost -O flex -S {lua_file} {osm_fp}",
+    shell=True,
+    check=True,
+)
+
+connection = dbf.connect_pg(db_name, db_user, db_password, db_port=db_port)
+
+q = "SELECT relation_id, route FROM routes WHERE route = 'bus' LIMIT 10;"
+
+test = dbf.run_query_pg(q, connection)
+
+print(test)
+
+connection.close()
+
+print("OSM route data load complete!")
 
 
 # Load OSM data with correct topology to use for OSM routing using osm2po

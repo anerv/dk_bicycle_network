@@ -126,6 +126,7 @@ CREATE TABLE osm_edges_export AS (
         centerline_assumed AS centerline,
         urban,
         all_access,
+        bus_route,
         bicycle_infrastructure AS bicycle_infrastructure_osm,
         bicycle_infrastructure_final,
         matched,
