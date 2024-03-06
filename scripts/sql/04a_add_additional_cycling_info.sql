@@ -111,6 +111,24 @@ WHERE
         )
     );
 
+-- Cycling not allowed on motorroads
+UPDATE
+    osm_road_edges
+SET
+    cycling_allowed = FALSE
+WHERE
+    motorroad IN ('yes');
+
+UPDATE
+    osm_road_edges
+SET
+    cycling_allowed = FALSE
+WHERE
+    cycleway = 'separate'
+    OR "cycleway:left" = 'separate'
+    OR "cycleway:right" = 'separate'
+    OR "cycleway:both" = 'separate';
+
 -- Identify matched edges where bicycle infrastructure is mapped separately (for bicycle infra and cycling allowed)
 UPDATE
     osm_road_edges
@@ -140,13 +158,6 @@ WHERE
     matched IS TRUE
     AND highway IN ('motorway', 'motorway_link')
     AND bicycle_infrastructure IS FALSE;
-
-UPDATE
-    osm_road_edges
-SET
-    cycling_allowed = FALSE
-WHERE
-    motorroad IS IN ('yes');
 
 -- *** FILL COLUMN ALONG STREET ***
 --Determining whether the segment of cycling infrastructure runs along a street or not
