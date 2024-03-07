@@ -36,7 +36,7 @@ test = dbf.run_query_pg(q, connection)
 print(test)
 
 
-print("Network vertices created successfully!")
+print("Intersections classified!")
 
 connection.close()
 
