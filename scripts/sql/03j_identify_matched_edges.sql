@@ -130,6 +130,7 @@ SELECT
     "maxspeed:advisory",
     "motorcar",
     "motor_vehicle",
+    "motorroad",
     "name",
     "oneway",
     "oneway:bicycle",
@@ -151,6 +152,7 @@ SELECT
     "tags",
     "bicycle_infrastructure",
     "bicycle_protected",
+    "bus_route",
     "matched",
     "geodk_surface",
     "geodk_category"
