@@ -124,10 +124,13 @@ UPDATE
 SET
     cycling_allowed = FALSE
 WHERE
-    cycleway = 'separate'
-    OR "cycleway:left" = 'separate'
-    OR "cycleway:right" = 'separate'
-    OR "cycleway:both" = 'separate';
+    (
+        cycleway = 'separate'
+        OR "cycleway:left" = 'separate'
+        OR "cycleway:right" = 'separate'
+        OR "cycleway:both" = 'separate'
+    )
+    AND bicycle_infrastructure_final IS FALSE;
 
 -- Identify matched edges where bicycle infrastructure is mapped separately (for bicycle infra and cycling allowed)
 UPDATE
@@ -139,6 +142,7 @@ WHERE
     AND bicycle_infrastructure IS FALSE
     AND bicycle_infrastructure_final IS TRUE;
 
+-- Declassify bicycle infrastructure matched from GeoDK but matched separately
 UPDATE
     osm_road_edges
 SET
@@ -149,7 +153,7 @@ WHERE
     AND bicycle IN ('use_sidepath')
     AND bicycle_infrastructure_final IS TRUE;
 
--- Declassify highways classifed as bicycle infrastructure only based on GeoDanmark data
+-- Declassify highways and motorroads classifed as bicycle infrastructure only based on GeoDanmark data
 UPDATE
     osm_road_edges
 SET
@@ -157,6 +161,15 @@ SET
 WHERE
     matched IS TRUE
     AND highway IN ('motorway', 'motorway_link')
+    AND bicycle_infrastructure IS FALSE;
+
+UPDATE
+    osm_road_edges
+SET
+    bicycle_infrastructure_final = FALSE
+WHERE
+    matched IS TRUE
+    AND motorroad IN ('yes')
     AND bicycle_infrastructure IS FALSE;
 
 -- *** FILL COLUMN ALONG STREET ***
