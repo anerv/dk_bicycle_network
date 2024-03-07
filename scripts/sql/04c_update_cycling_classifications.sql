@@ -52,7 +52,26 @@ SET
             bicycle_infrastructure_final IS TRUE
             AND highway = 'cycleway'
             AND along_street IS FALSE
+            AND (
+                foot NOT IN ('yes', 'designated', 'permissive')
+                OR foot IS NULL
+                OR segregated = 'yes'
+            )
         ) THEN 'cycleway'
+        WHEN (
+            bicycle_infrastructure_final IS TRUE
+            AND highway = 'cycleway'
+            AND along_street IS FALSE
+            AND foot IN ('yes', 'designated', 'permissive')
+            AND (
+                segregated = 'no'
+                OR segregated IS NULL
+            )
+        ) THEN 'cycleway_shared' -- WHEN (
+        --     bicycle_infrastructure_final IS TRUE
+        --     AND highway = 'cycleway'
+        --     AND along_street IS FALSE
+        -- ) THEN 'cycleway'
         WHEN (
             bicycle_infrastructure_final IS TRUE
             AND highway = 'cycleway'
