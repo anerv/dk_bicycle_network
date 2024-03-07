@@ -144,6 +144,19 @@ WHERE
         )
         AND maxspeed_assumed = 50
         AND lanes_assumed = 3
+    )
+    OR (
+        bicycle_class = 3
+        AND highway IN (
+            'secondary',
+            'secondary_link',
+            'secondary',
+            'secondary_link',
+            'tertiary',
+            'tertiary_link'
+        )
+        AND bicycle_infrastructure_final IS FALSE
+        AND maxspeed_assumed >= 50
     );
 
 -- *** LTS 4 ***
