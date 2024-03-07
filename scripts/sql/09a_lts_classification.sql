@@ -114,6 +114,11 @@ WHERE
         AND maxspeed_assumed < 50 -- changed from =<
         AND lanes_assumed = 3 -- AND lanes_assumed < 4
         -- AND lanes_assumed > 2
+    )
+    OR (
+        bicycle_class = 2
+        AND bus_route IS TRUE
+        AND maxspeed_assumed < 50
     );
 
 -- *** LTS 3 ***
@@ -127,6 +132,11 @@ WHERE
         AND maxspeed_assumed > 50
         AND maxspeed_assumed <= 60
         AND lanes_assumed < 5
+    )
+    OR (
+        bicycle_class = 2
+        AND bus_route IS TRUE
+        AND maxspeed_assumed >= 50
     )
     OR (
         (
