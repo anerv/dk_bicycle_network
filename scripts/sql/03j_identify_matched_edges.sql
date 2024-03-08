@@ -152,7 +152,6 @@ SELECT
     "tags",
     "bicycle_infrastructure",
     "bicycle_protected",
-    "bus_route",
     "matched",
     "geodk_surface",
     "geodk_category"

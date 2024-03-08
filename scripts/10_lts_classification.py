@@ -16,9 +16,9 @@ with open(r"../config.yml") as file:
 print("Settings loaded!")
 
 queries = [
-    "sql/09a_lts_classification.sql",
-    "sql/09b_lts_intersections.sql",
-    "sql/09c_lts_crossings.sql",
+    "sql/10a_lts_classification.sql",
+    "sql/10b_lts_intersections.sql",
+    "sql/10c_lts_crossings.sql",
 ]
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
@@ -52,5 +52,5 @@ connection.close()
 with open("vacuum_analyze.py") as f:
     exec(f.read())
 
-print("Script 09 complete!")
+print("Script 10 complete!")
 # %%

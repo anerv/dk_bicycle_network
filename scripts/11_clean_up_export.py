@@ -23,7 +23,7 @@ print("Settings loaded!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/10a_clean_up.sql",
+    "sql/11a_clean_up.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
@@ -38,7 +38,7 @@ print("Clean up done!")
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/10b_export.sql",
+    "sql/11b_export.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
@@ -70,5 +70,5 @@ connection.close()
 
 print("Tables exported!")
 
-print("Script 10 complete!")
+print("Script 11 complete!")
 # %%

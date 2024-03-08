@@ -11,10 +11,11 @@ all_scripts = [
     "04_fill_cycling_columns.py",
     "05_create_vertices.py",
     "06_classify_intersections.py",
-    "07_assign_muni_urban.py",
-    "08_interpolate_missing_tags.py",
-    "09_lts_classification.py",
-    "10_clean_up_export.py",
+    "07_identify_bus_routes.py",
+    "08_assign_muni_urban.py",
+    "09_interpolate_missing_tags.py",
+    "10_lts_classification.py",
+    "11_clean_up_export.py",
 ]
 
 for s in all_scripts:

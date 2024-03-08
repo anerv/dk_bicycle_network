@@ -1,11 +1,6 @@
 # %%
-
-import os
-
-os.environ["USE_PYGEOS"] = "0"
 import yaml
 from src import db_functions as dbf
-
 
 with open(r"../config.yml") as file:
     parsed_yaml_file = yaml.load(file, Loader=yaml.FullLoader)
@@ -19,11 +14,10 @@ with open(r"../config.yml") as file:
 
 print("Settings loaded!")
 
-
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg(
-    "sql/07_assign_muni_urban.sql",
+    "sql/09_interpolate_missing_tags.sql",
     connection,
     success="Query successful!",
     fail="Query failed!",
@@ -31,7 +25,8 @@ dbf.run_query_pg(
     close=False,
 )
 
-q = f"SELECT highway, urban, municipality FROM osm_road_edges LIMIT 10;"
+
+q = f"SELECT id, highway FROM osm_road_edges WHERE maxspeed_assumed = 30 LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
@@ -39,9 +34,9 @@ print(test)
 
 connection.close()
 
-
 with open("vacuum_analyze.py") as f:
     exec(f.read())
 
-print("Script 07 complete!")
+
+print("Script 09 complete!")
 # %%

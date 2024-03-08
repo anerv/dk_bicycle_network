@@ -31,14 +31,13 @@ dbf.run_query_pg(
     close=False,
 )
 
-q = f"SELECT osm_id, intersection_type, geometry FROM nodes LIMIT 10;"
+q = f"SELECT highway, bus_route FROM osm_road_edges WHERE bus_route IS TRUE LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
 
 print(test)
 
-
-print("Additional bus routes identified!")
+print("Bus routes identified!")
 
 connection.close()
 

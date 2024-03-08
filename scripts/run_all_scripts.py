@@ -44,17 +44,21 @@ subprocess.run(["python", "06_classify_intersections.py"], stdout=subprocess.DEV
 print("Step 06 complete...")
 
 print("Running step 07...")
-subprocess.run(["python", "07_assign_muni_urban.py"], stdout=subprocess.DEVNULL)
+subprocess.run(["python", "07_identify_bus_routes.py"], stdout=subprocess.DEVNULL)
 print("Step 07 complete...")
 
 print("Running step 08...")
-subprocess.run(["python", "08_interpolate_missing_tags.py"], stdout=subprocess.DEVNULL)
+subprocess.run(["python", "08_assign_muni_urban.py"], stdout=subprocess.DEVNULL)
 print("Step 08 complete...")
 
 print("Running step 09...")
-subprocess.run(["python", "09_lts_classification.py"], stdout=subprocess.DEVNULL)
+subprocess.run(["python", "09_interpolate_missing_tags.py"], stdout=subprocess.DEVNULL)
 print("Step 09 complete...")
 
 print("Running step 10...")
-subprocess.run(["python", "10_clean_up_export.py"], stdout=subprocess.DEVNULL)
+subprocess.run(["python", "10_lts_classification.py"], stdout=subprocess.DEVNULL)
 print("Step 10 complete...")
+
+print("Running step 11...")
+subprocess.run(["python", "11_clean_up_export.py"], stdout=subprocess.DEVNULL)
+print("Step 11 complete...")
