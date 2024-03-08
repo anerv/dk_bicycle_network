@@ -1,5 +1,5 @@
 # %%
-# Identify bus routes not mapped with a relation
+# Identify bus routes
 
 import os
 
