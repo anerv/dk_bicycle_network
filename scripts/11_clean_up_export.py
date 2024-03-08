@@ -50,11 +50,14 @@ connection.close()
 
 print("Export views ready!")
 
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+
+# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+
+engine = dbf.connect_alc(db_name, db_user, db_password, db_port=db_port)
 
 q = "SELECT * FROM osm_edges_export;"
 
-edges = gpd.GeoDataFrame.from_postgis(q, connection, geom_col="geometry")
+edges = gpd.GeoDataFrame.from_postgis(q, engine, geom_col="geometry")
 
 edges.to_parquet("../data/processed/osm_road_edges.parquet")
 
@@ -62,7 +65,7 @@ del edges
 
 q = "SELECT * FROM osm_nodes_export;"
 
-nodes = gpd.GeoDataFrame.from_postgis(q, connection, geom_col="geometry")
+nodes = gpd.GeoDataFrame.from_postgis(q, engine, geom_col="geometry")
 
 nodes.to_parquet("../data/processed/osm_road_nodes.parquet")
 
