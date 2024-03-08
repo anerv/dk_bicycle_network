@@ -1,5 +1,11 @@
 -- Add additional info for LTS classification
 ALTER TABLE
+    osm_road_edges DROP COLUMN IF EXISTS cycling_allowed,
+    DROP COLUMN IF EXISTS car_traffic,
+    DROP COLUMN IF EXISTS along_street,
+    DROP COLUMN IF EXISTS bicycle_infrastructure_final;
+
+ALTER TABLE
     osm_road_edges
 ADD
     COLUMN cycling_allowed BOOLEAN DEFAULT FALSE,

@@ -1,5 +1,8 @@
 -- close smaller gaps in bicycle infrastructure
 ALTER TABLE
+    osm_road_edges DROP COLUMN IF EXISTS bicycle_gap;
+
+ALTER TABLE
     osm_road_edges
 ADD
     COLUMN bicycle_gap VARCHAR DEFAULT NULL;

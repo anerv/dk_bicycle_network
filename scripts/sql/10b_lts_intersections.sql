@@ -1,3 +1,6 @@
+ALTER TABLE
+    nodes DROP COLUMN IF EXISTS lts;
+
 -- INTERSECTION LTS 
 ALTER TABLE
     nodes

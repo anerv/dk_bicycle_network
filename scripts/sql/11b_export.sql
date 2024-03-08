@@ -12,7 +12,8 @@ SET
     reverse_cost = km * kmh;
 
 ALTER TABLE
-    osm_road_edges DROP COLUMN IF EXISTS lts_viz;
+    osm_road_edges DROP COLUMN IF EXISTS lts_viz,
+    DROP COLUMN IF EXISTS bicycle_category_dk;
 
 ALTER TABLE
     osm_road_edges

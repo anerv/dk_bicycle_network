@@ -5,6 +5,9 @@ DROP TABLE IF EXISTS bus_roads;
 DROP TABLE IF EXISTS bus_stops;
 
 ALTER TABLE
+    osm_road_edges DROP COLUMN IF EXISTS bus_route;
+
+ALTER TABLE
     osm_road_edges
 ADD
     COLUMN bus_route BOOLEAN DEFAULT NULL;

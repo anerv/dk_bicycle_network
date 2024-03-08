@@ -1,6 +1,10 @@
 -- Get info on surface and road category from geodk data 
 --first, unpack arrays into temp columns
 ALTER TABLE
+    osm_road_edges DROP COLUMN IF EXISTS category_temp,
+    DROP COLUMN IF EXISTS surface_temp;
+
+ALTER TABLE
     osm_road_edges
 ADD
     COLUMN category_temp VARCHAR,

@@ -1,4 +1,8 @@
 ALTER TABLE
+    osm_road_edges DROP COLUMN IF EXISTS bicycle_class,
+    DROP COLUMN IF EXISTS lts;
+
+ALTER TABLE
     osm_road_edges
 ADD
     COLUMN bicycle_class INTEGER DEFAULT NULL,
@@ -119,6 +123,14 @@ WHERE
         bicycle_class = 2
         AND bus_route IS TRUE
         AND maxspeed_assumed < 50
+    )
+    OR (
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
+        AND bus_route IS TRUE
+        AND maxspeed_assumed <= 30
     );
 
 -- *** LTS 3 ***
@@ -137,6 +149,15 @@ WHERE
         bicycle_class = 2
         AND bus_route IS TRUE
         AND maxspeed_assumed >= 50
+    )
+    OR (
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
+        AND bus_route IS TRUE
+        AND maxspeed_assumed > 30
+        AND maxspeed_assumed <= 50
     )
     OR (
         (
@@ -199,6 +220,14 @@ WHERE
             OR bicycle_class IS NULL
         )
         AND lanes_assumed > 4
+    )
+    OR (
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL
+        )
+        AND bus_route IS TRUE
+        AND maxspeed_assumed > 50
     );
 
 -- *** EDGES CASES ***
