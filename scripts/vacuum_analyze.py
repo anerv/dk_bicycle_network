@@ -15,14 +15,7 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_h
 
 connection.set_isolation_level(0)
 
-dbf.run_query_pg(
-    "VACUUM ANALYZE",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg("VACUUM ANALYZE", connection)
 
 connection.close()
 
