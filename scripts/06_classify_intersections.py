@@ -20,14 +20,7 @@ print("Settings loaded!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-dbf.run_query_pg(
-    "sql/06_classify_intersections.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg("sql/06_classify_intersections.sql", connection)
 
 q = f"SELECT osm_id, intersection_type, geometry FROM nodes LIMIT 10;"
 

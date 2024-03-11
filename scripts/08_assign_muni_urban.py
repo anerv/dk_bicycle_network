@@ -22,14 +22,7 @@ print("Settings loaded!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-dbf.run_query_pg(
-    "sql/08_assign_muni_urban.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg("sql/08_assign_muni_urban.sql", connection)
 
 q = f"SELECT highway, urban, municipality FROM osm_road_edges LIMIT 10;"
 

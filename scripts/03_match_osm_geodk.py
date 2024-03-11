@@ -45,14 +45,11 @@ queries = [
 
 for i, q in enumerate(queries):
     print(f"Running step {i+1}...")
-    dbf.run_query_pg(
-        q,
-        connection,
-        success="Query successful!",
-        fail="Query failed!",
-        commit=True,
-        close=False,
-    )
+    result = dbf.run_query_pg(q, connection)
+    if result == "error":
+        print("Please fix error before rerunning and reconnect to the database")
+        break
+
     print(f"Step {i+1} done!")
 
 
@@ -63,14 +60,7 @@ print("Process matching starting...")
 # Process matches
 # connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-dbf.run_query_pg(
-    "sql/03i_process_matches.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg("sql/03i_process_matches.sql", connection)
 
 
 print("First preprocessing complete!")
@@ -136,14 +126,7 @@ print(test)
 
 q = "sql/03j_identify_matched_edges.sql"
 
-dbf.run_query_pg(
-    q,
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg(q, connection)
 
 print(f"Split edges processed!")
 
@@ -154,14 +137,7 @@ print(f"Split edges processed!")
 
 q = "sql/03k_rebuild_topology.sql"
 
-dbf.run_query_pg(
-    q,
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg(q, connection)
 
 print(f"Topology rebuild")
 
@@ -175,14 +151,11 @@ queries = [
 
 for i, q in enumerate(queries):
     print(f"Running step {i+1}...")
-    dbf.run_query_pg(
-        q,
-        connection,
-        success="Query successful!",
-        fail="Query failed!",
-        commit=True,
-        close=False,
-    )
+    result = dbf.run_query_pg(q, connection)
+    if result == "error":
+        print("Please fix error before rerunning and reconnect to the database")
+        break
+
     print(f"Step {i+1} done!")
 
 

@@ -22,34 +22,17 @@ print("Settings loaded!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-dbf.run_query_pg(
-    "sql/11a_clean_up.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
-
-connection.close()
+dbf.run_query_pg("sql/11a_clean_up.sql", connection)
 
 print("Clean up done!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-dbf.run_query_pg(
-    "sql/11b_export.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg("sql/11b_export.sql", connection)
 
 connection.close()
 
 print("Export views ready!")
-
 
 # connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 

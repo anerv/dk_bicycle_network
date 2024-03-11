@@ -21,14 +21,7 @@ print("Settings loaded!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-dbf.run_query_pg(
-    "sql/05_create_vertices.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg("sql/05_create_vertices.sql", connection)
 
 
 q = f"SELECT id, the_geom FROM osm_road_edges_vertices_pgr LIMIT 10;"

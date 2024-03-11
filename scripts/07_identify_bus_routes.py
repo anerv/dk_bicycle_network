@@ -22,14 +22,7 @@ print("Settings loaded!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
-dbf.run_query_pg(
-    "sql/07_add_bus_routes.sql",
-    connection,
-    success="Query successful!",
-    fail="Query failed!",
-    commit=True,
-    close=False,
-)
+dbf.run_query_pg("sql/07_add_bus_routes.sql", connection)
 
 q = f"SELECT highway, bus_route FROM osm_road_edges WHERE bus_route IS TRUE LIMIT 10;"
 

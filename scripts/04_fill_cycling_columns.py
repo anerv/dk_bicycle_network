@@ -26,14 +26,11 @@ queries = [
 
 for i, q in enumerate(queries):
     print(f"Running step {i+1}...")
-    dbf.run_query_pg(
-        q,
-        connection,
-        success="Query successful!",
-        fail="Query failed!",
-        commit=True,
-        close=False,
-    )
+    result = dbf.run_query_pg(q, connection)
+    if result == "error":
+        print("Please fix error before rerunning and reconnect to the database")
+        break
+
     print(f"Step {i+1} done!")
 
 
