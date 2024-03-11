@@ -200,7 +200,7 @@ DROP TABLE IF EXISTS summerhouse_areas;
 
 DROP TABLE IF EXISTS industrial_areas;
 
-DROP TABLE IF EXISTS urban_areas_areas_dissolved;
+DROP TABLE IF EXISTS urban_areas_dissolved;
 
 DROP TABLE IF EXISTS summerhouse_areas_dissolved;
 
