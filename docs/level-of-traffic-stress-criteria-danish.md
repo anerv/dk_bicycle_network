@@ -33,7 +33,7 @@ Kriterierne er først og fremmest rettet mod at detektere *trafik-stress* og pro
 * Veje *uden* cykelbaner/cykelstier, hastighedsgrænse på 50 km/t og 3 vejbaner.
 * Veje *uden* cykelbaner/cykelstier, hastighedsgrænser mellem 30 og 50 km/t, og 4 vejbaner.
 * Veje af kategorien 'uklassificeret' (OpenStreetMap highway=unclassified), maks. 2 vejbaner, og hastighedsgrænser op til 80 km/t. Veje i denne vejklasse er typisk mindre veje, der kun benyttes af lokal trafik, og som i praksis sjældent tillader høje hastigheder.
-* Større veje (af kategorien 'primær', 'sekundær' eller 'tertiær') *uden* cykelbane/cykelstier og hastigheder over 50 km/t.
+* Større veje (af kategorien 'primær', 'sekundær' eller 'tertiær') *uden* cykelbane/cykelstier og hastigheder på 50 km/t.
 * Veje *uden* cykelbaner/cykelstier, hastighedsgrænser mellem 30+ og 50 km/t, og som indgår i en busrute.
 * Veje med *cykelbaner*, hastighedsgrænser mellem 50+ - 60 km/t, og som indgår i en busrute.
 

@@ -41,7 +41,7 @@ The LTS criteria are aimed at detecting *traffic stress* and issues with traffic
 * Roads with *no dedicated bicycle infrastructure*, speeds at 50 km/h and 3 lanes.
 * Roads with *no dedicated bicycle infrastructure*, speeds between 30 and 50 km/h and 4 lanes.
 * Roads with road class *"unclassified"* and max 2 lanes and speed up to 80 km/h.
-* Larger roads (*'tertiary','secondary','primary'*) with *no dedicated bicycle infrastructure* and speeds between 50 and 70 km/h.
+* Larger roads (*'tertiary','secondary','primary'*) with *no dedicated bicycle infrastructure* and speeds at 50 km/h.
 * Roads with *no dedicated bicycle infrastructure*, speeds above 30 km/h and below 50 km/h and *regular bus traffic*.
 * Roads with *unprotected bicycle infrastructure*, speeds from 50 km/h to 60 km/h and *regular bus traffic*.
 
