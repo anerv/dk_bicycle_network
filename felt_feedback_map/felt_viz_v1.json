@@ -1,0 +1,103 @@
+{
+  "visualizations": [
+    {
+      "config": {
+        "categoricalAttribute": "lts_viz",
+        "categories": [
+          "all_cyclists",
+          "most_cyclists",
+          "confident_cyclists",
+          "very_confident_cyclists",
+          "paths_bike",
+          "pedestrian",
+          "no_cycling"
+        ],
+        "labelAttribute": ["highway"],
+        "showOther": false
+      },
+      "dataset": "78264ce1-1938-45f1-9484-51c328d7410a",
+      "label": {
+        "color": "auto",
+        "fontSize": 13,
+        "fontStyle": "Normal",
+        "fontWeight": 400,
+        "haloColor": "auto",
+        "haloWidth": 1,
+        "justify": "auto",
+        "letterSpacing": 0,
+        "lineHeight": 1.2,
+        "maxAngle": 30,
+        "maxZoom": 23,
+        "minZoom": 3,
+        "offset": 0,
+        "padding": 1,
+        "placement": "Above",
+        "repeatDistance": 250,
+        "textTransform": "none"
+      },
+      "legend": {
+        "displayName": {
+          "all_cyclists": "1. Alle cyklister",
+          "confident_cyclists": "3. Erfarne og selvsikre cyklister",
+          "most_cyclists": "2. De fleste voksne cyklister",
+          "no_cycling": "Cykling ikke tilladt",
+          "paths_bike": "Stier - cykling tilladt",
+          "pedestrian": "Fodgængere",
+          "very_confident_cyclists": "4. Uegnet for de flester cyklister"
+        },
+        "subtitle": ""
+      },
+      "style": {
+        "color": [
+          "rgb(59, 125, 34)",
+          "rgb(67, 124, 186)",
+          "rgb(253, 150, 28)",
+          "rgb(206, 37, 50)",
+          "rgb(132, 99, 106)",
+          "rgb(158, 156, 156)",
+          "rgb(13, 13, 13)",
+          "#7080CF",
+          "#AAAA00",
+          "#AA4499",
+          "#DDDDDD"
+        ],
+        "lineCap": "round",
+        "lineJoin": "round",
+        "opacity": 1,
+        "size": 2
+      },
+      "type": "categorical"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "78264ce1-1938-45f1-9484-51c328d7410a",
+      "keyAttributes": [
+        "highway",
+        "name",
+        "bicycle_category_dk",
+        "cycling_allowed",
+        "car_traffic",
+        "along_street",
+        "lit",
+        "cycleway_segregated",
+        "maxspeed",
+        "lanes",
+        "surface",
+        "centerline",
+        "urban",
+        "bicycle_infrastructure_osm",
+        "bicycle_infrastructure_final",
+        "matched",
+        "geodk_category",
+        "bicycle_category",
+        "bicycle_class",
+        "lts",
+        "lts_viz",
+        "id",
+        "osm_id"
+      ]
+    }
+  ],
+  "version": "1.2.2"
+}

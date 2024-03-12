@@ -9,7 +9,13 @@ qgis.md
 random.sql
 osm2po/*
 scripts/dk_osm2po/*
-scripts/new_edges.gpkg
-scripts/new_edges.gpkg-shm
-scripts/new_edges.gpkg-wal
-felt_feedback_map/*
+felt_feedback_map/guide.docx
+felt_feedback_map/guide.jpg
+felt_feedback_map/guide.pdf
+felt_feedback_map/lts_klassificering.docx
+felt_feedback_map/lts_klassificering.jpg
+felt_feedback_map/lts_klassificering.pdf
+felt_feedback_map/lts_map.docx
+felt_feedback_map/lts_map.jpg
+felt_feedback_map/lts_map.pdf
+felt_feedback_map/felt_infobox.key
