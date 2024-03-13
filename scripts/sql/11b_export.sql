@@ -136,6 +136,7 @@ CREATE TABLE osm_edges_export AS (
         bicycle_class,
         lts,
         lts_viz,
+        municipality,
         id,
         osm_id,
         x1,
