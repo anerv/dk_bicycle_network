@@ -2,7 +2,7 @@
 UPDATE
     osm_road_edges
 SET
-    km = ST_length(geometry),
+    km = ST_length(geometry) / 1000,
     kmh = 15;
 
 UPDATE
