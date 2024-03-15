@@ -26,9 +26,11 @@ dbf.run_query_pg("sql/11a_clean_up.sql", connection)
 
 print("Clean up done!")
 
-connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
+dbf.run_query_pg("sql/11b_compute_oneway.sql", connection)
 
-dbf.run_query_pg("sql/11b_export.sql", connection)
+print("Identified oneway roads and bicycle infrastructure!")
+
+dbf.run_query_pg("sql/11c_export.sql", connection)
 
 connection.close()
 
