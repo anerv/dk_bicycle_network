@@ -121,6 +121,8 @@ CREATE TABLE osm_edges_export AS (
         along_street,
         lit,
         cycleway_segregated,
+        car_oneway,
+        bike_oneway,
         maxspeed_assumed AS maxspeed,
         lanes_assumed AS lanes,
         bicycle_surface_assumed AS surface,
