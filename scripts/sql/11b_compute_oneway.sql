@@ -91,7 +91,10 @@ UPDATE
     osm_road_edges
 SET
     bikeinfra_oneway = CASE
-        WHEN bike_oneway IS TRUE THEN TRUE --
+        WHEN (
+            bike_oneway IS TRUE
+            AND bicycle_infrastructure_final IS TRUE
+        ) THEN TRUE --
         -- This catches any type where oneway bicycle explicitly is tagged
         WHEN (
             "oneway:bicycle" IN ('yes', '-1')
