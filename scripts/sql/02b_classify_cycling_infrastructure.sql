@@ -75,6 +75,13 @@ WHERE
         'lane'
     );
 
+UPDATE
+    osm_road_edges
+SET
+    bicycle_infrastructure = FALSE
+WHERE
+    bicycle IN ('no', 'use_sidepath');
+
 -- Don't include infrastructure with non-bikeable surface
 UPDATE
     osm_road_edges
