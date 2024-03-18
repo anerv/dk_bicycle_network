@@ -116,3 +116,27 @@ Values 1,2,3,4,999,0.
 Specifies the highest level of traffic stress of edges connected to that node.
 
 Type: Integer.
+
+## car_oneway
+
+Indicates whether a road is one way or not for car traffic.
+
+Type: True/False.
+
+True means the segment only allows for traffic in one direction.
+
+## bike_oneway
+
+Indicates whether a road or path is one way or not for cyclists.
+
+Type: True/False.
+
+True means the segment only allows for traffic in one direction.
+
+## bikeinfra_oneway
+
+Indicates whether there is bicycle infrastructure in both directions or only in one side/for one direction.
+
+Type: True/False.
+
+True means the segment only has bicycle infrastructure on one side of the road and/or that the bicycle infrastructure only allows cycling in one direction.
