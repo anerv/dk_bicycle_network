@@ -137,6 +137,8 @@ CREATE TABLE osm_edges_export AS (
         geodk_category,
         bicycle_category,
         bicycle_class,
+        bridge,
+        tunnel,
         lts,
         lts_viz,
         municipality,
