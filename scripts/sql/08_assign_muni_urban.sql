@@ -47,6 +47,60 @@ WHERE
     o.municipality IS NULL
     AND ST_Intersects(o.geometry, ST_Buffer(m.geometry, 100));
 
+-- FIND EDGES WITH NO MUNICIPALITY AND WHICH ARE BRIDGES OR TUNNELS (other coastal/border edges are not included)
+WITH no_muni_edges AS (
+    SELECT
+        muni_edges.id,
+        muni_edges.navn,
+        muni_edges.dist,
+        o.geometry
+    FROM
+        osm_road_edges o
+        CROSS JOIN LATERAL (
+            SELECT
+                o.id,
+                muni.navn,
+                o.geometry < -> muni.geometry AS dist
+            FROM
+                muni_boundaries muni
+            WHERE
+                o.municipality IS NULL
+                AND (
+                    (
+                        o.bridge IN (
+                            'yes',
+                            'movable',
+                            'viaduct',
+                            'covered',
+                            'cantilever',
+                            'trestle',
+                            'simple_brunnel',
+                            'low_water_crossing'
+                        )
+                    )
+                    OR (
+                        (
+                            o.tunnel IN ('yes', 'passage')
+                        )
+                    )
+                )
+                AND ST_DWithin(o.geometry, muni.geometry, 500)
+            ORDER BY
+                dist
+            LIMIT
+                1
+        ) muni_edges
+)
+UPDATE
+    osm_road_edges o
+SET
+    municipality = no_muni_edges.navn
+FROM
+    no_muni_edges
+WHERE
+    o.id = no_muni_edges.id
+    AND o.municipality IS NULL;
+
 CREATE TABLE urban_areas AS
 SELECT
     area_class,
