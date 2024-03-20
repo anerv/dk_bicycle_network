@@ -135,6 +135,8 @@ ADD
 ADD
     COLUMN road_category VARCHAR DEFAULT NULL;
 
+-- ADD HERE IF ONE OR BOTH SIDES
+-- ADD COLUMN matched_both_sides BOOLEAN DEFAULT NULL;
 UPDATE
     matching_geodk_osm._segments_osm_all
 SET
@@ -193,7 +195,7 @@ ADD
     COLUMN matched_final BOOLEAN DEFAULT NULL;
 
 -- COUNT MATCHED
-WITH COUNT AS (
+WITH counted AS (
     SELECT
         COUNT(*) C,
         id_osm
@@ -209,12 +211,12 @@ UPDATE
 SET
     count_matched = C
 FROM
-    COUNT
+    counted
 WHERE
-    o.id_osm = COUNT .id_osm;
+    o.id_osm = counted.id_osm;
 
 -- COUNT UNMATCHED
-WITH COUNT AS (
+WITH counted AS (
     SELECT
         COUNT(*) C,
         id_osm
@@ -230,9 +232,9 @@ UPDATE
 SET
     count_unmatched = C
 FROM
-    COUNT
+    counted
 WHERE
-    o.id_osm = COUNT .id_osm;
+    o.id_osm = counted.id_osm;
 
 -- DELETE ALL THAT ARE COMPLETELY UNMATCHED
 DELETE FROM
