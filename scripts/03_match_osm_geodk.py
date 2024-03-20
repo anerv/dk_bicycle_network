@@ -56,7 +56,7 @@ for i, q in enumerate(queries):
 print("Matching done!")
 print("Process matching starting...")
 
-
+# %%
 # Process matches
 # connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
@@ -79,7 +79,7 @@ undecided_segments = gpd.GeoDataFrame.from_postgis(q, engine, crs="EPSG:25832")
 q = "SELECT * FROM matching_geodk_osm._undecided_groups"
 undecided_groups = pd.read_sql(q, engine)
 
-# Group adjacent identical matching vales
+# Group adjacent identical matching values
 undecided_groups["group_matching"] = undecided_groups["matched_count"].apply(
     lambda x: [list(t) for z, t in groupby(x)]
 )
