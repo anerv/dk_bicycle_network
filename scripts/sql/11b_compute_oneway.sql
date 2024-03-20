@@ -1,7 +1,7 @@
 ALTER TABLE
     osm_road_edges DROP COLUMN IF EXISTS car_oneway,
     DROP COLUMN IF EXISTS bike_oneway,
-    DROP COLUMN IF EXISTS bikeinfra_oneway;
+    DROP COLUMN IF EXISTS bikeinfra_both_sides;
 
 ALTER TABLE
     osm_road_edges
@@ -92,83 +92,18 @@ SET
         ELSE NULL
     END;
 
+-- DEFAULT IS FALSE
 UPDATE
     osm_road_edges
 SET
-    bikeinfra_oneway = CASE
-        WHEN (
-            bike_oneway IS TRUE
-            AND bicycle_infrastructure_final IS TRUE
-        ) THEN TRUE --
-        -- This catches any type where oneway bicycle explicitly is tagged
-        WHEN (
-            "oneway:bicycle" IN ('yes', '-1')
-            AND bicycle_infrastructure_final IS TRUE
-        ) THEN TRUE --
-        -- Non car infra where both oneway or oneway:bicycle are relevant
-        WHEN (
-            highway IN (
-                'cycleway',
-                'path',
-                'footway',
-                'bridleway',
-                'pedestrian'
-            )
-            AND bicycle_infrastructure_final IS TRUE
-            AND oneway IN ('yes', '-1')
-            OR "oneway:bicycle" IN ('yes', '-1')
-        ) THEN TRUE
-        WHEN (
-            highway IN (
-                'cycleway',
-                'path',
-                'footway',
-                'bridleway',
-                'pedestrian'
-            )
-            AND bicycle_infrastructure_final IS TRUE
-            AND (
-                oneway NOT IN ('yes', '-1')
-                OR oneway IS NULL
-            )
-            AND (
-                "oneway:bicycle" NOT IN ('yes', '-1')
-                OR "oneway:bicycle" IS NULL
-            )
-        ) THEN FALSE --
-        -- bicycle infra roads where only oneway:bicycle is relevant
-        WHEN (
-            highway IN ('living_street')
-            AND bicycle_infrastructure_final IS TRUE
-            AND "oneway:bicycle" IN ('yes', '-1')
-        ) THEN TRUE
-        WHEN (
-            highway IN ('living_street')
-            AND bicycle_infrastructure_final IS TRUE
-            AND (
-                "oneway:bicycle" NOT IN ('yes', '-1')
-                OR "oneway:bicycle" IS NULL
-            )
-        ) THEN FALSE
-        WHEN (
-            (
-                bicycle_road = 'yes'
-                OR cyclestreet = 'yes'
-            )
-            AND bicycle_infrastructure_final IS TRUE
-            AND "oneway:bicycle" IN ('yes', '-1')
-        ) THEN TRUE
-        WHEN (
-            (
-                bicycle_road = 'yes'
-                OR cyclestreet = 'yes'
-            )
-            AND bicycle_infrastructure_final IS TRUE
-            AND (
-                "oneway:bicycle" NOT IN ('yes', '-1')
-                OR "oneway:bicycle" IS NULL
-            )
-        ) THEN FALSE
+    bikeinfra_both_side = FALSE
+WHERE
+    bicycle_infrastructure_final IS TRUE;
+
+UPDATE
+    osm_road_edges
+SET
+    bikeinfra_both_side = CASE
         WHEN (
             cycleway IN (
                 'track',
@@ -183,7 +118,7 @@ SET
             )
             AND bicycle_infrastructure_final IS TRUE
             AND "oneway:bicycle" IN ('yes', '-1')
-        ) THEN TRUE
+        ) THEN FALSE
         WHEN (
             cycleway IN (
                 'track',
@@ -201,8 +136,7 @@ SET
                 "oneway:bicycle" NOT IN ('yes', '-1')
                 OR "oneway:bicycle" IS NULL
             )
-        ) THEN FALSE ----
-        -- All infra only tagged in one side is assumed to be one way
+        ) THEN TRUE ----
         WHEN (
             "cycleway:left" IN (
                 'track',
@@ -230,7 +164,7 @@ SET
                 OR "cycleway:right" IS NULL
             )
             AND bicycle_infrastructure_final IS TRUE
-        ) THEN TRUE
+        ) THEN FALSE
         WHEN (
             "cycleway:right" IN (
                 'track',
@@ -258,7 +192,7 @@ SET
                 OR "cycleway:left" IS NULL
             )
             AND bicycle_infrastructure_final IS TRUE
-        ) THEN TRUE
+        ) THEN FALSE
         WHEN (
             "cycleway:right" IN (
                 'track',
@@ -294,18 +228,9 @@ SET
             'opposite_lane',
             'crossing',
             'lane'
-        ) THEN FALSE
+        ) THEN TRUE
+        WHEN geodk_both_sides IS TRUE THEN TRUE -- TODO: change if not implemented this way!
     END;
-
--- GeoDK always assumed to be two way due to lack of data on direction
-UPDATE
-    osm_road_edges
-SET
-    bikeinfra_oneway = FALSE
-WHERE
-    bikeinfra_oneway IS NULL
-    AND bicycle_infrastructure_final IS TRUE -- bike infra only found in GeoDK
-    AND bicycle_infrastructure IS FALSE;
 
 DO $$
 DECLARE
