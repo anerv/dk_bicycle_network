@@ -18,10 +18,7 @@ DROP TABLE IF EXISTS highways;
 
 DROP TABLE IF EXISTS routes;
 
-DROP SCHEMA IF EXISTS matching_geodk_osm CASCADE;
-
-DROP SCHEMA IF EXISTS matching_geodk_osm_no_bike CASCADE;
-
-DROP SCHEMA IF EXISTS matching_geodk_osm_all_bike CASCADE;
-
-DROP SCHEMA IF EXISTS matching_geodk_osm_no_cycleways CASCADE;
+-- DROP SCHEMA IF EXISTS matching_geodk_osm CASCADE;
+-- DROP SCHEMA IF EXISTS matching_geodk_osm_no_bike CASCADE;
+-- DROP SCHEMA IF EXISTS matching_geodk_osm_all_bike CASCADE;
+-- DROP SCHEMA IF EXISTS matching_geodk_osm_no_cycleways CASCADE;
