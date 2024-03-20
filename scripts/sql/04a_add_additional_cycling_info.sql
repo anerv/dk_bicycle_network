@@ -144,7 +144,10 @@ UPDATE
 SET
     cycling_allowed = FALSE
 WHERE
-    bicycle IN ('use_sidepath', 'no', 'separate')
+    (
+        bicycle IN ('use_sidepath', 'no', 'separate')
+        OR cycleway IN ('use_sidepath', 'separate')
+    )
     AND bicycle_infrastructure IS FALSE
     AND bicycle_infrastructure_final IS TRUE;
 
@@ -156,7 +159,10 @@ SET
 WHERE
     bicycle_infrastructure IS FALSE
     AND cycling_allowed IS FALSE
-    AND bicycle IN ('use_sidepath', 'no', 'separate')
+    AND (
+        bicycle IN ('use_sidepath', 'no', 'separate')
+        OR cycleway IN ('use_sidepath', 'separate')
+    )
     AND bicycle_infrastructure_final IS TRUE;
 
 -- Declassify highways and motorroads classifed as bicycle infrastructure only based on GeoDanmark data
