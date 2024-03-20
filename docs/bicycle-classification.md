@@ -133,10 +133,10 @@ Type: True/False.
 
 True means the segment only allows for traffic in one direction.
 
-## bikeinfra_oneway
+## bikeinfra_both_sides
 
-Indicates whether there is bicycle infrastructure in both directions or only in one side/for one direction.
+Indicates whether there is bicycle infrastructure in both sides of a road or not.
 
 Type: True/False.
 
-True means the segment only has bicycle infrastructure on one side of the road and/or that the bicycle infrastructure only allows cycling in one direction.
+True means the segment has dedicated bicycle infrastructure on both sides (and thus should count double when measuring the length of the bicycle network).
