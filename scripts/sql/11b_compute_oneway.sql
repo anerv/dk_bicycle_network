@@ -78,9 +78,14 @@ SET
             AND car_traffic IS TRUE
         ) THEN FALSE
         WHEN (
-            bicycle_category_dk = 'cykelgade'
+            bicycle_category = 'cycle_living_street'
             AND (
-                "oneway:bicycle" NOT IN ('yes', '-1')
+                highway IN ('bicycle_road', 'cyclestreet', 'living_street')
+                OR cyclestreet = 'yes'
+                OR bicycle_road = 'yes'
+            )
+            AND (
+                "oneway:bicycle" NOT IN ('yes', '-1 ')
                 OR "oneway:bicycle" IS NULL
             )
         ) THEN FALSE
@@ -302,13 +307,6 @@ WHERE
     AND bicycle_infrastructure_final IS TRUE -- bike infra only found in GeoDK
     AND bicycle_infrastructure IS FALSE;
 
--- HOW TO DEAL WITH GEODK? always assumed to be bi-directional - because we dont know
--- MAKE SURE THAT ALL BICYCLE INFRA HAS bikeinfra oneway filled out
--- one direction counts as one unit:
--- if a road is oneway infra length = length
--- if a road is not oneway infra length = length * 2
--- if a road has bike in one side or bike infra is one way --> infra length = length
--- if not one way or both sides --> infra length = length * 2
 DO $$
 DECLARE
     car_oneway_count INT;
@@ -323,7 +321,7 @@ BEGIN
         AND car_traffic IS TRUE;
 
 ASSERT car_oneway_count = 0,
-'Car edges missing one way information';
+'Car edges missing one way information ';
 
 END $$;
 
@@ -341,7 +339,7 @@ BEGIN
         AND cycling_allowed IS TRUE;
 
 ASSERT bike_oneway_count = 0,
-'Bike edges missing one way information';
+'Bike edges missing one way information ';
 
 END $$;
 
@@ -359,6 +357,6 @@ BEGIN
         AND bikeinfra_oneway IS NULL;
 
 ASSERT bikeinfra_oneway_count = 0,
-'Bike infra edges missing bike infra one way information';
+'Bike infra edges missing bike infra one way information ';
 
 END $$;
