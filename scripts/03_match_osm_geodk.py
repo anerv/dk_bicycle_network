@@ -20,7 +20,6 @@ with open(r"../config.yml") as file:
     db_host = parsed_yaml_file["db_host"]
     db_port = parsed_yaml_file["db_port"]
 
-
 print("Settings loaded!")
 
 print("Initializing...")
@@ -56,16 +55,13 @@ for i, q in enumerate(queries):
 print("Matching done!")
 print("Process matching starting...")
 
-# %%
 # Process matches
-# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 dbf.run_query_pg("sql/03i_process_matches.sql", connection)
 
 
 print("First preprocessing complete!")
 print("Continuing with processing of incomplete matches....")
-
 
 # Process undecided segments
 # connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
@@ -123,14 +119,14 @@ print(test)
 # identify matched edges
 
 # connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
-
+# %%
 q = "sql/03j_identify_matched_edges.sql"
 
 dbf.run_query_pg(q, connection)
 
 print(f"Split edges processed!")
 
-
+# %%
 # Rebuild topology
 # NOTE: This takes a while
 # connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
