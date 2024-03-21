@@ -135,8 +135,6 @@ ADD
 ADD
     COLUMN road_category VARCHAR DEFAULT NULL;
 
--- ADD HERE IF ONE OR BOTH SIDES
--- ADD COLUMN matched_both_sides BOOLEAN DEFAULT NULL;
 UPDATE
     matching_geodk_osm._segments_osm_all
 SET
