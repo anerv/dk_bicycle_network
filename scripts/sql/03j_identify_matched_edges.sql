@@ -32,19 +32,6 @@ CREATE TABLE matching_geodk_osm._org_split_edges AS (
         )
 );
 
--- CREATE TABLE matching_geodk_osm._org_split_edges_copy AS (
---     SELECT
---         *
---     FROM
---         osm_road_edges
---     WHERE
---         id IN (
---             SELECT
---                 id_osm
---             FROM
---                 matching_geodk_osm._decided_segments
---         )
--- );
 -- Joing org tags info etc to new split edges
 ALTER TABLE
     matching_geodk_osm._org_split_edges DROP COLUMN geometry;
@@ -170,6 +157,73 @@ FROM
 WHERE
     g.matched_final = TRUE
     AND id = g.id_osm;
+
+-- IDENTIFY MATCHED EDGES WITH INFRASTRUCTURE ON BOTH SIDES
+ALTER TABLE
+    osm_road_edges
+ADD
+    COLUMN geodk_both_sides BOOLEAN DEFAULT NULL;
+
+CREATE TABLE buffered_matches AS (
+    SELECT
+        id,
+        ST_Length(geometry) AS edge_length,
+        ST_Buffer(geometry, 18) AS geometry
+    FROM
+        osm_road_edges
+    WHERE
+        matched IS TRUE
+        AND bicycle_infrastructure IS FALSE
+        AND bicycle_infrastructure_final IS TRUE
+);
+
+CREATE INDEX idx_buffered_matches ON buffered_matches USING GIST (geometry);
+
+CREATE INDEX IF NOT EXISTS idx_matched_segments ON matching_geodk_osm._matches_geodk_all USING GIST (geom);
+
+CREATE TABLE potential_double_matches AS WITH overlap AS (
+    SELECT
+        o.id,
+        SUM(ST_Length(g.geom)) AS geodk_length
+    FROM
+        buffered_matches o,
+        matching_geodk_osm._matches_geodk_all g
+    WHERE
+        ST_Within(g.geom, o.geometry)
+    GROUP BY
+        id
+)
+SELECT
+    o.id,
+    o.geodk_length,
+    e.geometry,
+    e.oneway,
+    ST_Length(e.geometry) AS len
+FROM
+    overlap o
+    JOIN osm_road_edges e ON o.id = e.id;
+
+UPDATE
+    osm_road_edges
+SET
+    geodk_both_sides = TRUE
+WHERE
+    id IN (
+        SELECT
+            id
+        FROM
+            potential_double_matches
+        WHERE
+            geodk_length > (1.9 * len)
+            AND (
+                oneway IS NULL
+                OR oneway = 'no'
+            )
+    );
+
+DROP TABLE buffered_matches;
+
+DROP TABLE potential_double_matches;
 
 --PREPARE FOR UPDATING TOPOLOGY
 -- Recalculate coordinates for split edges
