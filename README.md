@@ -6,7 +6,7 @@ The road network is based on data from OpenStreetMap enriched with bicycle infra
 
 For further instructions, see the [*docs/installation.md*](docs/installation.md) and the [*docs/how-to.md*](docs/how-to.md).
 
-To read more on how the LTS scores have been computed, see [*docs/low-traffic-stress-criteria.md*](docs/low-traffic-stress-criteria.md).
+To read more on how the LTS scores have been computed, see [*docs/low-traffic-stress-criteria.md*](docs/level-of-traffic-stress-criteria.md).
 
 ## Data & Licenses
 
