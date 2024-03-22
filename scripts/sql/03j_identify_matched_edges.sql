@@ -159,6 +159,10 @@ WHERE
     AND id = g.id_osm;
 
 -- IDENTIFY MATCHED EDGES WITH INFRASTRUCTURE ON BOTH SIDES
+DROP TABLE IF EXISTS buffered_matches;
+
+DROP TABLE IF EXISTS potential_double_matches;
+
 ALTER TABLE
     osm_road_edges
 ADD
@@ -173,8 +177,7 @@ CREATE TABLE buffered_matches AS (
         osm_road_edges
     WHERE
         matched IS TRUE
-        AND bicycle_infrastructure IS FALSE
-        AND bicycle_infrastructure_final IS TRUE
+        AND bicycle_infrastructure IS FALSE --AND bicycle_infrastructure_final IS TRUE
 );
 
 CREATE INDEX idx_buffered_matches ON buffered_matches USING GIST (geometry);
@@ -219,6 +222,18 @@ WHERE
                 oneway IS NULL
                 OR oneway = 'no'
             )
+    )
+    AND (
+        junction IS NULL
+        OR junction != 'roundabout'
+    )
+    AND highway NOT IN (
+        'primary_link',
+        'secondary_link',
+        'tertiary_link',
+        'trunk_link',
+        'path',
+        'track'
     );
 
 DROP TABLE buffered_matches;
