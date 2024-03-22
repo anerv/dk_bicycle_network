@@ -117,6 +117,29 @@ WHERE
         )
     );
 
+UPDATE
+    osm_road_edges
+SET
+    cycling_allowed = FALSE
+WHERE
+    access IN (
+        'no',
+        'private',
+        'foresty',
+        'agricultural',
+        'customers',
+        'residents',
+        'delivery',
+        'private;customers',
+        'permit',
+        'permit2'
+    )
+    AND (
+        bicycle IS NULL
+        OR bicycle <> 'yes'
+    )
+    AND bicycle_infrastructure_final IS FALSE;
+
 -- Cycling not allowed on motorroads
 UPDATE
     osm_road_edges
