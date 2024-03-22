@@ -126,7 +126,8 @@ UPDATE
 SET
     matched = FALSE,
     geodk_category = NULL,
-    geodk_surface = NULL
+    geodk_surface = NULL,
+    geodk_both_sides = NULL
 WHERE
     id IN (
         SELECT
