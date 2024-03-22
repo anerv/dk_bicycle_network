@@ -60,7 +60,7 @@ WITH no_muni_edges AS (
             SELECT
                 o.id,
                 muni.navn,
-                o.geometry < -> muni.geometry AS dist
+                o.geometry <-> muni.geometry AS dist
             FROM
                 muni_boundaries muni
             WHERE
