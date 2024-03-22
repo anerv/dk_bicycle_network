@@ -51,7 +51,7 @@ WHERE
         'tertiary_link',
         'trunk_link'
     )
-    AND bicycle NOT IN ('no', 'use_sidepath');
+    AND bicycle NOT IN ('no', 'use_sidepath', 'separate');
 
 UPDATE
     potential_bicycle_gaps
