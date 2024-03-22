@@ -229,7 +229,10 @@ SET
             'crossing',
             'lane'
         ) THEN TRUE
-        WHEN geodk_both_sides IS TRUE THEN TRUE -- TODO: change if not implemented this way!
+        WHEN (
+            geodk_both_sides IS TRUE
+            AND bicycle_infrastructure_final IS TRUE
+        ) THEN TRUE
     END;
 
 DO $$
