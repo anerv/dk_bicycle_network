@@ -1,5 +1,4 @@
 # %%
-
 import os
 
 os.environ["USE_PYGEOS"] = "0"
@@ -119,14 +118,14 @@ print(test)
 # identify matched edges
 
 # connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
-# %%
+
 q = "sql/03j_identify_matched_edges.sql"
 
 dbf.run_query_pg(q, connection)
 
 print(f"Split edges processed!")
 
-# %%
+
 # Rebuild topology
 # NOTE: This takes a while
 # connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
