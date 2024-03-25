@@ -10,7 +10,7 @@ ADD
 ADD
     COLUMN bike_oneway BOOLEAN DEFAULT NULL,
 ADD
-    COLUMN bikeinfra_oneway BOOLEAN DEFAULT NULL;
+    COLUMN bikeinfra_both_sides BOOLEAN DEFAULT NULL;
 
 UPDATE
     osm_road_edges
@@ -92,18 +92,10 @@ SET
         ELSE NULL
     END;
 
--- DEFAULT IS FALSE
 UPDATE
     osm_road_edges
 SET
-    bikeinfra_both_side = FALSE
-WHERE
-    bicycle_infrastructure_final IS TRUE;
-
-UPDATE
-    osm_road_edges
-SET
-    bikeinfra_both_side = CASE
+    bikeinfra_both_sides = CASE
         WHEN (
             cycleway IN (
                 'track',
@@ -233,6 +225,7 @@ SET
             geodk_both_sides IS TRUE
             AND bicycle_infrastructure_final IS TRUE
         ) THEN TRUE
+        ELSE FALSE
     END;
 
 DO $$
@@ -273,18 +266,18 @@ END $$;
 
 DO $$
 DECLARE
-    bikeinfra_oneway_count INT;
+    bikeinfra_side_count INT;
 
 BEGIN
     SELECT
-        COUNT(*) INTO bikeinfra_oneway_count
+        COUNT(*) INTO bikeinfra_side_count
     FROM
         osm_road_edges
     WHERE
         bicycle_infrastructure_final IS TRUE
-        AND bikeinfra_oneway IS NULL;
+        AND bikeinfra_both_sides IS NULL;
 
-ASSERT bikeinfra_oneway_count = 0,
-'Bike infra edges missing bike infra one way information ';
+ASSERT bikeinfra_side_count = 0,
+'Bike infra edges missing information on side count!';
 
 END $$;
