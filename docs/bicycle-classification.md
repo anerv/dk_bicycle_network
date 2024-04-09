@@ -96,26 +96,6 @@ Whether an edge was matched to a corresponding GeoDanmark edge or not.
 
 Type: True/False.
 
-## OSM road network nodes
-
-### intersection_type
-
-Indicates the regulation level of the intersection. See `06_classify_intersections.sql` for the exact definitions.
-
-Type: Text.
-
-Values: 'regulated', 'marked', 'unmarked'.
-
-### node_degree
-
-The node degree for each node, based on an undirected network.
-
-### lts
-
-Values 1,2,3,4,999,0.
-Specifies the highest level of traffic stress of edges connected to that node.
-
-Type: Integer.
 
 ## car_oneway
 
@@ -140,3 +120,25 @@ Indicates whether there is bicycle infrastructure in both sides of a road or not
 Type: True/False.
 
 True means the segment has dedicated bicycle infrastructure on both sides (and thus should count double when measuring the length of the bicycle network).
+
+
+## OSM road network nodes
+
+### intersection_type
+
+Indicates the regulation level of the intersection. See `06_classify_intersections.sql` for the exact definitions.
+
+Type: Text.
+
+Values: 'regulated', 'marked', 'unmarked'.
+
+### node_degree
+
+The node degree for each node, based on an undirected network.
+
+### lts
+
+Values 1,2,3,4,999,0.
+Specifies the highest level of traffic stress of edges connected to that node.
+
+Type: Integer.
