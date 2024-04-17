@@ -49,7 +49,8 @@ WHERE
         'primary_link',
         'secondary_link',
         'tertiary_link',
-        'trunk_link'
+        'trunk_link',
+        'steps',
     )
     AND bicycle NOT IN ('no', 'use_sidepath', 'separate');
 
@@ -60,7 +61,7 @@ SET
     bicycle_gap = 'crossing',
     bicycle_protected = FALSE
 WHERE
-    highway IN ('footway', 'pedestrian');
+    highway IN ('footway', 'pedestrian', 'steps');
 
 UPDATE
     potential_bicycle_gaps

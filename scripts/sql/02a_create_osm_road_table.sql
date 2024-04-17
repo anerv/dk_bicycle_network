@@ -76,7 +76,8 @@ WHERE
         'primary_link',
         'motorway_link',
         'motorway',
-        'unclassified'
+        'unclassified',
+        'steps'
     );
 
 --Drop irrelevant rows

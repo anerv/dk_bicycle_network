@@ -46,6 +46,7 @@ WHERE
         'footway',
         'bridleway',
         'pedestrian',
+        'steps',
         'motorway_link'
     )
 GROUP BY

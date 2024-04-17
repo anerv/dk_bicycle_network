@@ -117,6 +117,14 @@ WHERE
         )
     );
 
+-- Cycling not allowed/possible on steps
+UPDATE
+    osm_road_edges
+SET
+    cycling_allowed = FALSE
+WHERE
+    highway IN ('steps');
+
 UPDATE
     osm_road_edges
 SET
@@ -225,7 +233,7 @@ WHERE
 
 CREATE TABLE buffered_car_roads AS
 SELECT
-    ST_Buffer(geometry, 20) AS geometry
+    ST_Buffer(geometry, 25) AS geometry
 FROM
     osm_road_edges
 WHERE

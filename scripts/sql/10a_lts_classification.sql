@@ -63,7 +63,8 @@ WHERE
                 'path',
                 'bridleway',
                 'footway',
-                'pedestrian'
+                'pedestrian',
+                'steps'
             )
         )
     )
@@ -78,7 +79,8 @@ WHERE
                 'path',
                 'bridleway',
                 'footway',
-                'pedestrian'
+                'pedestrian',
+                'steps'
             )
         )
     )

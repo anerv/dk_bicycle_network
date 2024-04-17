@@ -48,6 +48,7 @@ CREATE TABLE matching_geodk_osm._potential_gaps AS (
             'bridleway',
             'unclassified',
             'pedestrian',
+            'steps',
             'motorway',
             'motorway_link'
         )
