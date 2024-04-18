@@ -50,7 +50,7 @@ WHERE
         'secondary_link',
         'tertiary_link',
         'trunk_link',
-        'steps',
+        'steps'
     )
     AND bicycle NOT IN ('no', 'use_sidepath', 'separate');
 
