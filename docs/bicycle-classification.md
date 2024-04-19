@@ -96,7 +96,6 @@ Whether an edge was matched to a corresponding GeoDanmark edge or not.
 
 Type: True/False.
 
-
 ## car_oneway
 
 Indicates whether a road is one way or not for car traffic.
@@ -121,6 +120,11 @@ Type: True/False.
 
 True means the segment has dedicated bicycle infrastructure on both sides (and thus should count double when measuring the length of the bicycle network).
 
+## all_access
+
+False if a stretch has access restrictions (e.g. private or only for customers or residents).
+
+Type: True/False.
 
 ## OSM road network nodes
 
