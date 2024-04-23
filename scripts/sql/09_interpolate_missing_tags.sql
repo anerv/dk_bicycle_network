@@ -1,4 +1,11 @@
 ALTER TABLE
+    osm_road_edges DROP COLUMN IF EXISTS bicycle_surface_assumed,
+    DROP COLUMN IF EXISTS lanes_assumed,
+    DROP COLUMN IF EXISTS centerline_assumed,
+    DROP COLUMN IF EXISTS maxspeed_assumed,
+    DROP COLUMN IF EXISTS all_access;
+
+ALTER TABLE
     osm_road_edges
 ADD
     COLUMN bicycle_surface_assumed VARCHAR DEFAULT NULL,

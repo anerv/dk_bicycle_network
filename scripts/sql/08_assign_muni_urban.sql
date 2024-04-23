@@ -21,6 +21,10 @@ DROP TABLE IF EXISTS industrial_areas_dissolved;
 CREATE INDEX muni_geom_idx ON muni_boundaries USING GIST (geometry);
 
 ALTER TABLE
+    osm_road_edges DROP COLUMN IF EXISTS municipality,
+    DROP COLUMN IF EXISTS urban;
+
+ALTER TABLE
     osm_road_edges
 ADD
     COLUMN municipality VARCHAR DEFAULT NULL,
@@ -60,7 +64,7 @@ WITH no_muni_edges AS (
             SELECT
                 o.id,
                 muni.navn,
-                o.geometry <-> muni.geometry AS dist
+                o.geometry < -> muni.geometry AS dist
             FROM
                 muni_boundaries muni
             WHERE
