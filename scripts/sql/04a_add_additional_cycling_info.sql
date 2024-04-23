@@ -94,8 +94,8 @@ WHERE
     OR bicycle_infrastructure_final = TRUE
     OR (
         highway IN (
-            'trunk',
-            'trunk_link',
+            -- 'trunk',
+            -- 'trunk_link',
             'tertiary',
             'tertiary_link',
             'secondary',
