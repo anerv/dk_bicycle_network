@@ -1,0 +1,90 @@
+{
+  "config": {
+    "categoricalAttribute": "lts_viz",
+    "categories": [
+      "all_cyclists",
+      "most_cyclists",
+      "confident_cyclists",
+      "very_confident_cyclists",
+      "paths_bike",
+      "pedestrian",
+      "no_cycling",
+      "no_access"
+    ],
+    "labelAttribute": ["highway"],
+    "showOther": false
+  },
+  "label": {
+    "color": "auto",
+    "fontSize": 13,
+    "fontStyle": "Normal",
+    "fontWeight": 400,
+    "haloColor": "auto",
+    "haloWidth": 1,
+    "justify": "auto",
+    "letterSpacing": 0,
+    "lineHeight": 1.2,
+    "maxAngle": 30,
+    "maxZoom": 24,
+    "minZoom": 3,
+    "offset": 0,
+    "padding": 1,
+    "placement": "Above",
+    "repeatDistance": 250,
+    "textTransform": "none",
+    "visible": true
+  },
+  "legend": {
+    "displayName": {
+      "all_cyclists": "1. Alle cyklister",
+      "confident_cyclists": "3. Erfarne og selvsikre cyklister",
+      "most_cyclists": "2. De fleste voksne cyklister",
+      "no_access": "Ikke offentlig adgang",
+      "no_cycling": "Cykling ikke tilladt (inkl. veje med separat cykelsti)",
+      "paths_bike": "Stier - cykling tilladt",
+      "pedestrian": "Fodgængere",
+      "very_confident_cyclists": "4. Uegnet for de fleste cyklister"
+    }
+  },
+  "popup": {
+    "keyAttributes": [
+      "name",
+      "bicycle_category_dk",
+      "highway",
+      "cycling_allowed",
+      "car_traffic",
+      "maxspeed",
+      "lit",
+      "surface",
+      "lanes",
+      "along_street",
+      "bus_route",
+      "cycleway_segregated",
+      "centerline",
+      "all_access",
+      "urban",
+      "lts_viz",
+      "id"
+    ]
+  },
+  "style": {
+    "color": [
+      "rgb(10, 104, 71)",
+      "rgb(122, 186, 120)",
+      "rgb(255, 193, 0)",
+      "rgb(255, 101, 0)",
+      "rgb(167, 146, 119)",
+      "rgb(234, 216, 192)",
+      "rgb(82, 76, 66)",
+      "rgb(215, 216, 218)"
+    ],
+    "lineCap": "round",
+    "lineJoin": "round",
+    "maxZoom": 24,
+    "minZoom": 3,
+    "opacity": {"linear": [[8, 1], [13, 1]]},
+    "size": 2
+  },
+  "type": "categorical",
+  "version": "2.1"
+}
