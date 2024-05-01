@@ -3,7 +3,8 @@ ALTER TABLE
     osm_road_edges DROP COLUMN IF EXISTS cycling_allowed,
     DROP COLUMN IF EXISTS car_traffic,
     DROP COLUMN IF EXISTS along_street,
-    DROP COLUMN IF EXISTS bicycle_infrastructure_final;
+    DROP COLUMN IF EXISTS bicycle_infrastructure_final,
+    DROP COLUMN IF EXISTS bicycle_infrastructure_separate;
 
 ALTER TABLE
     osm_road_edges
@@ -14,7 +15,9 @@ ADD
 ADD
     COLUMN along_street BOOLEAN DEFAULT FALSE,
 ADD
-    COLUMN bicycle_infrastructure_final BOOLEAN DEFAULT FALSE;
+    COLUMN bicycle_infrastructure_final BOOLEAN DEFAULT FALSE
+ADD
+    COLUMN bicycle_infrastructure_separate BOOLEAN DEFAULT NULL;
 
 -- *** Fill bicycle_infra_final based on matching ***
 UPDATE
@@ -162,10 +165,10 @@ SET
     cycling_allowed = FALSE
 WHERE
     (
-        cycleway = 'separate'
-        OR "cycleway:left" = 'separate'
-        OR "cycleway:right" = 'separate'
-        OR "cycleway:both" = 'separate'
+        cycleway IN ('separate', 'use_sidepath')
+        OR "cycleway:left" IN ('separate', 'use_sidepath')
+        OR "cycleway:right" IN ('separate', 'use_sidepath')
+        OR "cycleway:both" IN ('separate', 'use_sidepath')
     )
     AND bicycle_infrastructure_final IS FALSE;
 
@@ -214,6 +217,21 @@ WHERE
     matched IS TRUE
     AND motorroad IN ('yes')
     AND bicycle_infrastructure IS FALSE;
+
+-- **** FILL COLUMN bike infra separate ****
+UPDATE
+    osm_road_edges
+SET
+    bicycle_infrastructure_separate = TRUE
+WHERE
+    bicycle_infrastructure_final IS FALSE
+    AND (
+        bicycle IN ('separate', 'use_sidepath')
+        OR cycleway IN ('separate', 'use_sidepath')
+        OR "cycleway:left" IN ('separate', 'use_sidepath')
+        OR "cycleway:right" IN ('separate', 'use_sidepath')
+        OR "cycleway:both" IN ('separate', 'use_sidepath')
+    );
 
 -- *** FILL COLUMN ALONG STREET ***
 --Determining whether the segment of cycling infrastructure runs along a street or not

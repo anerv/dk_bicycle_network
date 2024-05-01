@@ -126,6 +126,13 @@ False if a stretch has access restrictions (e.g. private or only for customers o
 
 Type: True/False.
 
+## bicycle_infrastructure_separate
+
+Indicates that a road has bicycle infrastructure, but that it has been mapped separately (i.e. with own geometries).
+Useful for distinguishing between whether cycling is forbidded due to the road class or if it is because a bicycle track should be used.
+
+Type: True/False.
+
 ## OSM road network nodes
 
 ### intersection_type
