@@ -69,20 +69,20 @@
   },
   "style": {
     "color": [
-      "rgb(10, 104, 71)",
+      "rgb(11, 117, 80)",
       "rgb(122, 186, 120)",
       "rgb(255, 193, 0)",
       "rgb(249, 115, 0)",
       "rgb(167, 146, 119)",
       "rgb(234, 216, 192)",
-      "rgb(82, 76, 66)",
+      "rgb(79, 79, 79)",
       "rgb(215, 216, 218)"
     ],
     "lineCap": "round",
     "lineJoin": "round",
     "maxZoom": 24,
     "minZoom": 3,
-    "opacity": {"linear": [[8, 1], [13, 1]]},
+    "opacity": {"linear": [[8, 0.14], [11, 0.4], [13, 1]]},
     "size": 2
   },
   "type": "categorical",
