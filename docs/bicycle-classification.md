@@ -96,7 +96,7 @@ Whether an edge was matched to a corresponding GeoDanmark edge or not.
 
 Type: True/False.
 
-## car_oneway
+### car_oneway
 
 Indicates whether a road is one way or not for car traffic.
 
@@ -104,7 +104,7 @@ Type: True/False.
 
 True means the segment only allows for traffic in one direction.
 
-## bike_oneway
+### bike_oneway
 
 Indicates whether a road or path is one way or not for cyclists.
 
@@ -112,7 +112,7 @@ Type: True/False.
 
 True means the segment only allows for traffic in one direction.
 
-## bikeinfra_both_sides
+### bikeinfra_both_sides
 
 Indicates whether there is bicycle infrastructure in both sides of a road or not.
 
@@ -120,13 +120,13 @@ Type: True/False.
 
 True means the segment has dedicated bicycle infrastructure on both sides (and thus should count double when measuring the length of the bicycle network).
 
-## all_access
+### all_access
 
 False if a stretch has access restrictions (e.g. private or only for customers or residents).
 
 Type: True/False.
 
-## bicycle_infrastructure_separate
+### bicycle_infrastructure_separate
 
 Indicates that a road has bicycle infrastructure, but that it has been mapped separately (i.e. with own geometries).
 Useful for distinguishing between whether cycling is forbidded due to the road class or if it is because a bicycle track should be used.
