@@ -1,4 +1,4 @@
--- close smaller gaps in bicycle infrastructure
+-- Close smaller gaps in bicycle infrastructure
 ALTER TABLE
     osm_road_edges DROP COLUMN IF EXISTS bicycle_gap;
 
@@ -7,22 +7,23 @@ ALTER TABLE
 ADD
     COLUMN bicycle_gap VARCHAR DEFAULT NULL;
 
-CREATE VIEW bicycle_nodes AS (
-    SELECT
-        source AS node
-    FROM
-        osm_road_edges
-    WHERE
-        bicycle_infrastructure_final IS TRUE
-    UNION
-    SELECT
-        target AS node
-    FROM
-        osm_road_edges
-    WHERE
-        bicycle_infrastructure_final IS TRUE
-);
+-- Create a view to identify nodes with bicycle infrastructure
+CREATE VIEW bicycle_nodes AS
+SELECT
+    source AS node
+FROM
+    osm_road_edges
+WHERE
+    bicycle_infrastructure_final IS TRUE
+UNION
+SELECT
+    target AS node
+FROM
+    osm_road_edges
+WHERE
+    bicycle_infrastructure_final IS TRUE;
 
+-- Create a table for potential bicycle gaps
 CREATE TABLE potential_bicycle_gaps AS
 SELECT
     *
@@ -54,72 +55,39 @@ WHERE
     )
     AND bicycle NOT IN ('no', 'use_sidepath', 'separate');
 
+-- Update the potential bicycle gaps table with the required values using a CASE expression
 UPDATE
     potential_bicycle_gaps
 SET
     along_street = TRUE,
-    bicycle_gap = 'crossing',
-    bicycle_protected = FALSE
-WHERE
-    highway IN ('footway', 'pedestrian', 'steps');
+    bicycle_protected = CASE
+        WHEN highway IN ('path', 'bridleway') THEN TRUE
+        ELSE FALSE
+    END,
+    bicycle_gap = CASE
+        WHEN highway IN ('footway', 'pedestrian', 'steps') THEN 'crossing'
+        WHEN highway IN (
+            'secondary',
+            'service',
+            'tertiary',
+            'primary',
+            'trunk',
+            'residential',
+            'unclassified',
+            'track'
+        ) THEN 'cyclelane'
+        WHEN highway IN ('path', 'bridleway')
+        AND along_street IS TRUE THEN 'cycletrack'
+        WHEN highway IN ('path', 'bridleway')
+        AND along_street IS FALSE THEN 'cycleway'
+    END;
 
-UPDATE
-    potential_bicycle_gaps
-SET
-    along_street = TRUE,
-    bicycle_gap = 'cyclelane',
-    bicycle_protected = FALSE
-WHERE
-    highway IN (
-        'secondary',
-        'service',
-        'tertiary',
-        'primary',
-        'trunk',
-        'residential',
-        'unclassified',
-        'track'
-    );
-
-UPDATE
-    potential_bicycle_gaps
-SET
-    bicycle_protected = TRUE
-WHERE
-    highway IN ('path', 'bridleway');
-
-UPDATE
-    potential_bicycle_gaps
-SET
-    bicycle_gap = 'cycletrack'
-WHERE
-    highway IN ('path', 'bridleway')
-    AND along_street IS TRUE;
-
-UPDATE
-    potential_bicycle_gaps
-SET
-    bicycle_gap = 'cycleway'
-WHERE
-    highway IN ('path', 'bridleway')
-    AND along_street IS FALSE;
-
-UPDATE
-    osm_road_edges
-SET
-    bicycle_infrastructure_final = TRUE,
-    cycling_allowed = TRUE
-WHERE
-    id IN (
-        SELECT
-            id
-        FROM
-            potential_bicycle_gaps
-    );
-
+-- Update osm_road_edges with the identified gaps
 UPDATE
     osm_road_edges o
 SET
+    bicycle_infrastructure_final = TRUE,
+    cycling_allowed = TRUE,
     bicycle_protected = g.bicycle_protected,
     bicycle_gap = g.bicycle_gap,
     along_street = g.along_street
@@ -128,6 +96,7 @@ FROM
 WHERE
     o.id = g.id;
 
+-- Clean up by dropping the view and temporary table
 DROP VIEW IF EXISTS bicycle_nodes;
 
 DROP TABLE IF EXISTS potential_bicycle_gaps;

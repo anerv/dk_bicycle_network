@@ -12,6 +12,10 @@ ADD
 ADD
     COLUMN bikeinfra_both_sides BOOLEAN DEFAULT NULL;
 
+DROP INDEX IF EXISTS osm_road_edges_id_idx,
+osm_road_edges_source_idx,
+osm_road_edges_target_idx;
+
 UPDATE
     osm_road_edges
 SET

@@ -18,7 +18,6 @@ connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_h
 
 dbf.run_query_pg("sql/09_interpolate_missing_tags.sql", connection)
 
-
 q = f"SELECT id, highway, maxspeed_assumed FROM osm_road_edges WHERE maxspeed_assumed = 30 LIMIT 10;"
 
 test = dbf.run_query_pg(q, connection)
@@ -29,7 +28,6 @@ connection.close()
 
 with open("vacuum_analyze.py") as f:
     exec(f.read())
-
 
 print("Script 09 complete!")
 # %%

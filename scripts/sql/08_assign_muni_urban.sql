@@ -1,31 +1,26 @@
-DROP INDEX IF EXISTS muni_geom_idx;
+DROP INDEX IF EXISTS muni_geom_idx,
+urban_buffer_geom_idx,
+summerhouse_buffer_geom_idx,
+indu_buffer_geom_idx;
 
-DROP MATERIALIZED VIEW IF EXISTS urban_buffer;
+DROP MATERIALIZED VIEW IF EXISTS urban_buffer,
+summerhouse_buffer,
+industrial_buffer;
 
-DROP MATERIALIZED VIEW IF EXISTS summerhouse_buffer;
-
-DROP MATERIALIZED VIEW IF EXISTS industrial_buffer;
-
-DROP TABLE IF EXISTS urban_areas;
-
-DROP TABLE IF EXISTS summerhouse_areas;
-
-DROP TABLE IF EXISTS industrial_areas;
-
-DROP TABLE IF EXISTS urban_areas_dissolved;
-
-DROP TABLE IF EXISTS summerhouse_areas_dissolved;
-
-DROP TABLE IF EXISTS industrial_areas_dissolved;
+-- Drop tables if they exist
+DROP TABLE IF EXISTS urban_areas,
+summerhouse_areas,
+industrial_areas,
+urban_areas_dissolved,
+summerhouse_areas_dissolved,
+industrial_areas_dissolved;
 
 CREATE INDEX muni_geom_idx ON muni_boundaries USING GIST (geometry);
 
+-- Update osm_road_edges: Drop and add municipality and urban columns
 ALTER TABLE
     osm_road_edges DROP COLUMN IF EXISTS municipality,
-    DROP COLUMN IF EXISTS urban;
-
-ALTER TABLE
-    osm_road_edges
+    DROP COLUMN IF EXISTS urban,
 ADD
     COLUMN municipality VARCHAR DEFAULT NULL,
 ADD
@@ -246,20 +241,13 @@ FROM
 WHERE
     ST_Within(o.geometry, u.geometry);
 
-DROP MATERIALIZED VIEW IF EXISTS urban_buffer;
+DROP MATERIALIZED VIEW IF EXISTS urban_buffer,
+summerhouse_buffer,
+industrial_buffer;
 
-DROP MATERIALIZED VIEW IF EXISTS summerhouse_buffer;
-
-DROP MATERIALIZED VIEW IF EXISTS industrial_buffer;
-
-DROP TABLE IF EXISTS urban_areas;
-
-DROP TABLE IF EXISTS summerhouse_areas;
-
-DROP TABLE IF EXISTS industrial_areas;
-
-DROP TABLE IF EXISTS urban_areas_dissolved;
-
-DROP TABLE IF EXISTS summerhouse_areas_dissolved;
-
-DROP TABLE IF EXISTS industrial_areas_dissolved;
+DROP TABLE IF EXISTS urban_areas,
+summerhouse_areas,
+industrial_areas,
+urban_areas_dissolved,
+summerhouse_areas_dissolved,
+industrial_areas_dissolved;

@@ -1,3 +1,7 @@
+CREATE INDEX IF NOT EXISTS osm_road_edges_source_idx ON osm_road_edges (source);
+
+CREATE INDEX IF NOT EXISTS osm_road_edges_target_idx ON osm_road_edges (target);
+
 CREATE TABLE crossings AS (
     SELECT
         *

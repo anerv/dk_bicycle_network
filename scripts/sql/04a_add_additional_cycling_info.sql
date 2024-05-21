@@ -15,11 +15,11 @@ ADD
 ADD
     COLUMN along_street BOOLEAN DEFAULT FALSE,
 ADD
-    COLUMN bicycle_infrastructure_final BOOLEAN DEFAULT FALSE
+    COLUMN bicycle_infrastructure_final BOOLEAN DEFAULT FALSE,
 ADD
     COLUMN bicycle_infrastructure_separate BOOLEAN DEFAULT NULL;
 
--- *** Fill bicycle_infra_final based on matching ***
+-- Fill bicycle_infrastructure_final
 UPDATE
     osm_road_edges
 SET
@@ -28,6 +28,7 @@ WHERE
     bicycle_infrastructure IS TRUE
     OR matched IS TRUE;
 
+-- Fill bicycle_protected
 UPDATE
     osm_road_edges
 SET
@@ -36,7 +37,7 @@ WHERE
     bicycle_protected IS NULL
     AND geodk_category = 'Cykelsti langs vej';
 
--- *** Fill column car_traffic ***
+-- Fill column car_traffic
 UPDATE
     osm_road_edges
 SET
@@ -58,30 +59,23 @@ WHERE
         'motorway_link',
         'service',
         'services',
-        'track'
+        'track',
+        'unclassified'
     )
     AND (
         access NOT IN ('no', 'restricted')
         OR access IS NULL
     )
-    OR (
-        highway = 'unclassified'
-        AND (
-            motorcar <> 'no'
-            OR motorcar IS NULL
-        )
-        AND (
-            motor_vehicle <> 'no'
-            OR motor_vehicle IS NULL
-        )
-        AND (
-            access NOT IN ('no', 'restricted')
-            OR access IS NULL
-        )
+    AND (
+        motorcar <> 'no'
+        OR motorcar IS NULL
+    )
+    AND (
+        motor_vehicle <> 'no'
+        OR motor_vehicle IS NULL
     );
 
--- *** Fill column cycling allowed ***
--- Where cycling is ALLOWED - does not mean it is bikefriendly
+-- Fill column cycling_allowed where cycling is ALLOWED
 UPDATE
     osm_road_edges
 SET
@@ -97,8 +91,6 @@ WHERE
     OR bicycle_infrastructure_final = TRUE
     OR (
         highway IN (
-            -- 'trunk',
-            -- 'trunk_link',
             'tertiary',
             'tertiary_link',
             'secondary',
@@ -120,70 +112,42 @@ WHERE
         )
     );
 
--- Cycling not allowed/possible on steps
+-- Cycling not allowed/possible on steps and other restrictions
 UPDATE
     osm_road_edges
 SET
     cycling_allowed = FALSE
 WHERE
-    highway IN ('steps');
-
-UPDATE
-    osm_road_edges
-SET
-    cycling_allowed = FALSE
-WHERE
-    access IN (
-        'no',
-        'private',
-        'foresty',
-        'agricultural',
-        'customers',
-        'residents',
-        'delivery',
-        'private;customers',
-        'permit',
-        'permit2'
+    highway = 'steps'
+    OR (
+        access IN (
+            'no',
+            'private',
+            'foresty',
+            'agricultural',
+            'customers',
+            'residents',
+            'delivery',
+            'private;customers',
+            'permit',
+            'permit2'
+        )
+        AND (
+            bicycle IS NULL
+            OR bicycle <> 'yes'
+        )
+        AND bicycle_infrastructure_final IS FALSE
     )
-    AND (
-        bicycle IS NULL
-        OR bicycle <> 'yes'
-    )
-    AND bicycle_infrastructure_final IS FALSE;
-
--- Cycling not allowed on motorroads
-UPDATE
-    osm_road_edges
-SET
-    cycling_allowed = FALSE
-WHERE
-    motorroad IN ('yes');
-
-UPDATE
-    osm_road_edges
-SET
-    cycling_allowed = FALSE
-WHERE
-    (
-        cycleway IN ('separate', 'use_sidepath')
-        OR "cycleway:left" IN ('separate', 'use_sidepath')
-        OR "cycleway:right" IN ('separate', 'use_sidepath')
-        OR "cycleway:both" IN ('separate', 'use_sidepath')
-    )
-    AND bicycle_infrastructure_final IS FALSE;
-
--- Identify matched edges where bicycle infrastructure is mapped separately (for bicycle infra and cycling allowed)
-UPDATE
-    osm_road_edges
-SET
-    cycling_allowed = FALSE
-WHERE
-    (
-        bicycle IN ('use_sidepath', 'no', 'separate')
-        OR cycleway IN ('use_sidepath', 'separate')
-    )
-    AND bicycle_infrastructure IS FALSE
-    AND bicycle_infrastructure_final IS TRUE;
+    OR motorroad = 'yes'
+    OR (
+        (
+            cycleway IN ('separate', 'use_sidepath')
+            OR "cycleway:left" IN ('separate', 'use_sidepath')
+            OR "cycleway:right" IN ('separate', 'use_sidepath')
+            OR "cycleway:both" IN ('separate', 'use_sidepath')
+        )
+        AND bicycle_infrastructure_final IS FALSE
+    );
 
 -- Declassify bicycle infrastructure matched from GeoDK but matched separately
 UPDATE
@@ -199,26 +163,26 @@ WHERE
     )
     AND bicycle_infrastructure_final IS TRUE;
 
--- Declassify highways and motorroads classifed as bicycle infrastructure only based on GeoDanmark data
+-- Declassify highways and motorroads classified as bicycle infrastructure only based on GeoDanmark data
 UPDATE
     osm_road_edges
 SET
-    cycling_allowed = FALSE
-WHERE
-    matched IS TRUE
-    AND highway IN ('motorway', 'motorway_link')
-    AND bicycle_infrastructure IS FALSE;
-
-UPDATE
-    osm_road_edges
-SET
+    cycling_allowed = FALSE,
     bicycle_infrastructure_final = FALSE
 WHERE
     matched IS TRUE
-    AND motorroad IN ('yes')
-    AND bicycle_infrastructure IS FALSE;
+    AND (
+        (
+            highway IN ('motorway', 'motorway_link')
+            AND bicycle_infrastructure IS FALSE
+        )
+        OR (
+            motorroad = 'yes'
+            AND bicycle_infrastructure IS FALSE
+        )
+    );
 
--- **** FILL COLUMN bike infra separate ****
+-- Fill bicycle_infrastructure_separate
 UPDATE
     osm_road_edges
 SET
@@ -233,21 +197,15 @@ WHERE
         OR "cycleway:both" IN ('separate', 'use_sidepath')
     );
 
--- *** FILL COLUMN ALONG STREET ***
+-- Fill along_street based on car_traffic and matched columns
 --Determining whether the segment of cycling infrastructure runs along a street or not
 UPDATE
     osm_road_edges
 SET
     along_street = TRUE
 WHERE
-    car_traffic = TRUE;
-
-UPDATE
-    osm_road_edges
-SET
-    along_street = TRUE
-WHERE
-    matched IS TRUE;
+    car_traffic = TRUE
+    OR matched = TRUE;
 
 CREATE TABLE buffered_car_roads AS
 SELECT

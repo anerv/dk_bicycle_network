@@ -1,40 +1,45 @@
+-- Drop existing table if any
 DROP TABLE IF EXISTS nodes;
 
+-- Rename and update table and columns
 ALTER TABLE
     osm_road_edges_vertices_pgr RENAME TO nodes;
 
 ALTER TABLE
     nodes RENAME COLUMN the_geom TO geometry;
 
--- TRANSFER OSM ID TO VERTICES
+-- Add column for OSM ID
 ALTER TABLE
     nodes
 ADD
     COLUMN osm_id BIGINT DEFAULT NULL;
 
+-- Transfer OSM ID to vertices
+WITH updated_osm_ids AS (
+    SELECT
+        n.id,
+        COALESCE(r1.osm_target_id, r2.osm_source_id) AS new_osm_id
+    FROM
+        nodes n
+        JOIN osm_road_edges r1 ON n.id = r1.target
+        LEFT JOIN osm_road_edges r2 ON n.id = r2.source
+    WHERE
+        n.osm_id IS NULL
+)
 UPDATE
-    nodes
+    nodes n
 SET
-    osm_id = r.osm_target_id
+    osm_id = u.new_osm_id
 FROM
-    osm_road_edges r
+    updated_osm_ids u
 WHERE
-    nodes.id = r.target;
+    n.id = u.id;
 
-UPDATE
-    nodes i
-SET
-    osm_id = r.osm_source_id
-FROM
-    osm_road_edges r
-WHERE
-    i.id = r.source
-    AND i.osm_id IS NULL;
-
--- Classify nodes
-CREATE TABLE intersection_tags AS
+-- Classify nodes based on intersection tags
+CREATE TEMP TABLE intersection_tags AS
 SELECT
-    *
+    *,
+    NULL :: VARCHAR AS inter_type
 FROM
     planet_osm_point
 WHERE
@@ -50,56 +55,38 @@ WHERE
     )
     OR "crossing:island" = 'yes';
 
-ALTER TABLE
-    intersection_tags
-ADD
-    COLUMN inter_type VARCHAR DEFAULT NULL;
-
 UPDATE
     intersection_tags
 SET
-    inter_type = 'unregulated'
-WHERE
-    (
-        highway NOT IN ('traffic_signals')
-        OR highway IS NULL
-    )
-    AND (
-        crossing IN ('uncontrolled', 'unmarked')
-        OR crossing IS NULL
-    )
-    OR (
-        highway NOT IN ('traffic_signals')
-        OR highway IS NULL
-    )
-    AND (
-        crossing NOT IN (
-            'zebra',
-            'marked',
-            'controlled',
-            'traffic_signals'
+    inter_type = CASE
+        WHEN (
+            highway IS DISTINCT
+            FROM
+                'traffic_signals'
+                AND (
+                    crossing IS NULL
+                    OR crossing IN ('uncontrolled', 'unmarked')
+                )
         )
-        OR crossing IS NULL
-    );
+        OR (
+            highway IS DISTINCT
+            FROM
+                'traffic_signals'
+                AND crossing NOT IN (
+                    'zebra',
+                    'marked',
+                    'controlled',
+                    'traffic_signals'
+                )
+        ) THEN 'unregulated'
+        WHEN crossing IN ('marked', 'zebra', 'island')
+        OR "crossing:island" = 'yes' THEN 'marked'
+        WHEN crossing = 'traffic_signals'
+        OR highway = 'traffic_signals' THEN 'regulated'
+        ELSE inter_type
+    END;
 
-UPDATE
-    intersection_tags
-SET
-    inter_type = 'marked'
-WHERE
-    crossing IN ('marked', 'zebra', 'island')
-    OR 'crossing:island' IN ('yes');
-
---OR flashing_lights IN ('yes','sensor','button','always');
-UPDATE
-    intersection_tags
-SET
-    inter_type = 'regulated'
-WHERE
-    crossing = 'traffic_signals'
-    OR highway = 'traffic_signals';
-
--- Transfer to nodes
+-- Transfer intersection tags to nodes
 ALTER TABLE
     nodes
 ADD
@@ -120,29 +107,26 @@ FROM
 WHERE
     n.osm_id = it.osm_id;
 
--- TO what to do with marked crossings that do not fall on nodes?
-CREATE TABLE node_degrees AS WITH all_node_occurences AS (
+-- Compute node degrees
+CREATE TEMP TABLE node_degrees AS WITH all_node_occurrences AS (
     SELECT
-        source AS node,
-        id
+        source AS node
     FROM
         osm_road_edges
     UNION
+    ALL
     SELECT
-        target AS node,
-        id
+        target AS node
     FROM
         osm_road_edges
 )
 SELECT
     node,
-    COUNT(*) AS c
+    COUNT(*) AS C
 FROM
-    all_node_occurences
+    all_node_occurrences
 GROUP BY
-    node
-ORDER BY
-    c DESC;
+    node;
 
 ALTER TABLE
     nodes
@@ -158,8 +142,6 @@ FROM
 WHERE
     n.id = d.node;
 
-DROP TABLE IF EXISTS node_degrees;
-
-DROP TABLE IF EXISTS all_node_occurences;
-
-DROP TABLE IF EXISTS intersection_tags;
+-- Drop temporary tables
+DROP TABLE IF EXISTS node_degrees,
+intersection_tags;

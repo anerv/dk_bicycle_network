@@ -1,20 +1,20 @@
-DROP TABLE IF EXISTS bus_route_ways;
+-- Drop unnecessary tables if they exist
+DROP TABLE IF EXISTS bus_route_ways,
+bus_roads,
+bus_stops;
 
-DROP TABLE IF EXISTS bus_roads;
-
-DROP TABLE IF EXISTS bus_stops;
-
+-- Update osm_road_edges: Drop and add bus_route column
 ALTER TABLE
-    osm_road_edges DROP COLUMN IF EXISTS bus_route;
-
-ALTER TABLE
-    osm_road_edges
+    osm_road_edges DROP COLUMN IF EXISTS bus_route,
 ADD
     COLUMN bus_route BOOLEAN DEFAULT NULL;
 
-CREATE TABLE bus_route_ways AS WITH route_ways AS (
+-- Create a temporary table for bus_route_ways
+CREATE TEMP TABLE bus_route_ways AS WITH route_ways AS (
     SELECT
-        *
+        way_id,
+        geom,
+        unnest(rel_ids) AS rel_id
     FROM
         highways
     WHERE
@@ -22,28 +22,20 @@ CREATE TABLE bus_route_ways AS WITH route_ways AS (
 ),
 bus_routes AS (
     SELECT
-        relation_id,
-        route,
-        NAME,
-        network
+        relation_id
     FROM
         routes
     WHERE
         route = 'bus'
 )
 SELECT
-    *
+    rw.way_id,
+    rw.geom
 FROM
-    (
-        SELECT
-            way_id,
-            geom,
-            unnest(rel_ids) rel_id
-        FROM
-            route_ways
-    ) AS rw
-    JOIN bus_routes AS br ON rw.rel_id = br.relation_id;
+    route_ways rw
+    JOIN bus_routes br ON rw.rel_id = br.relation_id;
 
+-- Update osm_road_edges based on bus_route_ways
 UPDATE
     osm_road_edges
 SET
@@ -56,60 +48,7 @@ WHERE
             bus_route_ways
     );
 
--- CREATE TABLE bus_stops AS (
---     SELECT
---         osm_id AS node_id,
---         ST_Transform(way, 25832) AS geometry
---     FROM
---         planet_osm_point
---     WHERE
---         highway = 'bus_stop'
--- );
--- CREATE INDEX bus_geom_idx ON bus_stops USING GIST (geometry);
--- CREATE TABLE bus_roads AS WITH roads AS (
---     SELECT
---         id,
---         geometry
---     FROM
---         osm_road_edges
---     WHERE
---         car_traffic IS TRUE
--- )
--- SELECT
---     bus_stops.node_id,
---     bus_stops.geometry AS geom,
---     roads.id,
---     roads.geometry,
---     roads.dist
--- FROM
---     bus_stops
---     CROSS JOIN LATERAL (
---         SELECT
---             roads.id,
---             roads.geometry,
---             roads.geometry < -> bus_stops.geometry AS dist
---         FROM
---             roads
---         ORDER BY
---             dist
---         LIMIT
---             1
---     ) roads;
--- UPDATE
---     osm_road_edges
--- SET
---     bus_route = TRUE
--- WHERE
---     id IN (
---         SELECT
---             id
---         FROM
---             bus_roads
---         WHERE
---             dist <= 20
---     );
-DROP TABLE IF EXISTS bus_route_ways;
-
-DROP TABLE IF EXISTS bus_roads;
-
-DROP TABLE IF EXISTS bus_stops;
+-- Drop temporary tables
+DROP TABLE IF EXISTS bus_route_ways,
+bus_roads,
+bus_stops;
