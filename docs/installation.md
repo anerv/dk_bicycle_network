@@ -11,7 +11,7 @@ First [clone](https://docs.github.com/en/repositories/creating-and-managing-repo
 
 To avoid cloning the history and larger branches with example data and plots, use:
 
-```
+```bash
 git clone -b main --single-branch [url to GitHub repository] --depth 1
 ```
 
@@ -61,14 +61,14 @@ On mac, run:
 
 To ensure that all packages needed for the analysis are installed, it is recommended to create and activate a new conda environment using the `environment.yml`:
 
-```
+```bash
 conda env create --file=environment.yml
 conda activate dk_bike_network
 ```
 
 If this fails, the environment can be created by running:
 
-```
+```bash
 conda config --prepend channels conda-forge
 conda create -n dk_bike_network --strict-channel-priority geopandas psycopg2 sqlalchemy geoalchemy2 pyarrow pyyaml ipykernel
 ```
@@ -79,7 +79,7 @@ conda create -n dk_bike_network --strict-channel-priority geopandas psycopg2 sql
 
 The repository has been set up using the structure described in the [Good Research Developer](https://goodresearch.dev/setup.html). Once the repository has been downloaded, activate the dk_bike_network environment, navigate to the main folder in a terminal window and run the commands:
 
-```
+```bash
 conda activate dk_bike_network
 conda install pip
 pip install -e .
