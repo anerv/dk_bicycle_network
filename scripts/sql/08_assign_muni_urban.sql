@@ -13,7 +13,8 @@ summerhouse_areas,
 industrial_areas,
 urban_areas_dissolved,
 summerhouse_areas_dissolved,
-industrial_areas_dissolved;
+industrial_areas_dissolved,
+urban_areas_export;
 
 CREATE INDEX muni_geom_idx ON muni_boundaries USING GIST (geometry);
 
@@ -253,4 +254,4 @@ summerhouse_areas_dissolved,
 industrial_areas_dissolved;
 
 ALTER TABLE
-    urban_areas_dissolved RENAME TO urban_areas;
+    urban_areas_dissolved RENAME TO urban_areas_export;

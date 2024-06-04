@@ -54,6 +54,13 @@ nodes = gpd.GeoDataFrame.from_postgis(q, engine, geom_col="geometry")
 
 nodes.to_parquet("../data/processed/osm_road_nodes.parquet")
 
+del nodes
+
+q = "SELECT * FROM urban_areas_export;"
+urban_areas = gpd.GeoDataFrame.from_postgis(q, engine, geom_col="geometry")
+
+urban_areas.to_parquet("../data/processed/urban_areas.parquet")
+
 connection.close()
 
 print("Tables exported!")
