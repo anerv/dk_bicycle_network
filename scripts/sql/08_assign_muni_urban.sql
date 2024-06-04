@@ -248,6 +248,9 @@ industrial_buffer;
 DROP TABLE IF EXISTS urban_areas,
 summerhouse_areas,
 industrial_areas,
-urban_areas_dissolved,
+--urban_areas_dissolved,
 summerhouse_areas_dissolved,
 industrial_areas_dissolved;
+
+ALTER TABLE
+    urban_areas_dissolved RENAME TO urban_areas;
