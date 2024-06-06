@@ -130,6 +130,7 @@ Type: True/False.
 
 Indicates that a road has bicycle infrastructure, but that it has been mapped separately (i.e. with own geometries).
 Useful for distinguishing between whether cycling is forbidded due to the road class or if it is because a bicycle track should be used.
+OBS! This data is often missing.
 
 Type: True/False.
 

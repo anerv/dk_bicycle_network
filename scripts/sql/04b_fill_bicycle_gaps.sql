@@ -96,7 +96,6 @@ FROM
 WHERE
     o.id = g.id;
 
--- Clean up by dropping the view and temporary table
 DROP VIEW IF EXISTS bicycle_nodes;
 
 DROP TABLE IF EXISTS potential_bicycle_gaps;

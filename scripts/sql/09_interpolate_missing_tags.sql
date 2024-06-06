@@ -67,49 +67,6 @@ SET
         AND cycling_allowed IS TRUE THEN 'paved'
     END;
 
--- UPDATE
---     osm_road_edges
--- SET
---     bicycle_surface_assumed = "cycleway:surface"
--- WHERE
---     "cycleway:surface" IS NOT NULL;
--- UPDATE
---     osm_road_edges
--- SET
---     bicycle_surface_assumed = surface
--- WHERE
---     surface IS NOT NULL
---     AND bicycle_surface_assumed IS NULL;
--- UPDATE
---     osm_road_edges
--- SET
---     bicycle_surface_assumed = 'paved'
--- WHERE
---     bicycle_surface_assumed IS NULL
---     AND geodk_surface = 'Befæstet';
--- Cycling surface is assumed paved if along a car street    
--- UPDATE
---     osm_road_edges
--- SET
---     bicycle_surface_assumed = 'paved'
--- WHERE
---     highway IN (
---         'trunk',
---         'trunk_link',
---         'tertiary',
---         'tertiary_link',
---         'secondary',
---         'secondary_link',
---         'living_street',
---         'primary',
---         'primary_link',
---         'residential',
---         --'service',
---         'motorway',
---         'motorway_link'
---     )
---     AND bicycle_surface_assumed IS NULL
---     AND cycling_allowed IS TRUE;
 -- LANES assumed
 -- Based on Wasserman, https: / / wiki.openstreetmap.org / wiki / Key :lanes and most typical values for each category
 UPDATE
@@ -152,36 +109,6 @@ SET
         ELSE lanes_assumed
     END;
 
--- UPDATE
---     osm_road_edges
--- SET
---     lanes_assumed = lanes :: INT
--- WHERE
---     lanes IS NOT NULL;
--- UPDATE
---     osm_road_edges
--- SET
---     lanes_assumed = "lanes:backward" :: INT + "lanes:forward" :: INT
--- WHERE
---     lanes IS NULL
---     AND "lanes:backward" IS NOT NULL
---     AND "lanes:forward" IS NOT NULL;
--- UPDATE
---     osm_road_edges
--- SET
---     lanes_assumed = "lanes:forward" :: INT
--- WHERE
---     lanes IS NULL
---     AND "lanes:backward" IS NULL
---     AND "lanes:forward" IS NOT NULL;
--- UPDATE
---     osm_road_edges
--- SET
---     lanes_assumed = "lanes:backward" :: INT
--- WHERE
---     lanes IS NULL
---     AND "lanes:forward" IS NULL
---     AND "lanes:backward" IS NOT NULL;
 DO $$
 DECLARE
     car_lanes_null INT;
@@ -264,13 +191,6 @@ SET
         ELSE maxspeed_assumed
     END;
 
--- UPDATE
---     osm_road_edges
--- SET
---     maxspeed_assumed = maxspeed :: INT
--- WHERE
---     maxspeed IS NOT NULL
---     AND maxspeed NOT IN ('none', 'DK:urban', 'signals');
 DO $$
 DECLARE
     speed_null INT;

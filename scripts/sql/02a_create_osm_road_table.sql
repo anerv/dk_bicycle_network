@@ -14,11 +14,6 @@ CREATE TABLE osm_roads AS (
 ALTER TABLE
     osm_roads RENAME COLUMN way TO geometry;
 
--- ALTER TABLE
---     osm_roads
--- ALTER COLUMN
---     geometry TYPE Geometry(LineString, 25832) USING ST_Transform(geometry, 25832);
---CREATE INDEX roads_geom_idx ON osm_roads USING GIST (geometry);
 ALTER TABLE
     dk_2po_4pgr DROP COLUMN IF EXISTS "clazz",
     DROP COLUMN IF EXISTS "osm_meta",
@@ -36,11 +31,9 @@ CREATE TABLE osm_road_edges AS (
         LEFT JOIN osm_roads r ON e.osm_id = r.osm_id_road
 );
 
--- DROP GEOMETRY COLUMN FROM ROADS TABLE
 ALTER TABLE
     osm_road_edges DROP COLUMN IF EXISTS "geometry";
 
---DROP COLUMN IF EXISTS "osm_id_road";
 ALTER TABLE
     osm_road_edges RENAME COLUMN geom_way TO geometry;
 

@@ -1,4 +1,4 @@
-# Settings used in data processsing
+# Settings for connecting to database and filepaths for input data
 
 CRS: 'EPSG:25832'
 
