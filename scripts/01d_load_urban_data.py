@@ -35,8 +35,6 @@ all_zones["area_class"] = None
 all_zones.loc[all_zones.zonestatus == "Byzone", "area_class"] = "urban"
 all_zones.loc[all_zones.zonestatus == "Sommerhusområde", "area_class"] = "summerhouse"
 
-# %%
-
 building_areas = gpd.read_file(urban_fp2)
 
 assert building_areas.crs == crs
@@ -60,7 +58,7 @@ building_areas.loc[building_areas.bebyggelsestype == "kolonihave", "area_class"]
 building_areas.loc[
     building_areas.bebyggelsestype == "sommerhusområde", "area_class"
 ] = "summerhouse"
-# %%
+
 # *** EXPORT ***
 
 print("Saving data to Postgres!")

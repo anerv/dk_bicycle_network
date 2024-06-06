@@ -1,5 +1,4 @@
 # %%
-
 import os
 import geopandas as gpd
 
@@ -16,7 +15,6 @@ with open(r"../config.yml") as file:
     db_password = parsed_yaml_file["db_password"]
     db_host = parsed_yaml_file["db_host"]
     db_port = parsed_yaml_file["db_port"]
-
 
 print("Settings loaded!")
 
@@ -35,8 +33,6 @@ dbf.run_query_pg("sql/11c_export.sql", connection)
 connection.close()
 
 print("Export views ready!")
-
-# connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
 
 engine = dbf.connect_alc(db_name, db_user, db_password, db_port=db_port)
 
