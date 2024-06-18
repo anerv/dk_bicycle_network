@@ -73,6 +73,12 @@ WHERE
         'steps'
     );
 
+DELETE FROM
+    osm_road_edges
+WHERE
+    highway = 'service'
+    AND service = 'driveway';
+
 --Drop irrelevant rows
 DELETE FROM
     osm_road_edges
