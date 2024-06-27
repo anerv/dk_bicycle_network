@@ -213,7 +213,7 @@ SET
                 'lane'
             )
             AND bicycle_infrastructure_final IS TRUE
-        ) THEN FALSE
+        ) THEN TRUE
         WHEN "cycleway:both" IN (
             'track',
             'opposite_track',
