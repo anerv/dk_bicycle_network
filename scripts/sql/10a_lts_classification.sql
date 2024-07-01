@@ -70,8 +70,7 @@ WHERE
     )
     OR (
         -- implicit also includes bicycle class 3 here
-        maxspeed_assumed <= 20
-        AND cycling_allowed IS TRUE
+        maxspeed_assumed <= 20 --AND cycling_allowed IS TRUE
         AND lanes_assumed <= 3
         AND (
             bicycle_infrastructure_final IS TRUE
@@ -179,7 +178,10 @@ WHERE
         AND lanes_assumed = 3
     )
     OR (
-        bicycle_class = 3
+        (
+            bicycle_class = 3
+            OR bicycle_class IS NULL -- added obz
+        )
         AND highway IN (
             'secondary',
             'secondary_link',
