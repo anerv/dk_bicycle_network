@@ -63,7 +63,19 @@ WHERE
         'unclassified'
     )
     AND (
-        access NOT IN ('no', 'restricted')
+        access NOT IN (
+            'no',
+            'restricted',
+            'private',
+            'foresty',
+            'agricultural',
+            'customers',
+            'residents',
+            'delivery',
+            'private;customers',
+            'permit',
+            'permit2'
+        )
         OR access IS NULL
     )
     AND (
