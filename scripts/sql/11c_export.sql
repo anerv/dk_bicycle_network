@@ -12,15 +12,50 @@ SET
     reverse_cost = km * kmh;
 
 ALTER TABLE
-    osm_road_edges DROP COLUMN IF EXISTS lts_viz,
-    DROP COLUMN IF EXISTS bicycle_category_dk;
-
-ALTER TABLE
     osm_road_edges
 ADD
-    COLUMN lts_viz VARCHAR,
+    COLUMN IF NOT EXISTS lts_viz VARCHAR,
 ADD
-    COLUMN bicycle_category_dk VARCHAR;
+    COLUMN IF NOT EXISTS bicycle_category_dk VARCHAR,
+ADD
+    COLUMN IF NOT EXISTS bicycle_connector VARCHAR;
+
+UPDATE
+    osm_road_edges
+SET
+    bicycle_connector = lts
+WHERE
+    highway NOT IN (
+        'motorway',
+        'trunk',
+        'motorway_link',
+        'trunk_link'
+    )
+    AND motorroad IS DISTINCT
+FROM
+    'yes'
+    AND (
+        access NOT IN (
+            'no',
+            'private',
+            'foresty',
+            'agricultural',
+            'customers',
+            'residents',
+            'delivery',
+            'private;customers',
+            'permit',
+            'permit2'
+        )
+        OR access IS NULL
+    )
+    AND (
+        bicycle IN ('no', 'use_sidepath', 'separate')
+        OR cycleway IN ('use_sidepath', 'separate')
+        OR "cycleway:left" IN ('use_sidepath', 'separate')
+        OR "cycleway:right" IN ('use_sidepath', 'separate')
+        OR "cycleway:both" IN ('use_sidepath', 'separate')
+    );
 
 UPDATE
     osm_road_edges
@@ -151,6 +186,7 @@ CREATE TABLE osm_edges_export AS (
         bicycle_class,
         bicycle_protected,
         bicycle_infrastructure_separate,
+        bicycle_connector,
         bridge,
         tunnel,
         lts,
