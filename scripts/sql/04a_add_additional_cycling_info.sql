@@ -172,6 +172,9 @@ WHERE
     AND (
         bicycle IN ('use_sidepath', 'no', 'separate')
         OR cycleway IN ('use_sidepath', 'separate')
+        OR "cycleway:left" IN ('use_sidepath', 'separate')
+        OR "cycleway:right" IN ('use_sidepath', 'separate')
+        OR "cycleway:both" IN ('use_sidepath', 'separate')
     )
     AND bicycle_infrastructure_final IS TRUE;
 
