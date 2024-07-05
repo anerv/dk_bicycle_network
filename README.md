@@ -19,14 +19,14 @@ The repository includes data from the following sources:
 © OpenStreetMap contributors  
 License: [Open Data Commons Open Database License](https://opendatacommons.org/licenses/odbl/)
 
-Downloaded winter 2024 from GeoFabrik.
+Downloaded summer 2024 from GeoFabrik.
 
 ### GeoDanmark
 
 Data from GeoDanmark © SDFI (Styrelsen for Dataforsyning og Infrastruktur og Danske kommuner)  
 License: [GeoDanmark](https://www.geodanmark.dk/wp-content/uploads/2022/08/Vilkaar-for-brug-af-frie-geografiske-data_GeoDanmark-grunddata-august-2022.pdf).
 
-Downloaded fall 2023.
+Downloaded summer 2024 from [Dataforsyningen](https://dataforsyningen.dk/).
 
 ### Bolig- og Planstyrelsen
 

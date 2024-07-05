@@ -11,7 +11,7 @@ db_password: 'aneitu'
 # filepaths for input data
 osm_fp: "/Users/anev/Library/CloudStorage/Dropbox/ITU/repositories/dk_bicycle_network/data/raw/road_networks/denmark-latest.osm.pbf" #'../data/raw/road_networks/denmark-latest.osm.pbf'
 
-geodk_fp: '../data/raw/road_networks/vejmidte.gpkg'
+geodk_fp: '../data/raw/road_networks/vejmidte_navn.gpkg'
 
 muni_fp: '../data/raw/study_area/muni_boundary.gpkg'
 
