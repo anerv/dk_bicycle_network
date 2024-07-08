@@ -15,48 +15,47 @@ ALTER TABLE
     osm_road_edges
 ADD
     COLUMN IF NOT EXISTS lts_viz VARCHAR,
+    -- ADD
+    --     COLUMN IF NOT EXISTS bicycle_connector VARCHAR
 ADD
-    COLUMN IF NOT EXISTS bicycle_category_dk VARCHAR,
-ADD
-    COLUMN IF NOT EXISTS bicycle_connector VARCHAR;
+    COLUMN IF NOT EXISTS bicycle_category_dk VARCHAR;
 
-UPDATE
-    osm_road_edges
-SET
-    bicycle_connector = lts
-WHERE
-    highway NOT IN (
-        'motorway',
-        'trunk',
-        'motorway_link',
-        'trunk_link'
-    )
-    AND motorroad IS DISTINCT
-FROM
-    'yes'
-    AND (
-        access NOT IN (
-            'no',
-            'private',
-            'foresty',
-            'agricultural',
-            'customers',
-            'residents',
-            'delivery',
-            'private;customers',
-            'permit',
-            'permit2'
-        )
-        OR access IS NULL
-    )
-    AND (
-        bicycle IN ('no', 'use_sidepath', 'separate')
-        OR cycleway IN ('use_sidepath', 'separate')
-        OR "cycleway:left" IN ('use_sidepath', 'separate')
-        OR "cycleway:right" IN ('use_sidepath', 'separate')
-        OR "cycleway:both" IN ('use_sidepath', 'separate')
-    );
-
+-- UPDATE
+--     osm_road_edges
+-- SET
+--     bicycle_connector = lts
+-- WHERE
+--     highway NOT IN (
+--         'motorway',
+--         'trunk',
+--         'motorway_link',
+--         'trunk_link'
+--     )
+--     AND motorroad IS DISTINCT
+-- FROM
+--     'yes'
+--     AND (
+--         access NOT IN (
+--             'no',
+--             'private',
+--             'foresty',
+--             'agricultural',
+--             'customers',
+--             'residents',
+--             'delivery',
+--             'private;customers',
+--             'permit',
+--             'permit2'
+--         )
+--         OR access IS NULL
+--     )
+--     AND (
+--         bicycle IN ('no', 'use_sidepath', 'separate')
+--         OR cycleway IN ('use_sidepath', 'separate')
+--         OR "cycleway:left" IN ('use_sidepath', 'separate')
+--         OR "cycleway:right" IN ('use_sidepath', 'separate')
+--         OR "cycleway:both" IN ('use_sidepath', 'separate')
+--     );
 UPDATE
     osm_road_edges
 SET
