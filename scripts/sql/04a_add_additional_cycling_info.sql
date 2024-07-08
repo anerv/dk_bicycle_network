@@ -167,8 +167,7 @@ UPDATE
 SET
     bicycle_infrastructure_final = FALSE
 WHERE
-    bicycle_infrastructure IS FALSE
-    AND cycling_allowed IS FALSE
+    bicycle_infrastructure IS FALSE --AND cycling_allowed IS FALSE
     AND (
         bicycle IN ('use_sidepath', 'no', 'separate')
         OR cycleway IN ('use_sidepath', 'separate')
