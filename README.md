@@ -26,7 +26,7 @@ Downloaded summer 2024 from GeoFabrik.
 Data from GeoDanmark © SDFI (Styrelsen for Dataforsyning og Infrastruktur og Danske kommuner)  
 License: [GeoDanmark](https://www.geodanmark.dk/wp-content/uploads/2022/08/Vilkaar-for-brug-af-frie-geografiske-data_GeoDanmark-grunddata-august-2022.pdf).
 
-Downloaded summer 2024 from [Dataforsyningen](https://dataforsyningen.dk/).
+Downloaded summer 2024 from [Datafordeler](https://datafordeler.dk/).
 
 ### Bolig- og Planstyrelsen
 

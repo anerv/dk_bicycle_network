@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS geodk_bike CASCADE;
+
 CREATE TABLE geodk_bike AS
 SELECT
     vejkode,
@@ -21,4 +23,4 @@ ALTER TABLE
 ALTER COLUMN
     geometry TYPE Geometry(LineString, 25832) USING ST_Transform(geometry, 25832);
 
-DROP TABLE vejmidte;
+DROP TABLE IF EXISTS vejmidte;
