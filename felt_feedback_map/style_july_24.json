@@ -7,9 +7,11 @@
       "confident_cyclists",
       "very_confident_cyclists",
       "paths_bike",
+      "dirt_road",
       "pedestrian",
       "no_cycling",
       "no_access"
+
     ],
     "labelAttribute": ["highway"],
     "showOther": false
@@ -42,6 +44,7 @@
       "no_access": "Ikke offentlig adgang",
       "no_cycling": "Cykling ikke tilladt (inkl. veje med separat cykelsti)",
       "paths_bike": "Stier - cykling tilladt",
+      "dirt_road": "Grusvej - cykling tilladt",
       "pedestrian": "Fodgængere",
       "very_confident_cyclists": "4. Uegnet for de fleste cyklister"
     }
@@ -53,6 +56,7 @@
       "rgb(255, 193, 0)",
       "rgb(249, 115, 0)",
       "rgb(167, 146, 119)",
+      "rgb(119, 105, 86)",
       "rgb(234, 216, 192)",
       "rgb(100, 99, 99)",
       "rgb(215, 216, 218)"
