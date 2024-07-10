@@ -28,9 +28,9 @@ dbf.run_query_pg("sql/11b_compute_oneway.sql", connection)
 
 print("Identified oneway roads and bicycle infrastructure!")
 
-dbf.run_query_pg("sql/11c_export.sql", connection)
-
-connection.close()
+result = dbf.run_query_pg("sql/11c_export.sql", connection)
+if result == "error":
+    print("Please fix error before rerunning and reconnect to the database")
 
 print("Export views ready!")
 
