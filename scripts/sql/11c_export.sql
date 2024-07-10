@@ -91,6 +91,7 @@ SET
             lts = 0
             AND all_access IS TRUE
         ) THEN 'paths_bike' --WHEN lts = 4 THEN 'no_cycling'
+        WHEN highway = 'track' THEN 'dirt_road'
         WHEN all_access IS FALSE THEN 'no_access'
     END;
 
