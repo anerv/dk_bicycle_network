@@ -185,7 +185,7 @@ CREATE TABLE osm_edges_export AS (
         bicycle_class,
         bicycle_protected,
         bicycle_infrastructure_separate,
-        bicycle_connector,
+        --bicycle_connector,
         bridge,
         tunnel,
         lts,
