@@ -19,7 +19,7 @@ with open(r"../config.yml") as file:
 print("Settings loaded!")
 
 connection = dbf.connect_pg(db_name, db_user, db_password, db_port, db_host=db_host)
-
+# %%
 dbf.run_query_pg("sql/11a_clean_up.sql", connection)
 
 print("Clean up done!")
@@ -28,7 +28,12 @@ dbf.run_query_pg("sql/11b_compute_oneway.sql", connection)
 
 print("Identified oneway roads and bicycle infrastructure!")
 
-result = dbf.run_query_pg("sql/11c_export.sql", connection)
+result = dbf.run_query_pg("sql/11c_prepare_export.sql", connection)
+if result == "error":
+    print("Please fix error before rerunning and reconnect to the database")
+
+# %%
+result = dbf.run_query_pg("sql/11d_create_export.sql", connection)
 if result == "error":
     print("Please fix error before rerunning and reconnect to the database")
 
