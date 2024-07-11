@@ -35,7 +35,7 @@ CREATE TABLE matching_geodk_osm._potential_gaps AS (
                 matching_geodk_osm._matched_nodes
         )
         AND (
-            bicycle <> 'no'
+            bicycle NOT IN ('no', 'use_sidepath')
             OR bicycle IS NULL
         )
         AND (
