@@ -165,7 +165,8 @@ WHERE
 UPDATE
     osm_road_edges
 SET
-    bicycle_infrastructure_final = FALSE
+    bicycle_infrastructure_final = FALSE,
+    cycling_allowed = FALSE
 WHERE
     bicycle_infrastructure IS FALSE --AND cycling_allowed IS FALSE
     AND (
@@ -175,7 +176,8 @@ WHERE
         OR "cycleway:right" IN ('use_sidepath', 'separate')
         OR "cycleway:both" IN ('use_sidepath', 'separate')
     )
-    AND bicycle_infrastructure_final IS TRUE;
+    AND bicycle_infrastructure_final IS TRUE
+    AND matched IS TRUE;
 
 -- Declassify highways and motorroads classified as bicycle infrastructure only based on GeoDanmark data
 UPDATE
