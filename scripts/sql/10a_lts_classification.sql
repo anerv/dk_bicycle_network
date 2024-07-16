@@ -183,8 +183,8 @@ WHERE
             OR bicycle_class IS NULL -- added obz
         )
         AND highway IN (
-            'secondary',
-            'secondary_link',
+            'primary',
+            'primary_link',
             'secondary',
             'secondary_link',
             'tertiary',
